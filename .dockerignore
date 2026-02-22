@@ -1,0 +1,7 @@
+identia_venv/
+*.pyc
+__pycache__/
+.git/
+.env
+.dockerignore
+Dockerfile

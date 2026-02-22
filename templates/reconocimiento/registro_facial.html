@@ -1,0 +1,802 @@
+<!-- reconocimiento/templates/reconocimiento/registro_facial.html -->
+{% extends 'usuarios/base_menu_lateral.html' %}
+
+{% load static %}
+
+{% block content %}
+<style>
+    /* Estilos específicos para registro facial */
+    .registration-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .registration-wizard {
+        display: flex;
+        gap: 30px;
+        margin-top: 20px;
+    }
+    
+    .form-section {
+        flex: 1;
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .camera-section {
+        flex: 1;
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .camera-preview {
+        width: 100%;
+        height: 400px;
+        background: #1a1a1a;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        position: relative;
+    }
+    
+    #videoElement {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .face-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 70%;
+        height: 70%;
+        border: 3px dashed #6a11cb;
+        border-radius: 10px;
+        pointer-events: none;
+    }
+    
+    .capture-btn {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 10px;
+    }
+    
+    .capture-btn:disabled {
+        background: #95a5a6;
+        cursor: not-allowed;
+    }
+    
+    .capture-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
+    }
+    
+    .status-indicator {
+        padding: 10px 15px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .status-success {
+        background: #d5f4e6;
+        color: #27ae60;
+        border: 1px solid #27ae60;
+    }
+    
+    .status-error {
+        background: #fadbd8;
+        color: #e74c3c;
+        border: 1px solid #e74c3c;
+    }
+    
+    .status-warning {
+        background: #fef5e7;
+        color: #e67e22;
+        border: 1px solid #e67e22;
+    }
+    
+    .status-info {
+        background: #e8f4fd;
+        color: #2575fc;
+        border: 1px solid #2575fc;
+    }
+    
+    .capture-count {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+    }
+    
+    .face-preview {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #6a11cb;
+        margin: 10px auto;
+        display: none;
+    }
+    
+    .progress-bar {
+        height: 6px;
+        background: #eee;
+        border-radius: 3px;
+        margin-top: 15px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #27ae60, #6a11cb);
+        width: 0%;
+        transition: width 0.3s;
+    }
+    
+    /* Información DeepFace */
+    .deepface-info {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .deepface-icon {
+        font-size: 30px;
+    }
+    
+    .deepface-status {
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-left: auto;
+    }
+    
+    .status-ok {
+        background: #27ae60;
+    }
+    
+    .status-warning {
+        background: #e67e22;
+    }
+    
+    .status-error {
+        background: #e74c3c;
+    }
+    
+    /* Estilos del formulario (heredados) */
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #6a11cb;
+        box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
+    }
+    
+    .form-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .form-col {
+        flex: 1;
+    }
+    
+    .btn-guardar {
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .btn-guardar:hover {
+        background: #219653;
+    }
+    
+    .btn-cancelar {
+        background: #95a5a6;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: inline-block;
+    }
+    
+    .btn-cancelar:hover {
+        background: #7f8c8d;
+        color: white;
+    }
+    
+    .required::after {
+        content: " *";
+        color: #e74c3c;
+    }
+    
+    /* Mensaje de validación */
+    .validation-message {
+        padding: 10px;
+        border-radius: 6px;
+        margin: 10px 0;
+        font-size: 13px;
+        display: none;
+    }
+    
+    .validation-success {
+        background: #d5f4e6;
+        color: #27ae60;
+        border: 1px solid #27ae60;
+    }
+    
+    .validation-error {
+        background: #fadbd8;
+        color: #e74c3c;
+        border: 1px solid #e74c3c;
+    }
+</style>
+
+<div class="registration-container">
+    <div class="crud-header">
+        <h2 style="color: #6a11cb; margin: 0;">Registro con Reconocimiento Facial</h2>
+        <div class="page-actions">
+            <a href="{% url 'usuarios:buscar_trabajadores' %}" class="btn-cancelar">
+                ← Volver a lista
+            </a>
+        </div>
+    </div>
+    
+    <!-- Mensajes del sistema -->
+    {% if messages %}
+    <div class="messages" style="margin-bottom: 20px;">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Información DeepFace -->
+    <div class="deepface-info">
+        <div class="deepface-icon">🤖</div>
+        <div>
+            <strong>Sistema de Reconocimiento Facial con DeepFace</strong>
+            <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">
+                Modelo: {{ deepface_config.model_name }} | Detector: {{ deepface_config.detector_backend }} | Umbral: {{ deepface_config.threshold }}
+            </p>
+        </div>
+        <div class="deepface-status {% if '✅' in facial_status %}status-ok{% else %}status-warning{% endif %}">
+            {{ facial_status }}
+        </div>
+    </div>
+    
+    <!-- Indicador de estado -->
+    <div id="statusIndicator" class="status-indicator status-info">
+        <span>🔵</span>
+        <span id="statusText">Complete el formulario y capture su rostro</span>
+    </div>
+    
+    <!-- Wizard de registro -->
+    <div class="registration-wizard">
+        <!-- Sección del formulario -->
+        <div class="form-section">
+            <h3 style="color: #6a11cb; margin-bottom: 20px;">
+                📝 Datos del Trabajador
+            </h3>
+            
+            <form id="registrationForm" method="POST" action="{% url 'reconocimiento:guardar_registro_completo' %}">
+                {% csrf_token %}
+                <input type="hidden" name="facial_embedding" id="facialEmbedding">
+                
+                <div class="form-group">
+                    <label for="cedula" class="required">Cédula *</label>
+                    <input type="text" id="cedula" name="cedula" class="form-control" 
+                           required maxlength="8" pattern="[0-9]{8}"
+                           oninput="validateForm()">
+                    <small class="form-text">8 dígitos sin espacios</small>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="nombres" class="required">Nombres *</label>
+                            <input type="text" id="nombres" name="nombres" class="form-control" 
+                                   required oninput="validateForm()">
+                        </div>
+                    </div>
+                    
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="apellidos" class="required">Apellidos *</label>
+                            <input type="text" id="apellidos" name="apellidos" class="form-control" 
+                                   required oninput="validateForm()">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="direccion">Dirección</label>
+                            <textarea id="direccion" name="direccion" class="form-control" rows="2" 
+                                      placeholder="Dirección de habitación"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="correo">Correo Electrónico</label>
+                            <input type="email" id="correo" name="correo" class="form-control" 
+                                   placeholder="ejemplo@correo.com">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="telefono">Teléfono</label>
+                            <input type="text" id="telefono" name="telefono" class="form-control" 
+                                   placeholder="Ej: 0412-1234567">
+                        </div>
+                    </div>
+                    
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="estado">Estado</label>
+                            <select id="estado" name="estado" class="form-control">
+                                {% for estado in estados %}
+                                <option value="{{ estado }}" {% if estado == 'Activo' %}selected{% endif %}>
+                                    {{ estado }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="area_trabajo">Área de Trabajo</label>
+                            <input type="text" id="area_trabajo" name="area_trabajo" class="form-control" 
+                                   placeholder="Ej: Administración, Operaciones, Seguridad">
+                        </div>
+                    </div>
+                    
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="rol">Rol/Cargo</label>
+                            <input type="text" id="rol" name="rol" class="form-control" 
+                                   placeholder="Ej: Administrador, Supervisor, Operador">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tipo_personal" class="required">Tipo de Personal *</label>
+                    <select id="tipo_personal" name="tipo_personal" class="form-control" 
+                            required onchange="validateForm()">
+                        <option value="">Seleccione un tipo</option>
+                        {% for tipo in tipos_personal %}
+                        <option value="{{ tipo }}">{{ tipo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="progress-bar">
+                    <div id="formProgress" class="progress-fill"></div>
+                </div>
+                
+                <div id="validationMessage" class="validation-message"></div>
+            </form>
+        </div>
+        
+        <!-- Sección de la cámara -->
+        <div class="camera-section">
+            <h3 style="color: #6a11cb; margin-bottom: 20px;">
+                📸 Captura de Rostro
+            </h3>
+            
+            <div class="camera-preview">
+                <video id="videoElement" autoplay playsinline></video>
+                <div class="face-overlay"></div>
+                <div id="captureCount" class="capture-count" style="display: none;">
+                    Capturas: <span id="captureCountValue">0</span>/3
+                </div>
+            </div>
+            
+            <img id="facePreview" class="face-preview" alt="Vista previa del rostro">
+            
+            <div style="text-align: center;">
+                <button id="captureBtn" class="capture-btn" disabled onclick="captureFace()">
+                    📸 Capturar Rostro
+                </button>
+                
+                <div id="processingInfo" style="margin-top: 10px; font-size: 12px; color: #666; display: none;">
+                    <div id="processingSpinner" style="display: inline-block; margin-right: 5px;">⌛</div>
+                    <span id="processingText">Procesando con DeepFace...</span>
+                </div>
+                
+                <div style="margin-top: 15px; font-size: 12px; color: #666;">
+                    <p>✅ Asegúrese de:</p>
+                    <ul style="text-align: left; padding-left: 20px;">
+                        <li>Tener buena iluminación</li>
+                        <li>Mirar directamente a la cámara</li>
+                        <li>No usar gafas de sol</li>
+                        <li>Mantener expresión neutra</li>
+                        <li>Poseer un solo rostro en la imagen</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Botón de guardar -->
+    <div style="text-align: center; margin-top: 30px;">
+        <button id="saveBtn" class="btn-guardar" disabled onclick="saveRegistration()">
+            💾 Guardar Registro Completo
+        </button>
+    </div>
+</div>
+
+<script>
+    // Variables globales
+    let videoStream = null;
+    let facialEmbedding = null;
+    let captureCount = 0;
+    let formValid = false;
+    let isProcessing = false;
+    
+    // Elementos DOM
+    const videoElement = document.getElementById('videoElement');
+    const captureBtn = document.getElementById('captureBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const statusIndicator = document.getElementById('statusIndicator');
+    const statusText = document.getElementById('statusText');
+    const facialEmbeddingInput = document.getElementById('facialEmbedding');
+    const formProgress = document.getElementById('formProgress');
+    const facePreview = document.getElementById('facePreview');
+    const captureCountEl = document.getElementById('captureCount');
+    const captureCountValue = document.getElementById('captureCountValue');
+    const processingInfo = document.getElementById('processingInfo');
+    const processingSpinner = document.getElementById('processingSpinner');
+    const processingText = document.getElementById('processingText');
+    const validationMessage = document.getElementById('validationMessage');
+    
+    // Inicializar cámara
+    async function initializeCamera() {
+        try {
+            statusIndicator.className = 'status-indicator status-info';
+            statusText.textContent = 'Inicializando cámara...';
+            
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    width: { ideal: 640 },
+                    height: { ideal: 480 },
+                    facingMode: 'user'
+                } 
+            });
+            
+            videoStream = stream;
+            videoElement.srcObject = stream;
+            
+            statusIndicator.className = 'status-indicator status-success';
+            statusText.textContent = 'Cámara lista. Complete el formulario para habilitar captura.';
+            
+            // Verificar DeepFace
+            await verifyDeepFace();
+            
+        } catch (error) {
+            console.error('Error al acceder a la cámara:', error);
+            statusIndicator.className = 'status-indicator status-error';
+            statusText.textContent = `Error de cámara: ${error.message}`;
+            captureBtn.disabled = true;
+            
+            // Mostrar sugerencias
+            if (error.name === 'NotAllowedError') {
+                statusText.textContent += '. Por favor, permita el acceso a la cámara.';
+            } else if (error.name === 'NotFoundError') {
+                statusText.textContent += '. No se encontró cámara conectada.';
+            }
+        }
+    }
+    
+    // Verificar DeepFace
+    async function verifyDeepFace() {
+        try {
+            const response = await fetch('{% url "reconocimiento:test_deepface" %}');
+            const data = await response.json();
+            
+            if (!data.success) {
+                showValidationMessage(`⚠️ DeepFace: ${data.error}`, 'warning');
+            } else {
+                console.log('DeepFace verificado:', data.deepface_info);
+                showValidationMessage(`✅ DeepFace funcionando: ${data.deepface_info.model}`, 'success');
+            }
+            
+        } catch (error) {
+            console.error('Error verificando DeepFace:', error);
+            showValidationMessage('⚠️ No se pudo verificar DeepFace', 'warning');
+        }
+    }
+    
+    // Mostrar mensaje de validación
+    function showValidationMessage(message, type) {
+        validationMessage.textContent = message;
+        validationMessage.className = `validation-message validation-${type}`;
+        validationMessage.style.display = 'block';
+        
+        // Ocultar después de 5 segundos si es éxito
+        if (type === 'success') {
+            setTimeout(() => {
+                validationMessage.style.display = 'none';
+            }, 5000);
+        }
+    }
+    
+    // Validar formulario
+    function validateForm() {
+        const requiredFields = ['cedula', 'nombres', 'apellidos', 'tipo_personal'];
+        let filledCount = 0;
+        
+        requiredFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field && field.value.trim()) {
+                filledCount++;
+            }
+        });
+        
+        // Actualizar progreso
+        const progress = (filledCount / requiredFields.length) * 100;
+        formProgress.style.width = `${progress}%`;
+        
+        // Habilitar/deshabilitar captura
+        formValid = filledCount === requiredFields.length;
+        captureBtn.disabled = !formValid || isProcessing;
+        
+        if (formValid) {
+            statusIndicator.className = 'status-indicator status-info';
+            statusText.textContent = 'Formulario completo. Puede capturar su rostro.';
+        } else {
+            statusText.textContent = `Complete los campos requeridos (${filledCount}/${requiredFields.length})`;
+        }
+        
+        updateSaveButton();
+    }
+    
+    // Capturar rostro
+    async function captureFace() {
+        if (!formValid) {
+            alert('Complete el formulario primero');
+            return;
+        }
+        
+        if (isProcessing) {
+            alert('Ya se está procesando una captura');
+            return;
+        }
+        
+        try {
+            isProcessing = true;
+            captureBtn.disabled = true;
+            processingInfo.style.display = 'block';
+            processingText.textContent = 'Procesando con DeepFace...';
+            
+            statusIndicator.className = 'status-indicator status-info';
+            statusText.textContent = 'Capturando y procesando rostro...';
+            
+            // Capturar frame del video
+            const canvas = document.createElement('canvas');
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(videoElement, 0, 0);
+            
+            // Convertir a base64
+            const imageData = canvas.toDataURL('image/jpeg', 0.9);
+            
+            // Mostrar vista previa
+            facePreview.src = imageData;
+            facePreview.style.display = 'block';
+            
+            // Preparar datos del usuario
+            const userData = {
+                cedula: document.getElementById('cedula').value,
+                nombres: document.getElementById('nombres').value,
+                apellidos: document.getElementById('apellidos').value,
+                tipo_personal: document.getElementById('tipo_personal').value
+            };
+            
+            // Mostrar que está procesando
+            processingSpinner.textContent = '⏳';
+            processingText.textContent = 'Analizando rostro con DeepFace...';
+            
+            // Enviar al servidor
+            const response = await fetch('{% url "reconocimiento:capturar_rostro" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    image: imageData,
+                    user_data: userData
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                let errorMsg = data.error || 'Error en el servidor';
+                
+                // Manejar errores específicos
+                if (data.existing_user) {
+                    errorMsg = `Rostro ya registrado para: ${data.existing_user.nombres} ${data.existing_user.apellidos} (Cédula: ${data.existing_user.cedula})`;
+                    alert(`⚠️ ${errorMsg}\n\nSimilaridad: ${(data.similarity * 100).toFixed(2)}%`);
+                } else if (data.suggestions) {
+                    errorMsg += '\n\nSugerencias:\n' + data.suggestions.join('\n');
+                }
+                
+                throw new Error(errorMsg);
+            }
+            
+            // Guardar embedding
+            facialEmbedding = data.embedding;
+            facialEmbeddingInput.value = JSON.stringify(facialEmbedding);
+            
+            // Actualizar contador
+            captureCount++;
+            captureCountEl.style.display = 'block';
+            captureCountValue.textContent = captureCount;
+            
+            // Actualizar estado
+            statusIndicator.className = 'status-indicator status-success';
+            statusText.textContent = data.message || 'Rostro capturado exitosamente';
+            
+            // Mostrar información del procesamiento
+            if (data.processing_time) {
+                processingText.textContent = `Procesado en ${data.processing_time} segundos`;
+            }
+            
+            // Habilitar botón de guardar si es la primera captura
+            if (captureCount === 1) {
+                updateSaveButton();
+            }
+            
+            // Mostrar detalles
+            console.log('Información del rostro:', data.face_info);
+            showValidationMessage(`✅ Rostro capturado: ${data.face_info.face_width}x${data.face_info.face_height} píxeles`, 'success');
+            
+        } catch (error) {
+            console.error('Error capturando rostro:', error);
+            statusIndicator.className = 'status-indicator status-error';
+            statusText.textContent = error.message.split('\n')[0]; // Mostrar solo primera línea
+            
+            // Mostrar alerta con el error completo
+            if (!error.message.includes('Rostro ya registrado')) {
+                alert(`Error: ${error.message}`);
+            }
+            
+        } finally {
+            isProcessing = false;
+            captureBtn.disabled = !formValid;
+            processingInfo.style.display = 'none';
+            processingSpinner.textContent = '⌛';
+        }
+    }
+    
+    // Actualizar botón de guardar
+    function updateSaveButton() {
+        const canSave = formValid && facialEmbedding !== null;
+        saveBtn.disabled = !canSave;
+        
+        if (canSave) {
+            statusIndicator.className = 'status-indicator status-success';
+            statusText.textContent = '¡Listo! Puede guardar el registro completo.';
+        }
+    }
+    
+    // Guardar registro completo
+    async function saveRegistration() {
+        if (!formValid || !facialEmbedding) {
+            alert('Complete el formulario y capture un rostro primero');
+            return;
+        }
+        
+        try {
+            saveBtn.disabled = true;
+            statusIndicator.className = 'status-indicator status-info';
+            statusText.textContent = 'Guardando registro completo...';
+            
+            // Enviar formulario
+            document.getElementById('registrationForm').submit();
+            
+        } catch (error) {
+            console.error('Error guardando:', error);
+            statusIndicator.className = 'status-indicator status-error';
+            statusText.textContent = 'Error al guardar: ' + error.message;
+            saveBtn.disabled = false;
+        }
+    }
+    
+    // Limpiar recursos al salir
+    function cleanup() {
+        if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop());
+        }
+    }
+    
+    // Inicializar al cargar la página
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeCamera();
+        validateForm(); // Validar formulario inicial
+        
+        // Limpiar al salir
+        window.addEventListener('beforeunload', cleanup);
+        window.addEventListener('pagehide', cleanup);
+        
+        // Validar cédula en tiempo real
+        const cedulaInput = document.getElementById('cedula');
+        if (cedulaInput) {
+            cedulaInput.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8);
+            });
+        }
+    });
+</script>
+
+{% endblock %}

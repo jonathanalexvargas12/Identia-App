@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title|default:"Identia - Sistema de Gestión" }}</title>
+    <link rel="icon" href="../../static/images/identia_logo_no_backgound.png" type="image/x-icon">
+     {% load static %}
+    <script src="{% static 'js/update-time.js' %}" defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #f5f7fa;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Menú lateral */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(200deg, #2a5298 0%, #c2c2c2 110%);
+            color: rgb(255, 255, 255);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+            opacity: 0.95;
+            z-index: 1000;
+        }
+        
+        .sidebar-header {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .identia_logo_menu {
+            width: 120px;
+            margin-bottom: 10px;
+        }
+        
+        .sidebar-title {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        /* Navegación */
+        .nav-menu {
+            padding: 20px 0;
+        }
+        
+        .nav-item {
+            margin: 5px 15px;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: #f0a22c;
+            text-decoration: none;
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            font-weight: bold;
+
+        }
+        
+        .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left: 3px solid #f0a22c;
+        }
+        
+        .nav-link.active {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border-left: 3px solid #f0a22c;
+        }
+        
+        /* Estilos para imágenes de iconos */
+        .menu-icon {
+            width: 25px;
+            height: 25px;
+            margin-right: 10px;
+            object-fit: contain;
+            filter: brightness(0.8);
+            transition: filter 0.3s;
+        }
+        
+        .nav-link:hover .menu-icon {
+            filter: brightness(1);
+        }
+        
+        .nav-link.active .menu-icon {
+            filter: brightness(1);
+        }
+        
+        /* Contenido principal */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .content-header {
+            background: white;
+            border-radius: 10px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title {
+            color: #2a5298;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .user-details h4 {
+            color: #333;
+            margin: 0;
+            font-size: 16px;
+        }
+        
+        .user-details p {
+            color: #666;
+            margin: 2px 0 0;
+            font-size: 13px;
+        }
+        
+        /* Contenido */
+        .content-body {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            min-height: 500px;
+        }
+        
+        /* Mensajes */
+        .messages {
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+        
+        .alert-success {
+            background: #efe;
+            color: #3a3;
+            border: 1px solid #cfc;
+        }
+        
+        .alert-info {
+            background: #e8f4fd;
+            color: #2a5298;
+            border: 1px solid #b6d4fe;
+        }
+        
+        .alert::before {
+            font-size: 16px;
+        }
+        
+        .alert-error::before {
+            content: "⚠️";
+        }
+        
+        .alert-success::before {
+            content: "✅";
+        }
+        
+        .alert-info::before {
+            content: "ℹ️";
+        }
+        
+        /* Logout */
+        .logout-section {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            padding: 0 20px;
+        }
+        
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 12px;
+            background: rgba(32, 31, 31, 0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.2);
+            color: #f0a22c;
+        }
+        
+        .btn-logout-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            filter: brightness(0.8);
+            transition: filter 0.3s;
+        }
+        
+        .btn-logout:hover .btn-logout-icon {
+            filter: brightness(1);
+        }
+        
+        /* Icono de calendario en header */
+        .calendar-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
+            vertical-align: middle;
+            filter: brightness(0.6);
+        }
+        
+        /* Icono de reloj en header */
+        .clock-icon {
+            width: 14px;
+            height: 14px;
+            margin-left: 15px;
+            margin-right: 5px;
+            vertical-align: middle;
+            filter: brightness(0.6);
+        }
+        
+        /* Contenedor de fecha y hora */
+        .datetime-container {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 5px;
+        }
+        
+        .date-time-item {
+            display: flex;
+            align-items: center;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .date-time-separator {
+            color: #ddd;
+            font-size: 12px;
+        }
+        
+        @media (max-width: 768px) {
+            .datetime-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .date-time-separator {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Menú lateral -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <img class="identia_logo_menu" src="../../static/images/identia_logo_no_backgound.png" alt="Identia">
+            <p class="sidebar-title">Innovación en<br>Seguridad Biométrica</p>
+        </div>
+        
+        <div class="nav-menu">
+            <div class="nav-item">
+                <a href="{% url 'usuarios:home_principal' %}" 
+                   class="nav-link {% if menu_activo == 'inicio' %}active{% endif %}">
+                    <!-- Icono Inicio -->
+                    <img src="../../static/images/icono_inicio.png" alt="Inicio" class="menu-icon">
+                    <span>Inicio</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{% url 'usuarios:control_acceso' %}" 
+                   class="nav-link {% if menu_activo == 'control_acceso' %}active{% endif %}">
+                    <!-- Icono Control de Acceso -->
+                    <img src="../../static/images/icono_control_acceso.png" alt="Control de Acceso" class="menu-icon">
+                    <span>Control de acceso</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{% url 'reconocimiento:gestion_trabajadores' %}" 
+                    class="nav-link {% if menu_activo == 'reconocimiento:gestion_trabajadores' %}active{% endif %}">
+                    <!-- Icono Buscar Trabajadores -->
+                    <img src="../../static/images/icono_buscar_trabajadores.png" alt="Buscar Trabajadores" class="menu-icon">
+                    <span>Buscar trabajadores</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{% url 'usuarios:seguridad' %}" 
+                   class="nav-link {% if menu_activo == 'seguridad' %}active{% endif %}">
+                    <!-- Icono Seguridad -->
+                    <img src="../../static/images/icono_seguridad.png" alt="Seguridad" class="menu-icon">
+                    <span>Seguridad</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{% url 'usuarios:reportes' %}" 
+                   class="nav-link {% if menu_activo == 'reportes' %}active{% endif %}">
+                    <!-- Icono Reportes -->
+                    <img src="../../static/images/icono_reportes.png" alt="Reportes" class="menu-icon">
+                    <span>Reportes</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{% url 'usuarios:perfil' %}" 
+                   class="nav-link {% if menu_activo == 'perfil' %}active{% endif %}">
+                    <!-- Icono Perfil -->
+                    <img src="../../static/images/icono_perfil.png" alt="Perfil" class="menu-icon">
+                    <span>Perfil</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Logout -->
+        <div class="logout-section">
+            <a href="{% url 'usuarios:logout' %}" class="btn-logout">
+                <img src="../../static/images/icono_logout.png" alt="Cerrar sesión" class="btn-logout-icon">
+                <span>Cerrar sesión</span>
+            </a>
+        </div>
+    </nav>
+    
+    <!-- Contenido principal -->
+    <main class="main-content">
+        <!-- Header -->
+        <div class="content-header">
+            <div>
+                <h1 class="page-title">{{ page_title|default:"Bienvenido" }}</h1>
+                <div class="datetime-container">
+                    <div class="date-time-item">
+                        <img src="../../static/images/icono_calendario.png" alt="Calendario" class="calendar-icon">
+                        <span id="current-date">{{ hoy|date:"d/m/Y" }}</span>
+                    </div>
+                    <span class="date-time-separator">|</span>
+                    <div class="date-time-item">
+                        <img src="../../static/images/icono_reloj.png" alt="Reloj" class="clock-icon">
+                        <span id="current-time">{{ ahora|date:"H:i" }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ user.first_name|first }}{{ user.last_name|first }}
+                </div>
+                <div class="user-details">
+                    <h4>{{ user.first_name }} {{ user.last_name }}</h4>
+                    <p>{{ request.session.empleado_rol|default:"Usuario" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mensajes -->
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Contenido específico -->
+        <div class="content-body">
+            {% block content %}
+            <!-- El contenido irá aquí -->
+            {% endblock %}
+        </div>
+    </main>
+
+</body>
+</html>

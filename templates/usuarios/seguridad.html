@@ -1,0 +1,178 @@
+{% extends 'usuarios/base_menu_lateral.html' %}
+
+{% block content %}
+<style>
+    /* Estilos para la página de Seguridad */
+    .security-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .security-title {
+        color: #2a5298;
+        font-size: 32px;
+        margin-bottom: 15px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .security-subtitle {
+        color: #666;
+        font-size: 18px;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+    
+    .security-icon {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+    }
+    
+    /* Grid de módulos de seguridad - SIMPLIFICADO */
+    .security-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin-top: 30px;
+    }
+    
+    .security-card {
+        background: white;
+        border-radius: 10px;
+        padding: 25px;
+        text-align: center;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    
+    .security-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border-color: #2a5298;
+        color: inherit;
+    }
+    
+    .security-card-icon-container {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 60px;
+    }
+    
+    .security-card-icon {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+    }
+    
+    .security-card-title {
+        color: #2a5298;
+        font-size: 18px;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+    
+    .security-card-description {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .security-title {
+            font-size: 24px;
+        }
+        
+        .security-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="security-header">
+    <h1 class="security-title">
+        <img src="../../static/images/icono_seguridad.png" alt="Seguridad" class="security-icon">
+        Módulo de Seguridad
+    </h1>
+    <p class="security-subtitle">
+        Centralice y gestione todas las funcionalidades de seguridad del sistema
+    </p>
+</div>
+
+<!-- Grid de módulos de seguridad - SOLO TARJETAS -->
+<div class="security-grid">
+    <!-- Bitácora de Incidentes -->
+    <a href="#" class="security-card">
+        <div class="security-card-icon-container">
+            <img src="../../static/images/icono_bitacora_incidentes.png" alt="Bitácora de Incidentes" class="security-card-icon">
+        </div>
+        <h3 class="security-card-title">Bitácora de Incidentes</h3>
+        <p class="security-card-description">
+            Registro y seguimiento de incidentes de seguridad
+        </p>
+    </a>
+    
+    <!-- Bitácora de Asistencias -->
+    <a href="#" class="security-card">
+        <div class="security-card-icon-container">
+            <img src="../../static/images/icono_bitacora_asistencias.png" alt="Bitácora de Asistencias" class="security-card-icon">
+        </div>
+        <h3 class="security-card-title">Bitácora de Asistencias</h3>
+        <p class="security-card-description">
+            Historial completo de entradas y salidas del personal
+        </p>
+    </a>
+    
+    <!-- Control de Acceso -->
+    <a href="{% url 'usuarios:control_acceso' %}" class="security-card">
+        <div class="security-card-icon-container">
+            <img src="../../static/images/icono_control_acceso.png" alt="Control de Acceso" class="security-card-icon">
+        </div>
+        <h3 class="security-card-title">Control de Acceso</h3>
+        <p class="security-card-description">
+            Gestión en tiempo real de puntos de acceso
+        </p>
+    </a>
+    
+    <!-- Buscar Trabajadores -->
+    <a href="{% url 'reconocimiento:gestion_trabajadores' %}" class="security-card">
+        <div class="security-card-icon-container">
+            <img src="../../static/images/icono_buscar_trabajadores.png" alt="Buscar Trabajadores" class="security-card-icon">
+        </div>
+        <h3 class="security-card-title">Buscar Trabajadores</h3>
+        <p class="security-card-description">
+            Gestión completa del personal registrado
+        </p>
+    </a>
+    
+    <!-- Módulos de Gestión -->
+    <a href="{% url 'usuarios:modulos_gestion' %}" class="security-card">
+        <div class="security-card-icon-container">
+            <img src="../../static/images/icono_modulos_gestion.png" alt="Modulos de Gestion" class="security-card-icon">
+        </div>
+        <h3 class="security-card-title">Módulos de Gestión</h3>
+        <p class="security-card-description">
+            Gestión de horarios y tipo de personal
+        </p>
+    </a>
+</div>
+
+<!-- Nota de desarrollo -->
+<div style="background: #f8f9fa; border-radius: 8px; padding: 15px; margin-top: 40px; border-left: 3px solid #95a5a6;">
+    <p style="color: #666; font-size: 14px; margin: 0; text-align: center;">
+        <strong>Nota:</strong> Los módulos de Bitácora de Incidentes y Bitácora de Asistencias estarán disponibles próximamente.
+    </p>
+</div>
+
+{% endblock %}

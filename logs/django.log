@@ -1,0 +1,325 @@
+[2026-02-05 00:06:24,565] INFO views Intento de login recibido - Cédula: 00000000
+[2026-02-05 00:06:24,570] INFO backends Intento de autenticación para cédula: 00000000
+[2026-02-05 00:06:24,661] WARNING backends Password en texto plano para 00000000 - ¡INSEGURO!
+[2026-02-05 00:06:25,722] INFO backends Autenticación exitosa: 00000000 - admin admmin
+[2026-02-05 00:06:25,750] INFO backends Nuevo usuario Django creado: 00000000
+[2026-02-05 00:06:25,827] INFO views Login exitoso para usuario: 00000000
+[2026-02-05 00:10:48,968] INFO views Intento de login recibido - Cédula: 00000000
+[2026-02-05 00:10:48,970] INFO backends Intento de autenticación para cédula: 00000000
+[2026-02-05 00:10:50,089] DEBUG backends Password en formato Django PBKDF2
+[2026-02-05 00:10:50,090] INFO backends Autenticación exitosa: 00000000 - admin admmin
+[2026-02-05 00:10:50,193] INFO views Login exitoso para usuario: 00000000
+[2026-02-05 16:45:32,678] INFO views Intento de login recibido - Cédula: 00000000
+[2026-02-05 16:45:32,814] INFO backends Intento de autenticación para cédula: 00000000
+[2026-02-05 16:45:33,995] DEBUG backends Password en formato Django PBKDF2
+[2026-02-05 16:45:33,996] INFO backends Autenticación exitosa: 00000000 - admin admmin
+[2026-02-05 16:45:34,202] INFO views Login exitoso para usuario: 00000000
+[2026-02-05 16:45:40,000] INFO views Logout exitoso para usuario: 00000000
+[2026-02-05 16:46:04,410] INFO views Intento de login recibido - Cédula: 12345678
+[2026-02-05 16:46:04,410] INFO backends Intento de autenticación para cédula: 12345678
+[2026-02-05 16:46:04,411] WARNING backends Cédula no encontrada o usuario inactivo: 12345678
+[2026-02-05 16:46:05,434] WARNING views Login fallido para cédula: 12345678
+[2026-02-05 16:58:18,012] INFO views Intento de login recibido - Cédula: 12345678
+[2026-02-05 16:58:18,012] INFO backends Intento de autenticación para cédula: 12345678
+[2026-02-05 16:58:18,108] WARNING backends Cédula no encontrada o usuario inactivo: 12345678
+[2026-02-05 16:58:19,130] WARNING views Login fallido para cédula: 12345678
+[2026-02-05 16:58:33,144] INFO views Intento de login recibido - Cédula: 00000000
+[2026-02-05 16:58:33,144] INFO backends Intento de autenticación para cédula: 00000000
+[2026-02-05 16:58:34,166] DEBUG backends Password en formato Django PBKDF2
+[2026-02-05 16:58:34,167] INFO backends Autenticación exitosa: 00000000 - admin admmin
+[2026-02-05 16:58:34,230] INFO views Login exitoso para usuario: 00000000
+[2026-02-05 16:59:09,310] INFO views Logout exitoso para usuario: 00000000
+[2026-02-05 17:28:41,251] INFO views Intento de login recibido - Cédula: 00000000
+[2026-02-05 17:28:41,251] INFO backends Intento de autenticación para cédula: 00000000
+[2026-02-05 17:28:42,361] DEBUG backends Password en formato Django PBKDF2
+[2026-02-05 17:28:42,361] INFO backends Autenticación exitosa: 00000000 - admin admmin
+[2026-02-05 17:28:42,414] INFO views Login exitoso para usuario: 00000000
+[2026-02-05 17:34:00,146] INFO views Logout exitoso para usuario: 00000000
+[2026-02-05 17:34:11,798] INFO views Intento de login recibido - Cédula: 00000000
+[2026-02-05 17:34:11,798] INFO backends Intento de autenticación para cédula: 00000000
+[2026-02-05 17:34:12,818] DEBUG backends Password en formato Django PBKDF2
+[2026-02-05 17:34:12,818] INFO backends Autenticación exitosa: 00000000 - admin admmin
+[2026-02-05 17:34:12,912] INFO views Login exitoso para usuario: 00000000
+[2026-02-05 17:36:11,916] INFO views Logout exitoso para usuario: 00000000
+[2026-02-05 18:32:57,916] INFO views Intento de login recibido - Cédula: 00000000
+[2026-02-05 18:32:57,917] INFO backends Intento de autenticación para cédula: 00000000
+[2026-02-05 18:32:59,025] DEBUG backends Password en formato Django PBKDF2
+[2026-02-05 18:32:59,026] INFO backends Autenticación exitosa: 00000000 - admin admmin
+[2026-02-05 18:32:59,110] INFO views Login exitoso para usuario: 00000000
+[2026-02-05 18:38:36,914] INFO views Logout exitoso para usuario: 00000000
+[2026-02-05 18:40:02,600] INFO views Intento de login recibido - Cédula: 00000000
+[2026-02-05 18:40:02,600] INFO backends Intento de autenticación para cédula: 00000000
+[2026-02-05 18:40:03,623] DEBUG backends Password en formato Django PBKDF2
+[2026-02-05 18:40:03,623] INFO backends Autenticación exitosa: 00000000 - admin admmin
+[2026-02-05 18:40:03,712] INFO views Login exitoso para usuario: 00000000
+[2026-02-05 18:40:29,021] INFO views Logout exitoso para usuario: 00000000
+[2026-02-05 21:11:14,308] INFO views Intento de login recibido - Cédula: 00000000
+[2026-02-05 21:11:14,309] INFO backends Intento de autenticación para cédula: 00000000
+[2026-02-05 21:11:15,413] DEBUG backends Password en formato Django PBKDF2
+[2026-02-05 21:11:15,413] WARNING backends Password incorrecto para cédula: 00000000
+[2026-02-05 21:11:15,983] INFO views Intento de login recibido - Cédula: 00000000
+[2026-02-05 21:11:15,984] INFO backends Intento de autenticación para cédula: 00000000
+[2026-02-05 21:11:16,458] WARNING views Login fallido para cédula: 00000000
+[2026-02-05 21:11:17,110] DEBUG backends Password en formato Django PBKDF2
+[2026-02-05 21:11:17,111] WARNING backends Password incorrecto para cédula: 00000000
+[2026-02-05 21:11:18,125] WARNING views Login fallido para cédula: 00000000
+[2026-02-05 21:11:28,238] INFO views Intento de login recibido - Cédula: 00000000
+[2026-02-05 21:11:28,239] INFO backends Intento de autenticación para cédula: 00000000
+[2026-02-05 21:11:29,251] DEBUG backends Password en formato Django PBKDF2
+[2026-02-05 21:11:29,252] INFO backends Autenticación exitosa: 00000000 - admin admmin
+[2026-02-05 21:11:29,304] INFO views Login exitoso para usuario: 00000000
+[2026-02-05 21:20:27,844] INFO views Logout exitoso para usuario: 00000000
+[2026-02-05 21:21:40,231] INFO views Intento de login recibido - Cédula: 00000000
+[2026-02-05 21:21:40,231] INFO backends Intento de autenticación para cédula: 00000000
+[2026-02-05 21:21:41,275] DEBUG backends Password en formato Django PBKDF2
+[2026-02-05 21:21:41,275] INFO backends Autenticación exitosa: 00000000 - admin admmin
+[2026-02-05 21:21:41,333] INFO views Login exitoso para usuario: 00000000
+[2026-02-05 21:22:20,781] INFO views Logout exitoso para usuario: 00000000
+[2026-02-05 23:28:44,519] INFO views Intento de login recibido - Cédula: 4
+[2026-02-06 12:34:18,559] INFO views Intento de login recibido - Cédula: 
+[2026-02-06 12:34:32,456] INFO views Intento de login recibido - Cédula: 
+[2026-02-06 12:35:36,621] INFO views Intento de login recibido - Cédula: 
+[2026-02-06 12:35:39,864] INFO views Intento de login recibido - Cédula: 
+[2026-02-06 12:36:48,666] INFO views Intento de login recibido - Cédula: 
+[2026-02-06 12:48:57,073] INFO views Intento de login recibido - ID Usuario: 00000010
+[2026-02-06 12:48:57,077] INFO backends Intento de autenticación para ID usuario: 00000010
+[2026-02-06 12:48:57,173] WARNING backends Password en texto plano para ID 10 - ¡INSEGURO!
+[2026-02-06 12:48:58,253] INFO backends Autenticación exitosa: ID 10 - admin admin
+[2026-02-06 12:48:58,288] INFO backends Nuevo usuario Django creado: 10
+[2026-02-06 12:48:58,354] INFO views Login exitoso para ID usuario: 00000010
+[2026-02-06 12:49:06,050] INFO views Logout exitoso para usuario: 10
+[2026-02-06 12:51:24,325] INFO views Intento de login recibido - ID Usuario: 00000010
+[2026-02-06 12:51:24,325] INFO backends Intento de autenticación para ID usuario: 00000010
+[2026-02-06 12:51:25,351] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 12:51:25,351] INFO backends Autenticación exitosa: ID 10 - admin admin
+[2026-02-06 12:51:25,407] INFO views Login exitoso para ID usuario: 00000010
+[2026-02-06 12:51:32,286] INFO views Logout exitoso para usuario: 10
+[2026-02-06 12:51:46,589] INFO views Intento de login recibido - ID Usuario: 0000
+[2026-02-06 13:44:26,918] INFO views Intento de login recibido - ID Usuario: 0000
+[2026-02-06 14:24:52,814] INFO views Intento de login recibido - ID Usuario: 00000010
+[2026-02-06 14:24:52,815] INFO backends Intento de autenticación para ID usuario: 00000010
+[2026-02-06 14:24:53,916] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 14:24:53,916] INFO backends Autenticación exitosa: ID 10 - admin admin
+[2026-02-06 14:24:53,983] INFO views Login exitoso para ID usuario: 00000010
+[2026-02-06 14:26:09,107] INFO views Logout exitoso para usuario: 10
+[2026-02-06 14:40:27,293] INFO views Intento de login recibido - ID Usuario: 00000010
+[2026-02-06 14:40:27,294] INFO backends Intento de autenticación para ID usuario: 00000010
+[2026-02-06 14:40:28,396] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 14:40:28,396] INFO backends Autenticación exitosa: ID 10 - admin admin
+[2026-02-06 14:40:28,442] INFO views Login exitoso para ID usuario: 00000010
+[2026-02-06 14:53:03,666] INFO views Logout exitoso para usuario: 10
+[2026-02-06 15:09:32,377] INFO views Intento de login recibido - ID Usuario: 00000010
+[2026-02-06 15:09:32,378] INFO backends Intento de autenticación para ID usuario: 00000010
+[2026-02-06 15:09:33,484] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 15:09:33,484] INFO backends Autenticación exitosa: ID 10 - admin admin
+[2026-02-06 15:09:33,588] INFO views Login exitoso para ID usuario: 00000010
+[2026-02-06 15:14:08,039] INFO views Intento de login recibido - ID Usuario: 00000010
+[2026-02-06 15:14:08,040] INFO backends Intento de autenticación para ID usuario: 00000010
+[2026-02-06 15:14:09,146] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 15:14:09,147] INFO backends Autenticación exitosa: ID 10 - admin admin
+[2026-02-06 15:14:09,261] INFO views Login exitoso para ID usuario: 00000010
+[2026-02-06 15:14:14,636] INFO views Logout exitoso para usuario: 10
+[2026-02-06 15:19:13,699] INFO views Intento de login recibido - ID Usuario: 00000010
+[2026-02-06 15:19:13,700] INFO backends Intento de autenticación para ID usuario: 00000010
+[2026-02-06 15:19:14,811] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 15:19:14,812] INFO backends Autenticación exitosa: ID 10 - admin admin
+[2026-02-06 15:19:14,883] INFO views Login exitoso para ID usuario: 00000010
+[2026-02-06 15:19:28,220] INFO views Logout exitoso para usuario: 10
+[2026-02-06 15:19:44,604] INFO views Intento de login recibido - ID Usuario: 00000010
+[2026-02-06 15:19:44,604] INFO backends Intento de autenticación para ID usuario: 00000010
+[2026-02-06 15:19:45,626] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 15:19:45,627] INFO backends Autenticación exitosa: ID 10 - admin admin
+[2026-02-06 15:19:45,672] INFO views Login exitoso para ID usuario: 00000010
+[2026-02-06 15:49:13,109] INFO views Logout exitoso para usuario: 10
+[2026-02-06 15:49:30,046] INFO views Intento de login recibido - ID Usuario: 00000010
+[2026-02-06 15:49:30,046] INFO backends Intento de autenticación para ID usuario: 00000010
+[2026-02-06 15:49:31,073] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 15:49:31,074] INFO backends Autenticación exitosa: ID 10 - admin admin
+[2026-02-06 15:49:31,125] INFO views Login exitoso para ID usuario: 00000010
+[2026-02-06 15:50:20,946] INFO views Logout exitoso para usuario: 10
+[2026-02-06 15:50:42,403] INFO views Intento de login recibido - ID Usuario: 00000010
+[2026-02-06 15:50:42,403] INFO backends Intento de autenticación para ID usuario: 00000010
+[2026-02-06 15:50:43,428] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 15:50:43,428] INFO backends Autenticación exitosa: ID 10 - admin admin
+[2026-02-06 15:50:43,529] INFO views Login exitoso para ID usuario: 00000010
+[2026-02-06 16:17:17,970] INFO views Logout exitoso para usuario: 10
+[2026-02-06 16:17:35,637] INFO views Intento de login recibido - ID Usuario: 00000010
+[2026-02-06 16:17:35,638] INFO backends Intento de autenticación para ID usuario: 00000010
+[2026-02-06 16:17:36,702] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 16:17:36,703] INFO backends Autenticación exitosa: ID 10 - admin admin
+[2026-02-06 16:17:36,815] INFO views Login exitoso para ID usuario: 00000010
+[2026-02-06 19:55:19,455] INFO views Intento de login recibido - ID Usuario: 00000010
+[2026-02-06 19:55:19,456] INFO backends Intento de autenticación para ID usuario: 00000010
+[2026-02-06 19:55:20,621] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 19:55:20,622] INFO backends Autenticación exitosa: ID 10 - admin admin
+[2026-02-06 19:55:20,671] INFO views Login exitoso para ID usuario: 00000010
+[2026-02-06 20:17:59,776] ERROR views Error obteniendo trabajadores: (-1, 'Not enough parameters for the SQL statement', None)
+[2026-02-06 20:18:07,259] INFO views Logout exitoso para usuario: 10
+[2026-02-06 20:18:18,505] INFO views Intento de login recibido - ID Usuario: 00000010
+[2026-02-06 20:18:18,505] INFO backends Intento de autenticación para ID usuario: 00000010
+[2026-02-06 20:18:19,521] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 20:18:19,521] INFO backends Autenticación exitosa: ID 10 - admin admin
+[2026-02-06 20:18:19,590] INFO views Login exitoso para ID usuario: 00000010
+[2026-02-06 20:20:04,075] ERROR views Error obteniendo trabajadores: (-1, 'Not enough parameters for the SQL statement', None)
+[2026-02-06 20:20:24,444] ERROR views Error obteniendo trabajadores: (-1, 'Not enough parameters for the SQL statement', None)
+[2026-02-06 20:20:27,077] ERROR views Error obteniendo trabajadores: (-1, 'Not enough parameters for the SQL statement', None)
+[2026-02-06 20:24:19,374] ERROR views Error obteniendo trabajadores: (-1, 'Not enough parameters for the SQL statement', None)
+[2026-02-06 20:49:17,829] INFO views Intento de login recibido - ID Usuario: 00000010
+[2026-02-06 20:49:17,829] INFO backends Intento de autenticación para ID usuario: 00000010
+[2026-02-06 20:49:18,929] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 20:49:18,930] INFO backends Autenticación exitosa: ID 10 - admin admin
+[2026-02-06 20:49:19,013] INFO views Login exitoso para ID usuario: 00000010
+[2026-02-06 21:08:31,970] INFO views Logout exitoso para usuario: 10
+[2026-02-06 21:10:39,122] INFO views Intento de login recibido - ID Usuario: 42917356
+[2026-02-06 21:10:39,123] INFO backends Intento de autenticación para ID usuario: 42917356
+[2026-02-06 21:10:39,124] WARNING backends Password en texto plano para ID 42917356 - ¡INSEGURO!
+[2026-02-06 21:10:40,236] INFO backends Autenticación exitosa: ID 42917356 - Dani9el Betancourt
+[2026-02-06 21:10:40,267] INFO backends Nuevo usuario Django creado: 42917356
+[2026-02-06 21:10:40,377] INFO views Login exitoso para ID usuario: 42917356
+[2026-02-06 21:11:29,460] INFO views Logout exitoso para usuario: 42917356
+[2026-02-06 21:12:29,696] INFO views Intento de login recibido - ID Usuario: 42917356
+[2026-02-06 21:12:29,697] INFO backends Intento de autenticación para ID usuario: 42917356
+[2026-02-06 21:12:30,825] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 21:12:30,825] INFO backends Autenticación exitosa: ID 42917356 - Daniel Betancourt
+[2026-02-06 21:12:30,916] INFO views Login exitoso para ID usuario: 42917356
+[2026-02-06 21:34:43,930] INFO views Trabajador eliminado ID: 42917357 - 22222222 - admin2 admin2
+[2026-02-06 21:51:53,621] INFO views Logout exitoso para usuario: 42917356
+[2026-02-06 21:52:18,408] INFO views Intento de login recibido - ID Usuario: 42917356
+[2026-02-06 21:52:18,408] INFO backends Intento de autenticación para ID usuario: 42917356
+[2026-02-06 21:52:19,436] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 21:52:19,437] INFO backends Autenticación exitosa: ID 42917356 - Daniel Betancourt
+[2026-02-06 21:52:19,500] INFO views Login exitoso para ID usuario: 42917356
+[2026-02-06 22:04:00,895] INFO views Logout exitoso para usuario: 42917356
+[2026-02-06 22:05:26,809] INFO views Intento de login recibido - ID Usuario: 10
+[2026-02-06 22:05:26,810] INFO backends Intento de autenticación para ID usuario: 10
+[2026-02-06 22:05:27,832] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 22:05:27,833] WARNING backends Password incorrecto para ID usuario: 10
+[2026-02-06 22:05:28,849] WARNING views Login fallido para ID usuario: 10
+[2026-02-06 22:05:44,230] INFO views Intento de login recibido - ID Usuario: 00000010
+[2026-02-06 22:05:44,230] INFO backends Intento de autenticación para ID usuario: 00000010
+[2026-02-06 22:05:45,274] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 22:05:45,274] WARNING backends Password incorrecto para ID usuario: 10
+[2026-02-06 22:05:46,292] WARNING views Login fallido para ID usuario: 00000010
+[2026-02-06 22:10:42,758] INFO views Intento de login recibido - ID Usuario: 42917358
+[2026-02-06 22:10:42,759] INFO backends Intento de autenticación para ID usuario: 42917358
+[2026-02-06 22:10:42,842] WARNING backends Password en texto plano para ID 42917358 - ¡INSEGURO!
+[2026-02-06 22:10:44,153] INFO backends Autenticación exitosa: ID 42917358 - Jonathan Vargas
+[2026-02-06 22:10:44,273] INFO backends Nuevo usuario Django creado: 42917358
+[2026-02-06 22:10:44,660] INFO views Login exitoso para ID usuario: 42917358
+[2026-02-06 22:18:44,554] INFO views Logout exitoso para usuario: 42917358
+[2026-02-06 22:19:11,374] INFO views Intento de login recibido - ID Usuario: 42917358
+[2026-02-06 22:19:11,374] INFO backends Intento de autenticación para ID usuario: 42917358
+[2026-02-06 22:19:12,394] DEBUG backends Password en formato Django PBKDF2
+[2026-02-06 22:19:12,394] INFO backends Autenticación exitosa: ID 42917358 - Jonathan Vargas
+[2026-02-06 22:19:12,452] INFO views Login exitoso para ID usuario: 42917358
+[2026-02-06 22:20:31,707] INFO views Logout exitoso para usuario: 42917358
+[2026-02-07 14:09:06,477] INFO views Intento de login recibido - ID Usuario: 42917356
+[2026-02-07 14:09:06,613] INFO backends Intento de autenticación para ID usuario: 42917356
+[2026-02-07 14:09:07,804] DEBUG backends Password en formato Django PBKDF2
+[2026-02-07 14:09:07,804] INFO backends Autenticación exitosa: ID 42917356 - Daniel Betancourt
+[2026-02-07 14:09:07,906] INFO views Login exitoso para ID usuario: 42917356
+[2026-02-07 16:04:19,549] INFO views Logout exitoso para usuario: 42917356
+[2026-02-07 16:05:13,470] INFO views Intento de login recibido - ID Usuario: 42917356
+[2026-02-07 16:05:13,472] INFO backends Intento de autenticación para ID usuario: 42917356
+[2026-02-07 16:05:14,697] DEBUG backends Password en formato Django PBKDF2
+[2026-02-07 16:05:14,697] INFO backends Autenticación exitosa: ID 42917356 - Daniel Betancourt
+[2026-02-07 16:05:14,906] INFO views Login exitoso para ID usuario: 42917356
+[2026-02-07 16:44:52,306] INFO views Logout exitoso para usuario: 42917356
+[2026-02-07 16:45:09,205] INFO views Intento de login recibido - ID Usuario: 42917356
+[2026-02-07 16:45:09,205] INFO backends Intento de autenticación para ID usuario: 42917356
+[2026-02-07 16:45:10,320] DEBUG backends Password en formato Django PBKDF2
+[2026-02-07 16:45:10,320] INFO backends Autenticación exitosa: ID 42917356 - Daniel Betancourt
+[2026-02-07 16:45:10,419] INFO views Login exitoso para ID usuario: 42917356
+[2026-02-07 17:31:25,532] INFO views Logout exitoso para usuario: 42917356
+[2026-02-07 17:31:41,115] INFO views Intento de login recibido - ID Usuario: 42917356
+[2026-02-07 17:31:41,115] INFO backends Intento de autenticación para ID usuario: 42917356
+[2026-02-07 17:31:42,234] DEBUG backends Password en formato Django PBKDF2
+[2026-02-07 17:31:42,234] INFO backends Autenticación exitosa: ID 42917356 - Daniel Betancourt
+[2026-02-07 17:31:42,289] INFO views Login exitoso para ID usuario: 42917356
+[2026-02-07 17:42:11,861] ERROR views Error en agregar/editar tipo de personal: (1452, '1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`identia_db`.`usuarios`, CONSTRAINT `FK_usuarios_tipo` FOREIGN KEY (`tipo_fk`) REFERENCES `tipos_personal` (`id_nombre_tipo`) ON DELETE NO ACTION ON UPDATE NO ACTION)', '23000')
+[2026-02-07 17:44:42,527] INFO views Nuevo tipo de personal agregado: Desarrollador/a
+[2026-02-07 17:45:05,093] ERROR views Error en agregar/editar tipo de personal: Reverse for 'gestion_tipos_personal?accion=editar&id=1' not found. 'gestion_tipos_personal?accion=editar&id=1' is not a valid view function or pattern name.
+[2026-02-07 17:46:07,905] ERROR views Error en agregar/editar tipo de personal: (1452, '1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`identia_db`.`usuarios`, CONSTRAINT `FK_usuarios_tipo` FOREIGN KEY (`tipo_fk`) REFERENCES `tipos_personal` (`id_nombre_tipo`) ON DELETE NO ACTION ON UPDATE NO ACTION)', '23000')
+[2026-02-07 19:07:04,710] INFO views Logout exitoso para usuario: 42917356
+[2026-02-07 19:07:33,704] INFO views Intento de login recibido - ID Usuario: 42917356
+[2026-02-07 19:07:33,704] INFO backends Intento de autenticación para ID usuario: 42917356
+[2026-02-07 19:07:34,742] DEBUG backends Password en formato Django PBKDF2
+[2026-02-07 19:07:34,742] INFO backends Autenticación exitosa: ID 42917356 - Daniel Betancourt
+[2026-02-07 19:07:34,826] INFO views Login exitoso para ID usuario: 42917356
+[2026-02-07 19:10:54,456] INFO views Logout exitoso para usuario: 42917356
+[2026-02-07 19:11:19,975] INFO views Intento de login recibido - ID Usuario: 42917356
+[2026-02-07 19:11:19,976] INFO backends Intento de autenticación para ID usuario: 42917356
+[2026-02-07 19:11:21,102] DEBUG backends Password en formato Django PBKDF2
+[2026-02-07 19:11:21,102] INFO backends Autenticación exitosa: ID 42917356 - Daniel Betancourt
+[2026-02-07 19:11:21,163] INFO views Login exitoso para ID usuario: 42917356
+[2026-02-07 19:11:23,440] INFO views Logout exitoso para usuario: 42917356
+[2026-02-07 19:11:44,411] INFO views Intento de login recibido - ID Usuario: 42917358
+[2026-02-07 19:11:44,411] INFO backends Intento de autenticación para ID usuario: 42917358
+[2026-02-07 19:11:45,493] DEBUG backends Password en formato Django PBKDF2
+[2026-02-07 19:11:45,493] INFO backends Autenticación exitosa: ID 42917358 - Jonathan Vargas
+[2026-02-07 19:11:45,570] INFO views Login exitoso para ID usuario: 42917358
+[2026-02-07 19:43:56,320] INFO views Logout exitoso para usuario: 42917358
+[2026-02-07 19:44:17,119] INFO views Intento de login recibido - ID Usuario: 42917358
+[2026-02-07 19:44:17,120] INFO backends Intento de autenticación para ID usuario: 42917358
+[2026-02-07 19:44:18,149] DEBUG backends Password en formato Django PBKDF2
+[2026-02-07 19:44:18,149] INFO backends Autenticación exitosa: ID 42917358 - Jonathan Vargas
+[2026-02-07 19:44:18,235] INFO views Login exitoso para ID usuario: 42917358
+[2026-02-07 21:41:19,774] INFO views Intento de login recibido - ID Usuario: 42917358
+[2026-02-07 21:41:19,775] INFO backends Intento de autenticación para ID usuario: 42917358
+[2026-02-07 21:41:20,892] DEBUG backends Password en formato Django PBKDF2
+[2026-02-07 21:41:20,892] INFO backends Autenticación exitosa: ID 42917358 - Jonathan Vargas
+[2026-02-07 21:41:20,959] INFO views Login exitoso para ID usuario: 42917358
+[2026-02-07 22:02:54,470] INFO views Intento de login recibido - ID Usuario: 42917358
+[2026-02-07 22:02:54,472] INFO backends Intento de autenticación para ID usuario: 42917358
+[2026-02-07 22:02:55,625] DEBUG backends Password en formato Django PBKDF2
+[2026-02-07 22:02:55,625] INFO backends Autenticación exitosa: ID 42917358 - Jonathan Vargas
+[2026-02-07 22:02:55,683] INFO views Login exitoso para ID usuario: 42917358
+[2026-02-07 23:19:53,634] INFO views Intento de login recibido - ID Usuario: 42917358
+[2026-02-07 23:19:53,655] INFO backends Intento de autenticación para ID usuario: 42917358
+[2026-02-07 23:19:54,819] DEBUG backends Password en formato Django PBKDF2
+[2026-02-07 23:19:54,819] INFO backends Autenticación exitosa: ID 42917358 - Jonathan Vargas
+[2026-02-07 23:19:54,892] INFO views Login exitoso para ID usuario: 42917358
+[2026-02-07 23:53:01,219] INFO views Trabajador actualizado ID: 42917359 - Jonathan Alexander Vargas
+[2026-02-08 01:43:25,962] INFO views Logout exitoso para usuario: 42917358
+[2026-02-08 11:38:49,108] INFO views Intento de login recibido - ID Usuario: 42917358
+[2026-02-08 11:38:49,131] INFO backends Intento de autenticación para ID usuario: 42917358
+[2026-02-08 11:38:50,277] DEBUG backends Password en formato Django PBKDF2
+[2026-02-08 11:38:50,284] INFO backends Autenticación exitosa: ID 42917358 - Jonathan Vargas
+[2026-02-08 11:38:50,362] INFO views Login exitoso para ID usuario: 42917358
+[2026-02-08 19:47:43,096] INFO views Intento de login recibido - ID Usuario: 42917358
+[2026-02-08 19:47:43,098] INFO backends Intento de autenticación para ID usuario: 42917358
+[2026-02-08 19:47:44,248] DEBUG backends Password en formato Django PBKDF2
+[2026-02-08 19:47:44,248] INFO backends Autenticación exitosa: ID 42917358 - Jonathan Vargas
+[2026-02-08 19:47:44,345] INFO views Login exitoso para ID usuario: 42917358
+[2026-02-08 21:19:42,721] INFO views Intento de login recibido - ID Usuario: 42917356
+[2026-02-08 21:19:42,721] INFO backends Intento de autenticación para ID usuario: 42917356
+[2026-02-08 21:19:43,873] DEBUG backends Password en formato Django PBKDF2
+[2026-02-08 21:19:43,873] WARNING backends Password incorrecto para ID usuario: 42917356
+[2026-02-08 21:19:44,926] WARNING views Login fallido para ID usuario: 42917356
+[2026-02-08 21:19:58,153] INFO views Intento de login recibido - ID Usuario: 42917358
+[2026-02-08 21:19:58,153] INFO backends Intento de autenticación para ID usuario: 42917358
+[2026-02-08 21:19:59,183] DEBUG backends Password en formato Django PBKDF2
+[2026-02-08 21:19:59,183] INFO backends Autenticación exitosa: ID 42917358 - Jonathan Vargas
+[2026-02-08 21:19:59,225] INFO views Login exitoso para ID usuario: 42917358
+[2026-02-08 23:16:51,333] INFO views Intento de login recibido - ID Usuario: 42917358
+[2026-02-08 23:16:51,333] INFO backends Intento de autenticación para ID usuario: 42917358
+[2026-02-08 23:16:52,427] DEBUG backends Password en formato Django PBKDF2
+[2026-02-08 23:16:52,427] INFO backends Autenticación exitosa: ID 42917358 - Jonathan Vargas
+[2026-02-08 23:16:52,521] INFO views Login exitoso para ID usuario: 42917358
+[2026-02-09 01:51:31,314] INFO views Logout exitoso para usuario: 42917358
+[2026-02-13 17:17:58,429] INFO views Intento de login recibido - ID Usuario: 42917356
+[2026-02-13 17:17:58,458] INFO backends Intento de autenticación para ID usuario: 42917356
+[2026-02-13 17:17:59,629] DEBUG backends Password en formato Django PBKDF2
+[2026-02-13 17:17:59,629] WARNING backends Password incorrecto para ID usuario: 42917356
+[2026-02-13 17:18:00,681] WARNING views Login fallido para ID usuario: 42917356
+[2026-02-13 17:18:58,676] INFO views Intento de login recibido - ID Usuario: 42917358
+[2026-02-13 17:18:58,676] INFO backends Intento de autenticación para ID usuario: 42917358
+[2026-02-13 17:18:59,702] DEBUG backends Password en formato Django PBKDF2
+[2026-02-13 17:18:59,703] INFO backends Autenticación exitosa: ID 42917358 - Jonathan Vargas
+[2026-02-13 17:18:59,869] INFO views Login exitoso para ID usuario: 42917358
+[2026-02-13 18:09:34,999] INFO views Logout exitoso para usuario: 42917358
+[2026-02-13 18:09:50,596] INFO views Intento de login recibido - ID Usuario: 42917358
+[2026-02-13 18:09:50,597] INFO backends Intento de autenticación para ID usuario: 42917358
+[2026-02-13 18:09:51,639] DEBUG backends Password en formato Django PBKDF2
+[2026-02-13 18:09:51,639] INFO backends Autenticación exitosa: ID 42917358 - Admin2 Admin2
+[2026-02-13 18:09:51,719] INFO views Login exitoso para ID usuario: 42917358

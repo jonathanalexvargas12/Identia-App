@@ -1,0 +1,631 @@
+<!-- usuarios/templates/usuarios/gestion_tipos_personal.html -->
+{% extends 'usuarios/base_menu_lateral.html' %}
+
+{% block content %}
+<style>
+    /* Estilos específicos para tipos de personal */
+    .crud-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+    
+    .page-actions {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .btn-agregar {
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+    
+    .btn-agregar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        color: white;
+    }
+    
+    .btn-icon {
+        width: 18px;
+        height: 18px;
+        object-fit: contain;
+    }
+    
+    /* Barra de búsqueda */
+    .search-container {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+    
+    .search-form {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .search-input {
+        flex: 1;
+        padding: 12px 15px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s;
+    }
+    
+    .search-input:focus {
+        outline: none;
+        border-color: #2a5298;
+        box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+    }
+    
+    .btn-buscar {
+        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .btn-buscar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(42, 82, 152, 0.3);
+    }
+    
+    .btn-limpiar {
+        background: #95a5a6;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .btn-limpiar:hover {
+        background: #7f8c8d;
+        color: white;
+    }
+    
+    /* Tabla de tipos */
+    .table-container {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .crud-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .crud-table thead {
+        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+        color: white;
+    }
+    
+    .crud-table th {
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .crud-table tbody tr {
+        border-bottom: 1px solid #eee;
+        transition: all 0.3s;
+    }
+    
+    .crud-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .crud-table td {
+        padding: 15px;
+        font-size: 14px;
+        color: #333;
+    }
+    
+    /* Estadísticas */
+    .stats-badge {
+        display: inline-block;
+        background: #e8f4fd;
+        color: #2a5298;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        margin: 0 5px;
+    }
+    
+    .stats-usuarios {
+        background: #d5f4e6;
+        color: #27ae60;
+    }
+    
+    .stats-horarios {
+        background: #fdebd0;
+        color: #e67e22;
+    }
+    
+    /* Acciones */
+    .acciones-container {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .btn-accion {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.3s;
+    }
+    
+    .btn-editar {
+        background: #3498db;
+        color: white;
+        border: 1px solid #2980b9;
+    }
+    
+    .btn-editar:hover {
+        background: #2980b9;
+        color: white;
+    }
+    
+    .btn-eliminar {
+        background: #e74c3c;
+        color: white;
+        border: 1px solid #c0392b;
+    }
+    
+    .btn-eliminar:hover {
+        background: #c0392b;
+        color: white;
+    }
+    
+    .btn-no-eliminar {
+        background: #95a5a6;
+        color: white;
+        border: 1px solid #7f8c8d;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    
+    .accion-icon {
+        width: 14px;
+        height: 14px;
+        object-fit: contain;
+    }
+    
+    /* Formulario */
+    .form-container {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        margin-top: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .form-title {
+        color: #2a5298;
+        margin-bottom: 20px;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .form-title-icon {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #2a5298;
+        box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+    
+    .btn-guardar {
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .btn-guardar:hover {
+        background: #219653;
+    }
+    
+    .btn-cancelar {
+        background: #95a5a6;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: inline-block;
+    }
+    
+    .btn-cancelar:hover {
+        background: #7f8c8d;
+        color: white;
+    }
+    
+    /* Mensaje de confirmación */
+    .confirm-box {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin-top: 20px;
+    }
+    
+    .confirm-icon {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 15px;
+    }
+    
+    .confirm-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 25px;
+    }
+    
+    /* Sin resultados */
+    .no-results {
+        text-align: center;
+        padding: 40px 20px;
+        color: #7f8c8d;
+    }
+    
+    .no-results-icon {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+    
+    /* Alertas */
+    .alert {
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .alert-error {
+        background: #fee;
+        color: #c33;
+        border: 1px solid #fcc;
+    }
+    
+    .alert-success {
+        background: #efe;
+        color: #3a3;
+        border: 1px solid #cfc;
+    }
+    
+    .alert-info {
+        background: #e8f4fd;
+        color: #2a5298;
+        border: 1px solid #b6d4fe;
+    }
+    
+    .alert-warning {
+        background: #fef5e7;
+        color: #e67e22;
+        border: 1px solid #fdebd0;
+    }
+    
+    .alert::before {
+        font-size: 16px;
+    }
+    
+    .alert-error::before {
+        content: "⚠️";
+    }
+    
+    .alert-success::before {
+        content: "✅";
+    }
+    
+    .alert-info::before {
+        content: "ℹ️";
+    }
+    
+    .alert-warning::before {
+        content: "⚠️";
+    }
+</style>
+
+<div class="crud-header">
+    <h2 style="color: #2a5298; margin: 0;">Gestión de Tipos de Personal</h2>
+    <div class="page-actions">
+        <a href="?accion=agregar" class="btn-agregar">
+            <img src="../../static/images/icono_agregar.png" alt="Agregar" class="btn-icon">
+            Agregar Tipo
+        </a>
+    </div>
+</div>
+
+<!-- Mensajes del sistema -->
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Barra de búsqueda (solo se muestra si no estamos agregando/editiando/confirmando) -->
+{% if not accion_actual or accion_actual not in acciones_formulario %}
+<div class="search-container">
+    <form method="GET" action="{% url 'usuarios:gestion_tipos_personal' %}" class="search-form">
+        <input type="text" 
+               name="search" 
+               class="search-input" 
+               placeholder="Buscar tipo de personal..." 
+               value="{{ search_query }}">
+        <button type="submit" class="btn-buscar">Buscar</button>
+        {% if search_query %}
+        <a href="{% url 'usuarios:gestion_tipos_personal' %}" class="btn-limpiar">Limpiar</a>
+        {% endif %}
+    </form>
+</div>
+{% endif %}
+
+<!-- Formulario para Agregar/Editar -->
+{% if accion_actual == 'agregar' or accion_actual == 'editar' %}
+<div class="form-container">
+    <h3 class="form-title">
+        {% if accion_actual == 'agregar' %}
+        <img src="../../static/images/icono_agregar.png" alt="Agregar" class="form-title-icon">
+        Agregar Nuevo Tipo de Personal
+        {% else %}
+        <img src="../../static/images/icono_editar.png" alt="Editar" class="form-title-icon">
+        Editar Tipo de Personal
+        {% endif %}
+    </h3>
+    
+    {% if accion_actual == 'editar' and tipo_editar %}
+    <div class="alert alert-info">
+        ℹ️ Al editar este tipo, todos los usuarios y horarios asociados se actualizarán automáticamente.
+    </div>
+    {% endif %}
+    
+    <form method="POST" action="{% url 'usuarios:gestion_tipos_personal' %}">
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="{{ accion_actual }}">
+        
+        {% if accion_actual == 'editar' and tipo_editar %}
+        <input type="hidden" name="id_tipo_original" value="{{ tipo_editar.id_nombre_tipo }}">
+        {% endif %}
+        
+        <div class="form-group">
+            <label for="id_nombre_tipo">Nombre del Tipo *</label>
+            
+            <!-- Si estamos agregando: input normal -->
+            {% if accion_actual == 'agregar' %}
+            <input type="text" 
+                   id="id_nombre_tipo" 
+                   name="id_nombre_tipo" 
+                   class="form-control" 
+                   required 
+                   placeholder="Ej: Administrativo, Operativo, Supervisor, etc."
+                   list="tipos-sugeridos"
+                   value="{% if form_data.id_nombre_tipo %}{{ form_data.id_nombre_tipo }}{% endif %}">
+            
+            <!-- Si estamos editando: input con datalist -->
+            {% elif accion_actual == 'editar' %}
+            <input type="text" 
+                   id="id_nombre_tipo" 
+                   name="id_nombre_tipo" 
+                   class="form-control" 
+                   required 
+                   placeholder="Busque o escriba un tipo..."
+                   list="tipos-sugeridos"
+                   value="{% if form_data.id_nombre_tipo %}{{ form_data.id_nombre_tipo }}{% elif tipo_editar %}{{ tipo_editar.id_nombre_tipo }}{% endif %}">
+            {% endif %}
+            
+            <!-- Datalist con sugerencias -->
+            <datalist id="tipos-sugeridos">
+                {% for tipo in todos_los_tipos %}
+                <option value="{{ tipo }}">{{ tipo }}</option>
+                {% endfor %}
+            </datalist>
+            
+            <small style="color: #666; margin-top: 5px; display: block;">
+                {% if accion_actual == 'agregar' %}
+                Escriba un nuevo tipo o seleccione uno existente.
+                {% else %}
+                Busque un tipo existente o escriba uno nuevo. Al cambiar el tipo, todos los usuarios y horarios se actualizarán automáticamente.
+                {% endif %}
+            </small>
+        </div>
+        
+        <div class="form-actions">
+            <a href="{% url 'usuarios:gestion_tipos_personal' %}" class="btn-cancelar">Cancelar</a>
+            <button type="submit" class="btn-guardar">
+                {% if accion_actual == 'agregar' %}
+                Guardar Tipo
+                {% else %}
+                Actualizar Tipo
+                {% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+<!-- Confirmación de Eliminación -->
+{% if accion_actual == 'confirmar_eliminar' and id_tipo_actual %}
+<div class="confirm-box">
+    <img src="../../static/images/icono_pregunta.png" alt="¿Confirmar?" class="confirm-icon">
+    <h3 style="color: #e74c3c; margin-bottom: 15px;">Confirmar Eliminación</h3>
+    <p>¿Está seguro de que desea eliminar este tipo de personal?</p>
+    <p><strong>Tipo: {{ id_tipo_actual }}</strong></p>
+    <p><small style="color: #e74c3c;">
+        ⚠️ Esta acción no se puede deshacer. 
+        Si el tipo tiene usuarios asignados o horarios definidos, 
+        no podrá eliminarlo hasta que modifique esos registros primero.
+    </small></p>
+    
+    <div class="confirm-buttons">
+        <a href="{% url 'usuarios:gestion_tipos_personal' %}" class="btn-cancelar">Cancelar</a>
+        <a href="?accion=eliminar&id={{ id_tipo_actual }}" class="btn-accion btn-eliminar" style="padding: 10px 20px;">
+            Sí, Eliminar
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Tabla de tipos de personal (solo se muestra si no estamos en modo formulario/confirmación) -->
+{% if not accion_actual or accion_actual != 'agregar' and accion_actual != 'editar' and accion_actual != 'confirmar_eliminar' %}
+<div class="table-container">
+    {% if tipos_personal %}
+    <table class="crud-table">
+        <thead>
+            <tr>
+                <th>Tipo de Personal</th>
+                <th>Estadísticas</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tipo in tipos_personal %}
+            <tr>
+                <td>
+                    <strong>{{ tipo.id_nombre_tipo }}</strong>
+                </td>
+                <td>
+                    {% if tipo.total_usuarios > 0 %}
+                    <span class="stats-badge stats-usuarios" title="Usuarios asignados">
+                        👥 {{ tipo.total_usuarios }} usuario{% if tipo.total_usuarios != 1 %}s{% endif %}
+                    </span>
+                    {% endif %}
+                    
+                    {% if tipo.total_horarios > 0 %}
+                    <span class="stats-badge stats-horarios" title="Horarios definidos">
+                        ⏰ {{ tipo.total_horarios }} horario{% if tipo.total_horarios != 1 %}s{% endif %}
+                    </span>
+                    {% endif %}
+                    
+                    {% if tipo.total_usuarios == 0 and tipo.total_horarios == 0 %}
+                    <span style="color: #95a5a6; font-size: 13px;">
+                        Sin registros relacionados
+                    </span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="acciones-container">
+                        <!-- Botón Editar -->
+                        <a href="?accion=editar&id={{ tipo.id_nombre_tipo }}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" 
+                           class="btn-accion btn-editar">
+                            <img src="../../static/images/icono_editar.png" alt="Editar" class="accion-icon">
+                            Editar
+                        </a>
+                        
+                        <!-- Botón Eliminar (solo si no tiene registros) -->
+                        {% if tipo.total_usuarios == 0 and tipo.total_horarios == 0 %}
+                        <a href="?accion=confirmar_eliminar&id={{ tipo.id_nombre_tipo }}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" 
+                           class="btn-accion btn-eliminar">
+                            <img src="../../static/images/icono_eliminar.png" alt="Eliminar" class="accion-icon">
+                            Eliminar
+                        </a>
+                        {% else %}
+                        <span class="btn-accion btn-no-eliminar" 
+                              title="No se puede eliminar porque tiene {{ tipo.total_usuarios }} usuario(s) y {{ tipo.total_horarios }} horario(s) relacionados">
+                            <img src="../../static/images/icono_bloqueado.png" alt="Bloqueado" class="accion-icon">
+                            No eliminar
+                        </span>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="no-results">
+        <img src="../../static/images/icono_no_resultados.png" alt="Sin resultados" class="no-results-icon">
+        <h3 style="color: #7f8c8d; margin-bottom: 10px;">No se encontraron tipos de personal</h3>
+        <p>{% if search_query %}Intenta con otros términos de búsqueda{% else %}No hay tipos de personal registrados aún{% endif %}</p>
+        <a href="?accion=agregar" class="btn-agregar" style="margin-top: 15px;">
+            <img src="../../static/images/icono_agregar.png" alt="Agregar" class="btn-icon">
+            Agregar Primer Tipo
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

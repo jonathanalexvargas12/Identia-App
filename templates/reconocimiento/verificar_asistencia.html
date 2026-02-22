@@ -1,0 +1,1209 @@
+<!-- templates/reconocimiento/control_acceso.html -->
+{% extends 'usuarios/base_menu_lateral.html' %}
+
+{% load static %}
+
+{% block content %}
+<style>
+    /* Estilos específicos para control de acceso */
+    .control-acceso-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .crud-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .camera-container {
+        display: flex;
+        gap: 30px;
+        margin-top: 20px;
+    }
+    
+    .video-section {
+        flex: 2;
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .info-section {
+        flex: 1;
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        min-width: 400px;
+    }
+    
+    .camera-preview {
+        width: 100%;
+        height: 500px;
+        background: #1a1a1a;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        position: relative;
+    }
+    
+    #videoElement {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scaleX(-1); /* Efecto espejo */
+    }
+    
+    .face-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60%;
+        height: 70%;
+        border: 3px dashed #6a11cb;
+        border-radius: 10px;
+        pointer-events: none;
+    }
+    
+    .scanning-animation {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(0deg, transparent 30%, rgba(106, 17, 203, 0.3) 50%, transparent 70%);
+        animation: scan 2s linear infinite;
+        display: none;
+    }
+    
+    @keyframes scan {
+        0% { top: -100%; }
+        100% { top: 100%; }
+    }
+    
+    .status-indicator {
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 500;
+    }
+    
+    .status-waiting {
+        background: #e8f4fd;
+        color: #2575fc;
+        border: 2px solid #2575fc;
+    }
+    
+    .status-scanning {
+        background: #fef5e7;
+        color: #e67e22;
+        border: 2px solid #e67e22;
+    }
+    
+    .status-success {
+        background: #d5f4e6;
+        color: #27ae60;
+        border: 2px solid #27ae60;
+    }
+    
+    .status-error {
+        background: #fadbd8;
+        color: #e74c3c;
+        border: 2px solid #e74c3c;
+    }
+    
+    .user-card {
+        border: 2px solid #eee;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        transition: all 0.3s;
+        background: white;
+    }
+    
+    .user-card.active {
+        border-color: #27ae60;
+        background: linear-gradient(135deg, #f7fdf9, #e8f6ef);
+        box-shadow: 0 5px 15px rgba(39, 174, 96, 0.1);
+    }
+    
+    .user-card.inactive {
+        border-color: #e74c3c;
+        background: linear-gradient(135deg, #fdf7f7, #f9ebea);
+        box-shadow: 0 5px 15px rgba(231, 76, 60, 0.1);
+    }
+    
+    .user-card.vacaciones {
+        border-color: #3498db;
+        background: linear-gradient(135deg, #f7fbfd, #e8f4fc);
+        box-shadow: 0 5px 15px rgba(52, 152, 219, 0.1);
+    }
+    
+    .user-card.suspendido {
+        border-color: #f39c12;
+        background: linear-gradient(135deg, #fef9f0, #fef5e7);
+        box-shadow: 0 5px 15px rgba(243, 156, 18, 0.1);
+    }
+    
+    .user-info-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .user-info-label {
+        font-weight: 600;
+        color: #555;
+        width: 140px;
+        font-size: 14px;
+    }
+    
+    .user-info-value {
+        flex: 1;
+        color: #333;
+        font-size: 15px;
+    }
+    
+    .access-result {
+        text-align: center;
+        padding: 25px;
+        border-radius: 12px;
+        margin-top: 25px;
+        font-size: 20px;
+        font-weight: bold;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s;
+    }
+    
+    .access-granted {
+        background: linear-gradient(135deg, #27ae60, #229954);
+        color: white;
+        animation: pulse 2s infinite;
+    }
+    
+    .access-denied {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        color: white;
+        animation: shake 0.5s;
+    }
+    
+    .access-vacation {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        animation: pulse 3s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); }
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+    
+    .history-container {
+        max-height: 350px;
+        overflow-y: auto;
+        margin-top: 25px;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        padding: 15px;
+    }
+    
+    .history-header {
+        font-weight: 600;
+        color: #6a11cb;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #6a11cb;
+        font-size: 16px;
+    }
+    
+    .history-item {
+        padding: 12px 15px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+    }
+    
+    .history-item:hover {
+        background: #f8f9fa;
+        transform: translateX(5px);
+    }
+    
+    .history-time {
+        font-weight: bold;
+        color: #2575fc;
+        font-size: 14px;
+        min-width: 70px;
+    }
+    
+    .history-user {
+        flex: 1;
+        margin: 0 15px;
+    }
+    
+    .history-user-name {
+        font-weight: 500;
+        color: #333;
+    }
+    
+    .history-user-cedula {
+        font-size: 12px;
+        color: #666;
+        margin-top: 2px;
+    }
+    
+    .history-status {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        min-width: 100px;
+        text-align: center;
+    }
+    
+    .status-presente {
+        background: #d5f4e6;
+        color: #27ae60;
+        border: 1px solid #27ae60;
+    }
+    
+    .status-tardanza {
+        background: #fef5e7;
+        color: #e67e22;
+        border: 1px solid #e67e22;
+    }
+    
+    .controls {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .btn-control {
+        flex: 1;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .btn-start {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+    }
+    
+    .btn-stop {
+        background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        color: white;
+    }
+    
+    .btn-reset {
+        background: linear-gradient(135deg, #f39c12, #e67e22);
+        color: white;
+    }
+    
+    .btn-control:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    
+    .btn-control:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+    
+    /* Indicadores de estado */
+    .status-dot {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+    
+    .dot-green {
+        background: #27ae60;
+        box-shadow: 0 0 15px #27ae60;
+        animation: pulse 2s infinite;
+    }
+    
+    .dot-red {
+        background: #e74c3c;
+        box-shadow: 0 0 15px #e74c3c;
+    }
+    
+    .dot-blue {
+        background: #3498db;
+        box-shadow: 0 0 15px #3498db;
+        animation: pulse 3s infinite;
+    }
+    
+    /* Modal para acceso denegado */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        backdrop-filter: blur(5px);
+    }
+    
+    .modal-content {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        animation: modalAppear 0.3s;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+    
+    @keyframes modalAppear {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    .modal-icon {
+        font-size: 60px;
+        margin-bottom: 25px;
+    }
+    
+    .modal-close {
+        margin-top: 25px;
+        padding: 12px 35px;
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .modal-close:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
+    }
+    
+    .jornada-indicator {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-top: 8px;
+        display: inline-block;
+    }
+    
+    .jornada-transcurriendo {
+        background: #d5f4e6;
+        color: #27ae60;
+        border: 1px solid #27ae60;
+    }
+    
+    .jornada-tolerancia {
+        background: #fef5e7;
+        color: #e67e22;
+        border: 1px solid #e67e22;
+    }
+    
+    .jornada-fuera {
+        background: #fadbd8;
+        color: #e74c3c;
+        border: 1px solid #e74c3c;
+    }
+    
+    .jornada-sin-horario {
+        background: #ecf0f1;
+        color: #7f8c8d;
+        border: 1px solid #bdc3c7;
+    }
+    
+    /* Estadísticas */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-top: 30px;
+    }
+    
+    .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        text-align: center;
+        transition: all 0.3s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .stat-value {
+        font-size: 36px;
+        font-weight: bold;
+        color: #6a11cb;
+        margin: 10px 0;
+    }
+    
+    .stat-label {
+        font-size: 14px;
+        color: #666;
+        font-weight: 500;
+    }
+    
+    /* Mensaje cuando no hay usuario */
+    .no-user-container {
+        text-align: center;
+        padding: 60px 20px;
+        color: #95a5a6;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border: 2px dashed #ddd;
+    }
+    
+    .no-user-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .camera-container {
+            flex-direction: column;
+        }
+        
+        .info-section {
+            min-width: auto;
+        }
+        
+        .stats-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .controls {
+            flex-direction: column;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+        }
+    }
+</style>
+
+<div class="control-acceso-container">
+    <div class="crud-header">
+        <h2 style="color: #6a11cb; margin: 0; font-size: 28px;">
+            🏢 Control de Acceso Biométrico en Tiempo Real
+        </h2>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <span class="status-dot" id="connectionDot"></span>
+            <span id="connectionStatus" style="font-weight: 500; color: #555;">Desconectado</span>
+        </div>
+    </div>
+    
+    <!-- Mensajes del sistema -->
+    {% if messages %}
+    <div class="messages" style="margin-bottom: 20px;">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Indicador de estado -->
+    <div id="statusIndicator" class="status-indicator status-waiting">
+        <span id="statusIcon">🔵</span>
+        <span id="statusText">Inicie el sistema para comenzar el escaneo facial</span>
+    </div>
+    
+    <div class="camera-container">
+        <!-- Sección de video -->
+        <div class="video-section">
+            <h3 style="color: #6a11cb; margin-bottom: 25px; font-size: 22px;">
+                📷 Cámara de Reconocimiento Facial
+            </h3>
+            
+            <div class="camera-preview">
+                <video id="videoElement" autoplay playsinline></video>
+                <div class="face-overlay"></div>
+                <div id="scanningAnimation" class="scanning-animation"></div>
+            </div>
+            
+            <div class="controls">
+                <button id="startBtn" class="btn-control btn-start" onclick="startScanning()">
+                    <span>▶️</span>
+                    <span>Iniciar Escaneo Automático</span>
+                </button>
+                <button id="stopBtn" class="btn-control btn-stop" onclick="stopScanning()" disabled>
+                    <span>⏹️</span>
+                    <span>Detener Escaneo</span>
+                </button>
+                <button id="resetBtn" class="btn-control btn-reset" onclick="resetScanner()">
+                    <span>🔄</span>
+                    <span>Reiniciar Sistema</span>
+                </button>
+            </div>
+            
+            <div style="margin-top: 25px; text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <p style="color: #666; font-size: 14px; margin-bottom: 5px;">
+                    <strong>📊 Modo de operación:</strong> Escaneo automático cada 3 segundos
+                </p>
+                <p style="color: #666; font-size: 13px; margin: 0;">
+                    El sistema analizará automáticamente rostros frente a la cámara y determinará el acceso
+                </p>
+            </div>
+        </div>
+        
+        <!-- Sección de información -->
+        <div class="info-section">
+            <h3 style="color: #6a11cb; margin-bottom: 25px; font-size: 22px;">
+                👤 Resultado del Reconocimiento
+            </h3>
+            
+            <div id="userResult" style="display: none;">
+                <!-- Aquí se mostrará la información del usuario -->
+            </div>
+            
+            <div id="noUserFound" class="no-user-container">
+                <div class="no-user-icon">👁️</div>
+                <h4 style="color: #7f8c8d; margin-bottom: 10px;">Esperando reconocimiento</h4>
+                <p style="color: #95a5a6; font-size: 14px;">Colóquese frente a la cámara para ser identificado</p>
+                <p style="color: #bdc3c7; font-size: 12px; margin-top: 10px;">El sistema detectará automáticamente su rostro</p>
+            </div>
+            
+            <!-- Resultado de acceso -->
+            <div id="accessResult" class="access-result" style="display: none;">
+                <!-- Aquí se mostrará si se permite o deniega el acceso -->
+            </div>
+            
+            <!-- Historial reciente -->
+            <div class="history-container">
+                <div class="history-header">📋 Historial de Accesos Hoy</div>
+                <div id="historyList">
+                    <!-- Los registros se agregarán aquí dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Estadísticas -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-label">Total de Escaneos</div>
+            <div class="stat-value" id="totalScans">0</div>
+            <div style="font-size: 12px; color: #999;">Hoy</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Reconocidos</div>
+            <div class="stat-value" id="totalRecognized">0</div>
+            <div style="font-size: 12px; color: #999;">Accesos exitosos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Denegados</div>
+            <div class="stat-value" id="totalDenied">0</div>
+            <div style="font-size: 12px; color: #999;">Sin permiso</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Tardanzas</div>
+            <div class="stat-value" id="totalTardanzas">0</div>
+            <div style="font-size: 12px; color: #999;">Fuera de tiempo</div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para acceso denegado -->
+<div id="deniedModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-icon" id="modalIcon" style="color: #e74c3c;">🚫</div>
+        <h3 id="modalTitle" style="color: #e74c3c; margin-bottom: 10px; font-size: 24px;">ACCESO DENEGADO</h3>
+        <p id="deniedReason" style="color: #555; font-size: 16px; line-height: 1.5;">El acceso ha sido denegado por razones de seguridad.</p>
+        <button class="modal-close" onclick="closeDeniedModal()">ENTENDIDO</button>
+    </div>
+</div>
+
+<script>
+    // Variables globales
+    let videoStream = null;
+    let isScanning = false;
+    let scanInterval = null;
+    let scanCount = 0;
+    let recognizedCount = 0;
+    let deniedCount = 0;
+    let tardanzaCount = 0;
+    let currentUser = null;
+    let lastScanTime = 0;
+    const SCAN_COOLDOWN = 3000; // 3 segundos entre escaneos
+    
+    // Elementos DOM
+    const videoElement = document.getElementById('videoElement');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const statusIndicator = document.getElementById('statusIndicator');
+    const statusText = document.getElementById('statusText');
+    const statusIcon = document.getElementById('statusIcon');
+    const userResult = document.getElementById('userResult');
+    const noUserFound = document.getElementById('noUserFound');
+    const accessResult = document.getElementById('accessResult');
+    const historyList = document.getElementById('historyList');
+    const scanningAnimation = document.getElementById('scanningAnimation');
+    const connectionDot = document.getElementById('connectionDot');
+    const connectionStatus = document.getElementById('connectionStatus');
+    const deniedModal = document.getElementById('deniedModal');
+    const deniedReason = document.getElementById('deniedReason');
+    const modalIcon = document.getElementById('modalIcon');
+    const modalTitle = document.getElementById('modalTitle');
+    const totalScans = document.getElementById('totalScans');
+    const totalRecognized = document.getElementById('totalRecognized');
+    const totalDenied = document.getElementById('totalDenied');
+    const totalTardanzas = document.getElementById('totalTardanzas');
+    
+    // Inicializar cámara
+    async function initializeCamera() {
+        try {
+            updateStatus('Inicializando cámara...', 'waiting');
+            connectionStatus.textContent = 'Conectando...';
+            connectionDot.className = 'status-dot';
+            
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    facingMode: 'environment'
+                } 
+            });
+            
+            videoStream = stream;
+            videoElement.srcObject = stream;
+            
+            updateStatus('Cámara lista. Inicie el escaneo para comenzar.', 'success');
+            connectionStatus.textContent = 'Conectado';
+            connectionDot.className = 'status-dot dot-green';
+            
+        } catch (error) {
+            console.error('Error al acceder a la cámara:', error);
+            updateStatus(`Error de cámara: ${error.message}`, 'error');
+            connectionStatus.textContent = 'Error de conexión';
+            connectionDot.className = 'status-dot dot-red';
+            
+            if (error.name === 'NotAllowedError') {
+                alert('⚠️ Para usar el sistema de control de acceso, debe permitir el acceso a la cámara.\n\nPor favor, revise los permisos de su navegador.');
+            } else if (error.name === 'NotFoundError') {
+                alert('⚠️ No se encontró ninguna cámara conectada.\n\nConecte una cámara y recargue la página.');
+            }
+        }
+    }
+    
+    // Actualizar estado
+    function updateStatus(message, type) {
+        statusText.textContent = message;
+        
+        const icons = {
+            'waiting': '🔵',
+            'scanning': '🟡',
+            'success': '✅',
+            'error': '❌'
+        };
+        
+        statusIcon.textContent = icons[type] || '🔵';
+        statusIndicator.className = `status-indicator status-${type}`;
+    }
+    
+    // Iniciar escaneo
+    async function startScanning() {
+        if (isScanning) return;
+        
+        try {
+            isScanning = true;
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            scanningAnimation.style.display = 'block';
+            
+            updateStatus('Escaneando rostros en tiempo real...', 'scanning');
+            
+            // Escanear cada 3 segundos
+            scanInterval = setInterval(captureAndAnalyze, SCAN_COOLDOWN);
+            
+            // Cargar historial inicial
+            loadInitialHistory();
+            
+        } catch (error) {
+            console.error('Error iniciando escaneo:', error);
+            updateStatus(`Error: ${error.message}`, 'error');
+            stopScanning();
+        }
+    }
+    
+    // Detener escaneo
+    function stopScanning() {
+        if (!isScanning) return;
+        
+        isScanning = false;
+        clearInterval(scanInterval);
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        scanningAnimation.style.display = 'none';
+        
+        updateStatus('Escaneo detenido', 'waiting');
+    }
+    
+    // Reiniciar escáner
+    function resetScanner() {
+        stopScanning();
+        currentUser = null;
+        userResult.style.display = 'none';
+        noUserFound.style.display = 'block';
+        accessResult.style.display = 'none';
+        updateStatus('Sistema reiniciado. Listo para comenzar.', 'waiting');
+    }
+    
+    // Capturar y analizar
+    async function captureAndAnalyze() {
+        if (!videoStream || !isScanning) return;
+        
+        // Prevenir escaneos muy seguidos
+        const now = Date.now();
+        if (now - lastScanTime < SCAN_COOLDOWN - 500) return;
+        lastScanTime = now;
+        
+        try {
+            scanCount++;
+            totalScans.textContent = scanCount;
+            
+            // Capturar frame del video
+            const canvas = document.createElement('canvas');
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            const ctx = canvas.getContext('2d');
+            
+            // Voltear horizontalmente para efecto espejo
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            
+            // Volver al estado normal
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            
+            // Convertir a base64
+            const imageData = canvas.toDataURL('image/jpeg', 0.9);
+            
+            // Enviar al servidor para análisis
+            const response = await fetch('{% url "reconocimiento:reconocer_rostro_acceso" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    image: imageData,
+                    scan_id: scanCount,
+                    timestamp: new Date().toISOString()
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                if (data.user_found) {
+                    recognizedCount++;
+                    totalRecognized.textContent = recognizedCount;
+                    
+                    // Actualizar contador de tardanzas si aplica
+                    if (data.jornada_info && data.jornada_info.estado_jornada === 'Tardanza') {
+                        tardanzaCount++;
+                        totalTardanzas.textContent = tardanzaCount;
+                    }
+                    
+                    displayUserInfo(data.user_info, data.access_granted, data.jornada_info);
+                    
+                    // Registrar en bitácora y añadir al historial
+                    if (data.bitacora_guardada) {
+                        addToHistory(data.user_info, data.jornada_info);
+                    }
+                    
+                    // Mostrar modal si acceso denegado
+                    if (!data.access_granted) {
+                        deniedCount++;
+                        totalDenied.textContent = deniedCount;
+                        showDeniedModal(data.denied_reason, data.user_info.estado);
+                    }
+                } else {
+                    // No se reconoció ningún rostro
+                    userResult.style.display = 'none';
+                    noUserFound.style.display = 'block';
+                    accessResult.style.display = 'none';
+                }
+            } else {
+                console.error('Error del servidor:', data.error);
+            }
+            
+        } catch (error) {
+            console.error('Error en captura:', error);
+        }
+    }
+    
+    // Mostrar información del usuario
+    function displayUserInfo(userInfo, accessGranted, jornadaInfo) {
+        noUserFound.style.display = 'none';
+        userResult.style.display = 'block';
+        accessResult.style.display = 'block';
+        
+        // Determinar clase CSS basada en estado
+        let cardClass = '';
+        let statusText = '';
+        let statusColor = '';
+        
+        switch(userInfo.estado) {
+            case 'Activo':
+                cardClass = 'active';
+                statusText = 'ACTIVO';
+                statusColor = '#27ae60';
+                break;
+            case 'Inactivo':
+                cardClass = 'inactive';
+                statusText = 'INACTIVO';
+                statusColor = '#e74c3c';
+                break;
+            case 'Suspendido':
+                cardClass = 'suspendido';
+                statusText = 'SUSPENDIDO';
+                statusColor = '#f39c12';
+                break;
+            case 'Vacaciones':
+                cardClass = 'vacaciones';
+                statusText = 'VACACIONES';
+                statusColor = '#3498db';
+                break;
+        }
+        
+        // Crear HTML para la tarjeta del usuario
+        let jornadaHtml = '';
+        if (jornadaInfo) {
+            let jornadaClass = '';
+            switch(jornadaInfo.estado_jornada) {
+                case 'Presente':
+                    jornadaClass = 'jornada-transcurriendo';
+                    break;
+                case 'Tardanza':
+                    jornadaClass = 'jornada-tolerancia';
+                    break;
+                case 'Fuera del tiempo de tolerancia':
+                    jornadaClass = 'jornada-fuera';
+                    break;
+                case 'Sin horario':
+                    jornadaClass = 'jornada-sin-horario';
+                    break;
+                default:
+                    jornadaClass = 'jornada-sin-horario';
+            }
+            
+            jornadaHtml = `
+                <div class="user-info-row">
+                    <div class="user-info-label">Horario:</div>
+                    <div class="user-info-value">
+                        ${jornadaInfo.hora_entrada_prevista} - ${jornadaInfo.hora_salida_prevista}
+                        <div class="jornada-indicator ${jornadaClass}">
+                            ${jornadaInfo.estado_jornada}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        userResult.innerHTML = `
+            <div class="user-card ${cardClass}">
+                <div class="user-info-row">
+                    <div class="user-info-label">Nombre:</div>
+                    <div class="user-info-value">
+                        <strong style="font-size: 18px; color: #2c3e50;">${userInfo.nombres} ${userInfo.apellidos}</strong>
+                    </div>
+                </div>
+                <div class="user-info-row">
+                    <div class="user-info-label">Cédula:</div>
+                    <div class="user-info-value" style="font-family: monospace; font-size: 16px;">${userInfo.cedula}</div>
+                </div>
+                <div class="user-info-row">
+                    <div class="user-info-label">Estado:</div>
+                    <div class="user-info-value">
+                        <span style="color: ${statusColor}; font-weight: bold; font-size: 16px;">${statusText}</span>
+                    </div>
+                </div>
+                <div class="user-info-row">
+                    <div class="user-info-label">Área:</div>
+                    <div class="user-info-value">${userInfo.area_trabajo}</div>
+                </div>
+                <div class="user-info-row">
+                    <div class="user-info-label">Cargo:</div>
+                    <div class="user-info-value">${userInfo.rol}</div>
+                </div>
+                ${jornadaHtml}
+                <div class="user-info-row" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">
+                    <div class="user-info-label">Hora:</div>
+                    <div class="user-info-value" style="font-weight: bold; color: #2c3e50;">${new Date().toLocaleTimeString()}</div>
+                </div>
+            </div>
+        `;
+        
+        // Mostrar resultado de acceso
+        let accessClass = '';
+        let accessMessage = '';
+        let accessIcon = '';
+        
+        if (accessGranted) {
+            if (userInfo.estado === 'Vacaciones') {
+                accessClass = 'access-vacation';
+                accessIcon = '🏖️';
+                accessMessage = 'ACCESO PERMITIDO<br><small style="font-size: 16px; opacity: 0.9;">(EN VACACIONES)</small>';
+            } else {
+                accessClass = 'access-granted';
+                accessIcon = '✅';
+                accessMessage = 'ACCESO PERMITIDO';
+            }
+        } else {
+            accessClass = 'access-denied';
+            accessIcon = '🚫';
+            accessMessage = 'ACCESO DENEGADO';
+        }
+        
+        accessResult.innerHTML = `
+            <div style="font-size: 50px; margin-bottom: 15px;">${accessIcon}</div>
+            <h3 style="margin: 0; font-size: 24px;">${accessMessage}</h3>
+        `;
+        accessResult.className = `access-result ${accessClass}`;
+        
+        // Actualizar estado
+        if (accessGranted) {
+            updateStatus(`✅ Acceso permitido para ${userInfo.nombres}`, 'success');
+        } else {
+            updateStatus(`❌ Acceso denegado para ${userInfo.nombres}`, 'error');
+        }
+    }
+    
+    // Agregar al historial
+    function addToHistory(userInfo, jornadaInfo) {
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        // Determinar clase de estado
+        let estadoClass = 'status-presente';
+        let estadoText = 'Presente';
+        
+        if (jornadaInfo) {
+            estadoText = jornadaInfo.estado_jornada;
+            if (jornadaInfo.estado_jornada === 'Tardanza') {
+                estadoClass = 'status-tardanza';
+            } else if (jornadaInfo.estado_jornada === 'Fuera del tiempo de tolerancia') {
+                estadoClass = 'status-tardanza';
+            }
+        }
+        
+        historyItem.innerHTML = `
+            <div class="history-time">${timeString}</div>
+            <div class="history-user">
+                <div class="history-user-name">${userInfo.nombres} ${userInfo.apellidos}</div>
+                <div class="history-user-cedula">${userInfo.cedula}</div>
+            </div>
+            <div class="history-status ${estadoClass}">
+                ${estadoText}
+            </div>
+        `;
+        
+        // Insertar al inicio
+        if (historyList.firstChild) {
+            historyList.insertBefore(historyItem, historyList.firstChild);
+        } else {
+            historyList.appendChild(historyItem);
+        }
+        
+        // Limitar a 15 elementos
+        if (historyList.children.length > 15) {
+            historyList.removeChild(historyList.lastChild);
+        }
+    }
+    
+    // Mostrar modal de acceso denegado
+    function showDeniedModal(reason, estado) {
+        // Configurar el modal según el estado
+        if (estado === 'Inactivo') {
+            modalIcon.textContent = '🚫';
+            modalIcon.style.color = '#e74c3c';
+            modalTitle.textContent = 'ACCESO DENEGADO';
+            modalTitle.style.color = '#e74c3c';
+        } else if (estado === 'Suspendido') {
+            modalIcon.textContent = '⛔';
+            modalIcon.style.color = '#f39c12';
+            modalTitle.textContent = 'ACCESO SUSPENDIDO';
+            modalTitle.style.color = '#f39c12';
+        }
+        
+        deniedReason.textContent = reason;
+        deniedModal.style.display = 'flex';
+        
+        // Sonido de alerta (opcional)
+        try {
+            const audio = new Audio('/static/sounds/denied.mp3');
+            audio.play().catch(e => console.log('No se pudo reproducir sonido de alerta'));
+        } catch (e) {
+            console.log('Sonido de alerta no disponible');
+        }
+        
+        // Cerrar automáticamente después de 5 segundos
+        setTimeout(() => {
+            closeDeniedModal();
+        }, 5000);
+    }
+    
+    // Cerrar modal
+    function closeDeniedModal() {
+        deniedModal.style.display = 'none';
+    }
+    
+    // Cargar historial inicial
+    async function loadInitialHistory() {
+        try {
+            const response = await fetch('{% url "reconocimiento:obtener_historial_acceso" %}');
+            const data = await response.json();
+            
+            if (data.success && data.historial) {
+                // Limpiar historial actual
+                historyList.innerHTML = '';
+                
+                // Agregar cada item del historial
+                data.historial.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    
+                    let estadoClass = 'status-presente';
+                    if (item.estado_jornada === 'Tardanza') {
+                        estadoClass = 'status-tardanza';
+                    }
+                    
+                    historyItem.innerHTML = `
+                        <div class="history-time">${item.hora}</div>
+                        <div class="history-user">
+                            <div class="history-user-name">${item.nombres} ${item.apellidos}</div>
+                            <div class="history-user-cedula">${item.cedula}</div>
+                        </div>
+                        <div class="history-status ${estadoClass}">
+                            ${item.estado_jornada}
+                        </div>
+                    `;
+                    
+                    historyList.appendChild(historyItem);
+                });
+                
+                // Contar tardanzas del historial
+                tardanzaCount = data.historial.filter(item => 
+                    item.estado_jornada === 'Tardanza' || 
+                    item.estado_jornada === 'Fuera del tiempo de tolerancia'
+                ).length;
+                totalTardanzas.textContent = tardanzaCount;
+            }
+        } catch (error) {
+            console.error('Error cargando historial:', error);
+        }
+    }
+    
+    // Cargar estadísticas iniciales
+    async function loadInitialStats() {
+        try {
+            const response = await fetch('{% url "reconocimiento:estadisticas_acceso" %}');
+            const data = await response.json();
+            
+            if (data.success && data.estadisticas) {
+                const stats = data.estadisticas;
+                totalScans.textContent = stats.total_registros || 0;
+                totalRecognized.textContent = stats.usuarios_hoy || 0;
+                totalTardanzas.textContent = stats.tardanzas_hoy || 0;
+            }
+        } catch (error) {
+            console.error('Error cargando estadísticas:', error);
+        }
+    }
+    
+    // Inicializar al cargar la página
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeCamera();
+        loadInitialStats();
+        
+        // Cerrar modal con Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeDeniedModal();
+            }
+        });
+        
+        // Cerrar modal haciendo clic fuera
+        deniedModal.addEventListener('click', (e) => {
+            if (e.target === deniedModal) {
+                closeDeniedModal();
+            }
+        });
+    });
+    
+    // Limpiar recursos
+    function cleanup() {
+        stopScanning();
+        if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop());
+        }
+    }
+    
+    window.addEventListener('beforeunload', cleanup);
+    window.addEventListener('pagehide', cleanup);
+</script>
+
+{% endblock %}

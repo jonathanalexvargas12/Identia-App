@@ -1,0 +1,924 @@
+<!-- reconocimiento/templates/reconocimiento/gestion_trabajadores.html -->
+{% extends 'usuarios/base_menu_lateral.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Estilos para el CRUD */
+    .crud-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+    
+    .page-actions {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .btn-agregar {
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    
+    .btn-agregar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        color: white;
+    }
+    
+    .btn-icon {
+        width: 18px;
+        height: 18px;
+        object-fit: contain;
+        filter: brightness(0) invert(1); /* Hace los íconos blancos */
+    }
+    
+    /* Barra de búsqueda */
+    .search-container {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+    
+    .search-form {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .search-input {
+        flex: 1;
+        padding: 12px 15px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s;
+    }
+    
+    .search-input:focus {
+        outline: none;
+        border-color: #2a5298;
+        box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+    }
+    
+    .btn-buscar {
+        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-buscar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(42, 82, 152, 0.3);
+    }
+    
+    .btn-limpiar {
+        background: #95a5a6;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-limpiar:hover {
+        background: #7f8c8d;
+        color: white;
+    }
+    
+    /* Tabla de trabajadores */
+    .table-container {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .crud-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .crud-table thead {
+        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+        color: white;
+    }
+    
+    .crud-table th {
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .crud-table tbody tr {
+        border-bottom: 1px solid #eee;
+        transition: all 0.3s;
+    }
+    
+    .crud-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .crud-table td {
+        padding: 15px;
+        font-size: 14px;
+        color: #333;
+        vertical-align: middle;
+    }
+    
+    /* Estado badges - SIN EMOJIS */
+    .badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-block;
+    }
+    
+    .badge-activo {
+        background: #d5f4e6;
+        color: #27ae60;
+    }
+    
+    .badge-inactivo {
+        background: #fdebd0;
+        color: #e67e22;
+    }
+    
+    .badge-suspendido {
+        background: #fadbd8;
+        color: #e74c3c;
+    }
+    
+    .badge-vacaciones {
+        background: #d6eaf8;
+        color: #3498db;
+    }
+    
+    /* Acciones */
+    .acciones-container {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .btn-accion {
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: none;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        text-decoration: none;
+        min-width: 32px;
+        min-height: 32px;
+        justify-content: center;
+    }
+    
+    .btn-editar {
+        background: #3498db;
+        color: white;
+    }
+    
+    .btn-editar:hover {
+        background: #2980b9;
+        color: white;
+    }
+    
+    .btn-desactivar {
+        background: #f39c12;
+        color: white;
+    }
+    
+    .btn-desactivar:hover {
+        background: #d68910;
+        color: white;
+    }
+    
+    .btn-eliminar {
+        background: #e74c3c;
+        color: white;
+    }
+    
+    .btn-eliminar:hover {
+        background: #c0392b;
+        color: white;
+    }
+    
+    .btn-rostro {
+        background: #9b59b6;
+        color: white;
+    }
+    
+    .btn-rostro:hover {
+        background: #8e44ad;
+        color: white;
+    }
+    
+    .accion-icon {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+        filter: brightness(0) invert(1); /* Íconos blancos */
+    }
+    
+    /* Íconos en formulario - solo texto ahora */
+    .form-icon-text {
+        margin-right: 8px;
+        font-size: 16px;
+    }
+    
+    /* Formulario de edición/agregar */
+    .form-container {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        margin-top: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .form-title {
+        color: #2a5298;
+        margin-bottom: 20px;
+        font-size: 20px;
+        font-weight: 600;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #2a5298;
+        box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+    
+    .btn-guardar {
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-guardar:hover {
+        background: #219653;
+    }
+    
+    .btn-cancelar {
+        background: #95a5a6;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-cancelar:hover {
+        background: #7f8c8d;
+        color: white;
+    }
+    
+    /* Información de registros */
+    .info-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin: 2px;
+        padding: 2px 6px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        font-size: 11px;
+        color: #6c757d;
+    }
+    
+    .info-icon-text {
+        font-size: 12px;
+    }
+    
+    /* Campos requeridos */
+    .required-field::after {
+        content: " *";
+        color: #e74c3c;
+    }
+    
+    /* Checkbox para captura facial */
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Estilos para mensajes con emojis */
+    .alert {
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+    }
+    
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .alert-warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+    }
+    
+    .alert-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+    
+    .emoji-icon {
+        font-size: 20px;
+        line-height: 1;
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 40px;
+    }
+    
+    .no-results h3 {
+        color: #7f8c8d;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="crud-header">
+    <h2 style="color: #2a5298; margin: 0;">
+        Gestión de Trabajadores
+    </h2>
+    <div class="page-actions">
+        <!-- Opciones para agregar trabajador -->
+        <div class="btn-group" style="display: flex; gap: 10px;">
+            <a href="?accion=agregar" class="btn-agregar">
+                <img src="{% static 'images/icono_agregar.png' %}" alt="Agregar" class="btn-icon">
+                Agregar Simple
+            </a>
+            <a href="{% url 'reconocimiento:registro_facial' %}" class="btn-agregar" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
+                <img src="{% static 'images/icono_agregar.png' %}" alt="Cámara" class="btn-icon">
+                Agregar con Facial
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Mensajes del sistema con EMOJIS -->
+{% if messages %}
+<div class="messages" style="margin-bottom: 20px;">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        <span class="emoji-icon">
+            {% if message.tags == 'success' %}
+            ✅
+            {% elif message.tags == 'error' %}
+            ❌
+            {% elif message.tags == 'warning' %}
+            ⚠️
+            {% else %}
+            ℹ️
+            {% endif %}
+        </span>
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Barra de búsqueda (solo si no estamos editando/agregando) -->
+{% if request.GET.accion != 'editar' and request.GET.accion != 'agregar' and not modo_agregar %}
+<div class="search-container">
+    <form method="GET" action="{% url 'reconocimiento:gestion_trabajadores' %}" class="search-form">
+        <input type="hidden" name="accion" value="">
+        <input type="text" 
+               name="search" 
+               class="search-input" 
+               placeholder="Buscar por cédula, nombre, apellido, área, rol..." 
+               value="{{ search_query|default:'' }}">
+        <button type="submit" class="btn-buscar">
+            Buscar
+        </button>
+        {% if search_query %}
+        <a href="{% url 'reconocimiento:gestion_trabajadores' %}" class="btn-limpiar">
+             Limpiar
+        </a>
+        {% endif %}
+    </form>
+</div>
+{% endif %}
+
+<!-- Formulario de edición/agregar -->
+{% if request.GET.accion == 'editar' or modo_agregar %}
+<div class="form-container">
+    <h3 class="form-title">
+        {% if request.GET.accion == 'editar' %}
+        Editar Trabajador
+        {% else %}
+        Agregar Nuevo Trabajador
+        {% endif %}
+    </h3>
+    
+    <form method="POST" action="{% url 'reconocimiento:guardar_trabajador' %}">
+        {% csrf_token %}
+        
+        {% if request.GET.accion == 'editar' and trabajador_editar %}
+        <input type="hidden" name="id_trabajador" value="{{ trabajador_editar.id_pk }}">
+        {% endif %}
+        
+        <div class="form-row">
+            <div class="form-col">
+                <div class="form-group">
+                    <label for="cedula" class="required-field">
+                        <span class="form-icon-text">🆔</span>
+                        Cédula
+                    </label>
+                    <input type="text" id="cedula" name="cedula" class="form-control" required 
+                           placeholder="Ej: 12345678" maxlength="8"
+                           {% if trabajador_editar %} 
+                           value="{{ trabajador_editar.cedula }}"
+                           {% endif %}>
+                    <small style="color: #6c757d; font-size: 12px; margin-left: 28px;">8 dígitos numéricos</small>
+                </div>
+            </div>
+            
+            <div class="form-col">
+                <div class="form-group">
+                    <label for="nombres" class="required-field">
+                        <span class="form-icon-text">👤</span>
+                        Nombres
+                    </label>
+                    <input type="text" id="nombres" name="nombres" class="form-control" required 
+                           placeholder="Ej: Juan Carlos"
+                           {% if trabajador_editar %} 
+                           value="{{ trabajador_editar.nombres }}"
+                           {% endif %}>
+                </div>
+            </div>
+            
+            <div class="form-col">
+                <div class="form-group">
+                    <label for="apellidos" class="required-field">
+                        <span class="form-icon-text">👤</span>
+                        Apellidos
+                    </label>
+                    <input type="text" id="apellidos" name="apellidos" class="form-control" required 
+                           placeholder="Ej: Pérez González"
+                           {% if trabajador_editar %} 
+                           value="{{ trabajador_editar.apellidos }}"
+                           {% endif %}>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-col">
+                <div class="form-group">
+                    <label for="direccion">
+                        <span class="form-icon-text">📍</span>
+                        Dirección
+                    </label>
+                    <textarea id="direccion" name="direccion" class="form-control" rows="2" 
+                              placeholder="Dirección de habitación">{% if trabajador_editar %}{{ trabajador_editar.direccion_habitacional }}{% endif %}</textarea>
+                </div>
+            </div>
+            
+            <div class="form-col">
+                <div class="form-group">
+                    <label for="correo">
+                        <span class="form-icon-text">📧</span>
+                        Correo Electrónico
+                    </label>
+                    <input type="email" id="correo" name="correo" class="form-control" 
+                           placeholder="ejemplo@correo.com"
+                           {% if trabajador_editar %} 
+                           value="{{ trabajador_editar.correo }}"
+                           {% endif %}>
+                </div>
+            </div>
+            
+            <div class="form-col">
+                <div class="form-group">
+                    <label for="telefono">
+                        <span class="form-icon-text">📞</span>
+                        Teléfono
+                    </label>
+                    <input type="text" id="telefono" name="telefono" class="form-control" 
+                           placeholder="Ej: 0412-1234567"
+                           {% if trabajador_editar %} 
+                           value="{{ trabajador_editar.numero }}"
+                           {% endif %}>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-col">
+                <div class="form-group">
+                    <label for="estado">
+                        <span class="form-icon-text">⚡</span>
+                        Estado
+                    </label>
+                    <select id="estado" name="estado" class="form-control">
+                        {% for estado in estados %}
+                        <option value="{{ estado }}"
+                                {% if trabajador_editar and trabajador_editar.estado == estado %}selected{% endif %}
+                                {% if not trabajador_editar and estado == 'Activo' %}selected{% endif %}>
+                            {{ estado }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-col">
+                <div class="form-group">
+                    <label for="area_trabajo">
+                        <span class="form-icon-text">🏢</span>
+                        Área de Trabajo
+                    </label>
+                    <input type="text" id="area_trabajo" name="area_trabajo" class="form-control" 
+                           placeholder="Ej: Administración, Operaciones, Seguridad"
+                           {% if trabajador_editar %} 
+                           value="{{ trabajador_editar.area_trabajo }}"
+                           {% endif %}>
+                </div>
+            </div>
+            
+            <div class="form-col">
+                <div class="form-group">
+                    <label for="rol">
+                        <span class="form-icon-text">💼</span>
+                        Rol/Cargo
+                    </label>
+                    <input type="text" id="rol" name="rol" class="form-control" 
+                           placeholder="Ej: Administrador, Supervisor, Operador"
+                           {% if trabajador_editar %} 
+                           value="{{ trabajador_editar.rol }}"
+                           {% endif %}>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-col">
+                <div class="form-group">
+                    <label for="tipo_personal" class="required-field">
+                        <span class="form-icon-text">🏷️</span>
+                        Tipo de Personal
+                    </label>
+                    <select id="tipo_personal" name="tipo_personal" class="form-control" required>
+                        <option value="">Seleccione un tipo</option>
+                        {% for tipo in tipos_personal %}
+                        <option value="{{ tipo }}"
+                                {% if trabajador_editar and trabajador_editar.tipo_fk == tipo %}selected{% endif %}>
+                            {{ tipo }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-col">
+                <div class="form-group">
+                    <label>
+                        <span class="form-icon-text">⚙️</span>
+                        Opciones
+                    </label>
+                    <div class="checkbox-group">
+                        {% if not trabajador_editar %}
+                        <input type="checkbox" id="capturar_rostro" name="capturar_rostro" value="si">
+                        <label for="capturar_rostro" style="margin: 0; display: flex; align-items: center; gap: 5px;">
+                            <span style="font-size: 16px;">📸</span>
+                            Agregar reconocimiento facial después de guardar
+                        </label>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <a href="{% url 'reconocimiento:gestion_trabajadores' %}" class="btn-cancelar">
+                <span style="font-size: 16px;">❌</span>
+                Cancelar
+            </a>
+            <button type="submit" class="btn-guardar">
+                {% if request.GET.accion == 'editar' %}
+                Actualizar Trabajador
+                {% else %}
+                Guardar Trabajador
+                {% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Tabla de trabajadores (solo si no estamos en modo edición/agregar) -->
+{% elif request.GET.accion != 'editar' and request.GET.accion != 'agregar' and not modo_agregar %}
+<div class="table-container">
+    {% if trabajadores %}
+    <table class="crud-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cédula</th>
+                <th>Nombres</th>
+                <th>Apellidos</th>
+                <th>Estado</th>
+                <th>Área/Rol</th>
+                <th>Información</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trabajador in trabajadores %}
+            <tr>
+                <td>{{ trabajador.id_pk }}</td>
+                <td><strong>{{ trabajador.cedula }}</strong></td>
+                <td>{{ trabajador.nombres }}</td>
+                <td>{{ trabajador.apellidos }}</td>
+                <td>
+                    {% if trabajador.estado == 'Activo' %}
+                    <span class="badge badge-activo">
+                        {{ trabajador.estado }}
+                    </span>
+                    {% elif trabajador.estado == 'Inactivo' %}
+                    <span class="badge badge-inactivo">
+                        {{ trabajador.estado }}
+                    </span>
+                    {% elif trabajador.estado == 'Suspendido' %}
+                    <span class="badge badge-suspendido">
+                        {{ trabajador.estado }}
+                    </span>
+                    {% elif trabajador.estado == 'Vacaciones' %}
+                    <span class="badge badge-vacaciones">
+                        {{ trabajador.estado }}
+                    </span>
+                    {% else %}
+                    <span class="badge">{{ trabajador.estado }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div>{{ trabajador.area_trabajo|default:"-" }}</div>
+                    <small style="color: #6c757d;">{{ trabajador.rol|default:"-" }}</small>
+                </td>
+                <td>
+                    {% if trabajador.total_asistencias > 0 %}
+                    <span class="info-badge" title="Registros de asistencia">
+                        <span class="info-icon-text">⏰</span>
+                        {{ trabajador.total_asistencias }}
+                    </span>
+                    {% endif %}
+                    {% if trabajador.total_rostros > 0 %}
+                    <span class="info-badge" title="Rostro registrado">
+                        <span class="info-icon-text">📸</span>
+                        Sí
+                    </span>
+                    {% endif %}
+                    {% if trabajador.total_admin > 0 %}
+                    <span class="info-badge" title="Credenciales administrativas">
+                        <span class="info-icon-text">🛡️</span>
+                        Admin
+                    </span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="acciones-container">
+                        <!-- Botón Editar -->
+                        <a href="?accion=editar&id={{ trabajador.id_pk }}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" 
+                           class="btn-accion btn-editar" title="Editar trabajador">
+                            <img src="../../static/images/icono_editar.png" alt="Editar" class="accion-icon">
+                        </a>
+                        
+                        <!-- Botón Desactivar (solo si está activo) -->
+                        {% if trabajador.estado == 'Activo' %}
+                        <a href="?accion=desactivar&id={{ trabajador.id_pk }}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" 
+                           class="btn-accion btn-desactivar" 
+                           title="Desactivar trabajador"
+                           onclick="return confirm('¿Desactivar a {{ trabajador.nombres }} {{ trabajador.apellidos }}?')">
+                            <img src="../../static/images/icono_bloqueado.png" alt="Desactivar" class="accion-icon">
+                        </a>
+                        {% endif %}
+                        
+                        <!-- Botón Agregar Rostro (solo si no tiene rostro registrado) -->
+                        {% if trabajador.total_rostros == 0 %}
+                        <a href="{% url 'reconocimiento:registro_facial' %}?id={{ trabajador.id_pk }}" 
+                           class="btn-accion btn-rostro" title="Agregar reconocimiento facial">
+                            <span style="font-size: 16px; color: white;">📸</span>
+                        </a>
+                        {% endif %}
+                        
+                        <!-- Botón Eliminar (solo para superusuarios y si está inactivo) -->
+                        {% if trabajador.estado == 'Inactivo' and user.is_superuser %}
+                        <a href="?accion=eliminar&id={{ trabajador.id_pk }}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" 
+                           class="btn-accion btn-eliminar" 
+                           title="Eliminar permanentemente"
+                           onclick="return confirm('¿ELIMINAR PERMANENTEMENTE a {{ trabajador.nombres }} {{ trabajador.apellidos }}?\n\n¡Esta acción no se puede deshacer!')">
+                            <img src="{% static 'images/icono_eliminar' %}" alt="Eliminar" class="accion-icon">
+                        </a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- Paginación (opcional) -->
+    {% if trabajadores|length >= 10 %}
+    <div style="padding: 15px; text-align: center; border-top: 1px solid #eee;">
+        <small style="color: #6c757d;">
+            Mostrando {{ trabajadores|length }} trabajadores
+        </small>
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="no-results">
+        <div style="font-size: 80px; margin-bottom: 15px; opacity: 0.5;">👥</div>
+        <h3 style="color: #7f8c8d; margin-bottom: 10px;">No se encontraron trabajadores</h3>
+        <p>{% if search_query %}Intenta con otros términos de búsqueda{% else %}No hay trabajadores registrados aún{% endif %}</p>
+        <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+            <a href="?accion=agregar" class="btn-agregar" style="display: inline-flex;">
+                <img src="{% static 'images/icono_agregar.png' %}" alt="Agregar" class="btn-icon">
+                Agregar Simple
+            </a>
+            <a href="{% url 'reconocimiento:registro_facial' %}" class="btn-agregar" style="display: inline-flex; background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
+                <span style="font-size: 18px; margin-right: 5px;">📸</span>
+                Agregar con Facial
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Validación de formulario
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('form');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            // Validar cédula (8 dígitos)
+            const cedulaInput = form.querySelector('#cedula');
+            if (cedulaInput) {
+                const cedula = cedulaInput.value.trim();
+                if (cedula && (!/^\d{8}$/.test(cedula))) {
+                    e.preventDefault();
+                    alert('La cédula debe tener exactamente 8 dígitos numéricos');
+                    cedulaInput.focus();
+                    return;
+                }
+            }
+            
+            // Validar nombres y apellidos (no vacíos)
+            const nombresInput = form.querySelector('#nombres');
+            const apellidosInput = form.querySelector('#apellidos');
+            
+            if (nombresInput && !nombresInput.value.trim()) {
+                e.preventDefault();
+                alert('Los nombres son requeridos');
+                nombresInput.focus();
+                return;
+            }
+            
+            if (apellidosInput && !apellidosInput.value.trim()) {
+                e.preventDefault();
+                alert('Los apellidos son requeridos');
+                apellidosInput.focus();
+                return;
+            }
+            
+            // Confirmar eliminación
+            const isDeleteAction = window.location.search.includes('accion=eliminar');
+            if (isDeleteAction) {
+                const confirmed = confirm('¿Está seguro de eliminar permanentemente este trabajador?\n\nEsta acción NO se puede deshacer.');
+                if (!confirmed) {
+                    e.preventDefault();
+                }
+            }
+            
+            // Confirmar desactivación
+            const isDeactivateAction = window.location.search.includes('accion=desactivar');
+            if (isDeactivateAction) {
+                const confirmed = confirm('¿Está seguro de desactivar este trabajador?\n\nPodrá reactivarlo editando su estado.');
+                if (!confirmed) {
+                    e.preventDefault();
+                }
+            }
+        });
+    });
+    
+    // Auto-seleccionar tipo de personal si hay datos
+    const tipoPersonalSelect = document.querySelector('#tipo_personal');
+    if (tipoPersonalSelect && !tipoPersonalSelect.value) {
+        const options = tipoPersonalSelect.options;
+        if (options.length > 1 && !options[1].value.includes('Administrativo')) {
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value.toLowerCase().includes('operativo') || 
+                    options[i].value.toLowerCase().includes('empleado')) {
+                    tipoPersonalSelect.value = options[i].value;
+                    break;
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
