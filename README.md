@@ -5,9 +5,9 @@
 ---
 
 ## ✍️ Información del Autor
-* **Nombre:** [ESCRIBE TU NOMBRE AQUÍ]
-* **Institución:** [NOMBRE DE TU UNIVERSIDAD / POSGRADO]
-* **Contacto:** [TU CORREO O ENLACE A LINKEDIN]
+* **Nombre:** José Daniel Betancourt Garcia | Jonathan Alexander Vargas
+* **Institución:** Independiente
+* **Contacto:**  josedanielbetancourt65@gmail.com | jonathanalexvargas@gmail.com
 
 ---
 
