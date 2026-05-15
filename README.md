@@ -1,6 +1,6 @@
 # [ESCRIBE AQUÍ EL TÍTULO DEL PROYECTO]
 
-> [ESCRIBE AQUÍ UNA BREVE DESCRIPCIÓN DEL PROYECTO: Ej. Sistema integral de gestión de asistencia y reconocimiento facial para entornos corporativos.]
+>Sistema integral de gestión de asistencia y reconocimiento facial para entornos corporativos.
 
 ---
 
