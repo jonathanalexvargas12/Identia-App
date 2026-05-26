@@ -50,8 +50,8 @@ Basado en la arquitectura Django del sistema:
 
 ### Opción A: Ejecución Local
 1. Crear Entorno Virtual:
-   python3.11 -m venv identia_venv 
-   ALTERNATIVA: py -3.11 -m venv identia_venv
+   `python3.11 -m venv identia_venv` 
+   ALTERNATIVA: `py -3.11 -m venv identia_venv`
     
 2. Activa el entorno virtual:
    `.\identia_venv\Scripts\activate` (Windows) o `source identia_venv/bin/activate` (Linux/Mac)
