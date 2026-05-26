@@ -1,0 +1,496 @@
+{% extends 'usuarios/base_menu_lateral.html' %}
+
+{% block content %}
+<style>
+    .perfil-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .perfil-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .user-avatar-grande {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 42px;
+        margin: 0 auto 15px;
+        box-shadow: 0 5px 20px rgba(42, 82, 152, 0.3);
+    }
+    
+    .perfil-nombre {
+        color: #2a5298;
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .perfil-subtitle {
+        color: #666;
+        font-size: 16px;
+    }
+    
+    .perfil-card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+    }
+    
+    .perfil-card-title {
+        color: #2a5298;
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .perfil-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    @media (max-width: 600px) {
+        .perfil-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .perfil-field {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .perfil-label {
+        color: #666;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .perfil-value {
+        color: #333;
+        font-size: 16px;
+        padding: 10px 12px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #e9ecef;
+    }
+    
+    .perfil-value.readonly {
+        background: #f1f3f5;
+        color: #495057;
+    }
+    
+    .password-container {
+        position: relative;
+    }
+    
+    .password-input {
+        width: 100%;
+        padding: 10px 40px 10px 12px;
+        font-size: 16px;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        background: #f8f9fa;
+        color: #333;
+    }
+    
+    .password-toggle {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+        color: #666;
+        font-size: 18px;
+    }
+    
+    .password-toggle:hover {
+        color: #2a5298;
+    }
+    
+    .btn-cambiar-password {
+        background: #f0a22c;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-cambiar-password:hover {
+        background: #d8920f;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(240, 162, 44, 0.3);
+    }
+    
+    .perfil-aviso {
+        background: #e8f4fd;
+        border-left: 4px solid #2a5298;
+        padding: 15px 20px;
+        border-radius: 0 8px 8px 0;
+        margin-top: 25px;
+    }
+    
+    .perfil-aviso p {
+        color: #2c3e50;
+        font-size: 14px;
+        margin: 0;
+    }
+    
+    /* Modal */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .modal-overlay.show {
+        display: flex;
+    }
+    
+    .modal-content {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    
+    .modal-icon {
+        width: 60px;
+        height: 60px;
+        background: #fff3cd;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 30px;
+    }
+    
+    .modal-title {
+        color: #333;
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+    
+    .modal-message {
+        color: #666;
+        font-size: 15px;
+        margin-bottom: 25px;
+    }
+    
+    .modal-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+    
+    .btn-modal {
+        padding: 10px 25px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+    }
+    
+    .btn-cancelar {
+        background: #e9ecef;
+        color: #495057;
+    }
+    
+    .btn-cancelar:hover {
+        background: #dee2e6;
+    }
+    
+    .btn-aceptar {
+        background: #2a5298;
+        color: white;
+    }
+    
+    .btn-aceptar:hover {
+        background: #1e3c72;
+    }
+    
+    .password-fields {
+        margin-top: 20px;
+    }
+    
+    .password-fields .perfil-field {
+        margin-bottom: 15px;
+    }
+    
+    .error-message {
+        color: #e74c3c;
+        font-size: 13px;
+        margin-top: 5px;
+        display: none;
+    }
+    
+    .error-message.show {
+        display: block;
+    }
+    
+    .success-message {
+        color: #27ae60;
+        font-size: 14px;
+        margin-top: 10px;
+        display: none;
+    }
+    
+    .success-message.show {
+        display: block;
+    }
+</style>
+
+<div class="perfil-container">
+    <div class="perfil-header">
+        <div class="user-avatar-grande">
+            {{ empleado.nombres|slice:1|upper }}{{ empleado.apellidos|slice:1|upper }}
+        </div>
+        <h1 class="perfil-nombre">{{ empleado.nombres }} {{ empleado.apellidos }}</h1>
+        <p class="perfil-subtitle">Cédula: {{ empleado.cedula }}</p>
+    </div>
+    
+    <div class="perfil-card">
+        <h2 class="perfil-card-title">Información Personal</h2>
+        <div class="perfil-grid">
+            <div class="perfil-field">
+                <span class="perfil-label">Cédula</span>
+                <div class="perfil-value readonly">{{ perfil.cedula|default:"No registrada" }}</div>
+            </div>
+            
+            <div class="perfil-field">
+                <span class="perfil-label">Nombres</span>
+                <div class="perfil-value readonly">{{ perfil.nombres|default:"No registrados" }}</div>
+            </div>
+            
+            <div class="perfil-field">
+                <span class="perfil-label">Apellidos</span>
+                <div class="perfil-value readonly">{{ perfil.apellidos|default:"No registrados" }}</div>
+            </div>
+            
+            <div class="perfil-field">
+                <span class="perfil-label">Correo Electrónico</span>
+                <div class="perfil-value readonly">{{ perfil.correo|default:"No registrado" }}</div>
+            </div>
+            
+            <div class="perfil-field">
+                <span class="perfil-label">Teléfono</span>
+                <div class="perfil-value readonly">{{ perfil.telefono|default:"No registrado" }}</div>
+            </div>
+            
+            <div class="perfil-field">
+                <span class="perfil-label">Dirección</span>
+                <div class="perfil-value readonly">{{ perfil.direccion|default:"No registrada" }}</div>
+            </div>
+            
+            <div class="perfil-field">
+                <span class="perfil-label">Estado</span>
+                <div class="perfil-value readonly">{{ perfil.estado|default:"No registrado" }}</div>
+            </div>
+            
+            <div class="perfil-field">
+                <span class="perfil-label">Área de Trabajo</span>
+                <div class="perfil-value readonly">{{ perfil.area_trabajo|default:"No asignada" }}</div>
+            </div>
+            
+            <div class="perfil-field">
+                <span class="perfil-label">Rol</span>
+                <div class="perfil-value readonly">{{ perfil.rol|default:"No asignado" }}</div>
+            </div>
+            
+            <div class="perfil-field">
+                <span class="perfil-label">Tipo de Personal</span>
+                <div class="perfil-value readonly">{{ perfil.tipo_personal|default:"No asignado" }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="perfil-card">
+        <h2 class="perfil-card-title">Seguridad</h2>
+        
+        <div class="perfil-field">
+            <span class="perfil-label">Contraseña Actual</span>
+            <div class="password-container">
+                <input type="password" class="password-input" value="••••••••••••" readonly>
+            </div>
+        </div>
+        
+        <div class="password-fields">
+            <div class="perfil-field">
+                <span class="perfil-label">Nueva Contraseña</span>
+                <div class="password-container">
+                    <input type="password" class="password-input" id="nuevaPassword" placeholder="Ingrese nueva contraseña">
+                    <button type="button" class="password-toggle" onclick="togglePassword('nuevaPassword')" title="Mostrar/Ocultar contraseña">
+                        👁️
+                    </button>
+                </div>
+            </div>
+            
+            <div class="perfil-field">
+                <span class="perfil-label">Repetir Nueva Contraseña</span>
+                <div class="password-container">
+                    <input type="password" class="password-input" id="confirmarPassword" placeholder="Confirme la contraseña">
+                    <button type="button" class="password-toggle" onclick="togglePassword('confirmarPassword')" title="Mostrar/Ocultar contraseña">
+                        👁️
+                    </button>
+                </div>
+                <div class="error-message" id="errorPassword">Las contraseñas no coinciden</div>
+            </div>
+            
+            <div class="success-message" id="successPassword">Contraseña actualizada correctamente</div>
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <button type="button" class="btn-cambiar-password" onclick="mostrarModal()">
+                🔑 Cambiar Contraseña
+            </button>
+        </div>
+    </div>
+    
+    <div class="perfil-aviso">
+        <p>Si desea realizar algún cambio de su información personal comuníquese con el personal autorizado.</p>
+    </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div class="modal-overlay" id="modalConfirmacion">
+    <div class="modal-content">
+        <div class="modal-icon">⚠️</div>
+        <h3 class="modal-title">Confirmar Cambio</h3>
+        <p class="modal-message">¿Está seguro de cambiar su contraseña?</p>
+        <div class="modal-buttons">
+            <button class="btn-modal btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+            <button class="btn-modal btn-aceptar" onclick="confirmarCambio()">Aceptar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePassword(inputId) {
+        const passwordField = document.getElementById(inputId);
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+        } else {
+            passwordField.type = 'password';
+        }
+    }
+    
+    function mostrarModal() {
+        const nuevaPassword = document.getElementById('nuevaPassword').value;
+        const confirmarPassword = document.getElementById('confirmarPassword').value;
+        const errorMsg = document.getElementById('errorPassword');
+        const successMsg = document.getElementById('successPassword');
+        
+        errorMsg.classList.remove('show');
+        successMsg.classList.remove('show');
+        
+        if (!nuevaPassword || !confirmarPassword) {
+            errorMsg.textContent = 'Debe completar ambos campos de contraseña';
+            errorMsg.classList.add('show');
+            return;
+        }
+        
+        if (nuevaPassword !== confirmarPassword) {
+            errorMsg.textContent = 'Las contraseñas no coinciden';
+            errorMsg.classList.add('show');
+            return;
+        }
+        
+        if (nuevaPassword.length < 4) {
+            errorMsg.textContent = 'La contraseña debe tener al menos 4 caracteres';
+            errorMsg.classList.add('show');
+            return;
+        }
+        
+        document.getElementById('modalConfirmacion').classList.add('show');
+    }
+    
+    function cerrarModal() {
+        document.getElementById('modalConfirmacion').classList.remove('show');
+    }
+    
+    function confirmarCambio() {
+        const nuevaPassword = document.getElementById('nuevaPassword').value;
+        
+        fetch('{% url "usuarios:cambiar_password" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: 'nueva_password=' + encodeURIComponent(nuevaPassword)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                cerrarModal();
+                window.location.href = '{% url "usuarios:login" %}?password_changed=1';
+            } else {
+                document.getElementById('errorPassword').textContent = data.error || 'Error al cambiar la contraseña';
+                document.getElementById('errorPassword').classList.add('show');
+                document.getElementById('successPassword').classList.remove('show');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('errorPassword').textContent = 'Error de conexión';
+            document.getElementById('errorPassword').classList.add('show');
+        });
+    }
+    
+    function getCSRFToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, 10) === 'csrftoken=') {
+                    cookieValue = decodeURIComponent(cookie.substring(10));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

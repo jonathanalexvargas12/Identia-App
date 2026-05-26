@@ -1,0 +1,444 @@
+{% extends 'usuarios/base_menu_lateral.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .reportes-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .reportes-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .reportes-header {
+        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+        color: white;
+        padding: 25px 30px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .reportes-header h2 {
+        margin: 0;
+        font-size: 22px;
+    }
+    
+    .reportes-header .icono {
+        font-size: 28px;
+    }
+    
+    .reportes-body {
+        padding: 30px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .form-group label .icono {
+        margin-right: 5px;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #2a5298;
+        box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+    }
+    
+    .form-control:disabled {
+        background-color: #f5f5f5;
+        cursor: not-allowed;
+    }
+    
+    .form-control[readonly] {
+        background-color: #e8f4fd;
+        border-color: #2a5298;
+        color: #2a5298;
+        font-weight: 600;
+    }
+    
+    .autocomplete-wrapper {
+        position: relative;
+    }
+    
+    .autocomplete-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 2px solid #2a5298;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        max-height: 250px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+    
+    .autocomplete-dropdown.show {
+        display: block;
+    }
+    
+    .autocomplete-item {
+        padding: 12px 15px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+        transition: background 0.2s;
+    }
+    
+    .autocomplete-item:hover {
+        background: #f0f4ff;
+    }
+    
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 12px;
+    }
+    
+    .checkbox-group input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    
+    .checkbox-group label {
+        margin: 0;
+        font-weight: normal;
+        cursor: pointer;
+    }
+    
+    .date-range-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .btn-generar {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .btn-generar:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+    }
+    
+    .btn-generar:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .seleccion-display {
+        margin-top: 10px;
+        padding: 12px 15px;
+        background: #e8f4fd;
+        border: 2px solid #2a5298;
+        border-radius: 8px;
+        color: #2a5298;
+        font-weight: 600;
+        display: none;
+    }
+    
+    .seleccion-display.show {
+        display: block;
+    }
+    
+    .seleccion-display .label {
+        font-size: 12px;
+        font-weight: normal;
+        color: #666;
+        display: block;
+        margin-bottom: 4px;
+    }
+    
+    .help-text {
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+    
+    .divider {
+        height: 1px;
+        background: #eee;
+        margin: 25px 0;
+    }
+</style>
+
+<div class="reportes-container">
+    <div class="reportes-card">
+        <div class="reportes-header">
+            <span class="icono">📊</span>
+            <h2>Generar Reportes</h2>
+        </div>
+        
+        <div class="reportes-body">
+            <!-- 1. Seleccionar Módulo -->
+            <div class="form-group">
+                <label for="modulo">
+                    <span class="icono">📁</span> Seleccionar Módulo
+                </label>
+                <select id="modulo" class="form-control" onchange="cambiarModulo()">
+                    <option value="">-- Seleccione un módulo --</option>
+                    {% for mod in modulos %}
+                    <option value="{{ mod.id }}">{{ mod.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <p class="help-text">Elija el módulo del cual desea generar el reporte</p>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <!-- 2. Buscar y seleccionar -->
+            <div class="form-group">
+                <label for="buscador">
+                    <span class="icono">🔍</span> Buscar trabajador/tipo
+                </label>
+                <div class="autocomplete-wrapper">
+                    <input type="text" id="buscador" class="form-control" 
+                           placeholder="Escriba para buscar..."
+                           disabled
+                           autocomplete="off"
+                           oninput="buscarEnTiempoReal()"
+                           onfocus="mostrarDropdown()"
+                           onblur="ocultarDropdown()">
+                    <div id="dropdown" class="autocomplete-dropdown"></div>
+                </div>
+            </div>
+            
+            <!-- 3. Campo no modificable con selección -->
+            <div class="form-group">
+                <label>
+                    <span class="icono">✓</span> Selección actual
+                </label>
+                <input type="text" id="seleccionDisplay" class="form-control" 
+                       placeholder="No hay selección - Se imprimirán TODOS los registros"
+                       readonly>
+                
+                <!-- 4. Checkbox Todos -->
+                <div class="checkbox-group">
+                    <input type="checkbox" id="todosCheck" onchange="cambiarTodos()">
+                    <label for="todosCheck">Imprimir todos los registros</label>
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <!-- 5. Rango de fechas opcional -->
+            <div class="form-group">
+                <label>
+                    <span class="icono">📅</span> Rango de Fechas (opcional)
+                </label>
+                <div class="date-range-group">
+                    <div>
+                        <label style="font-weight: normal; font-size: 13px;">Desde:</label>
+                        <input type="date" id="fechaDesde" class="form-control" disabled>
+                    </div>
+                    <div>
+                        <label style="font-weight: normal; font-size: 13px;">Hasta:</label>
+                        <input type="date" id="fechaHasta" class="form-control" disabled>
+                    </div>
+                </div>
+                <p class="help-text">Deje vacío para incluir todas las fechas</p>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <!-- 6. Botón generar -->
+            <button id="btnGenerar" class="btn-generar" onclick="generarReporte()" disabled>
+                <span>📄</span>
+                Generar Reporte PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Estado de la aplicación
+    const state = {
+        modulo: '',
+        itemSeleccionado: null,
+        items: [],
+        todos: false
+    };
+
+    function cambiarModulo() {
+        const modulo = document.getElementById('modulo').value;
+        
+        // Resetear estado
+        state.modulo = modulo;
+        state.itemSeleccionado = null;
+        state.todos = false;
+        state.items = [];
+        
+        // Limpiar UI
+        document.getElementById('buscador').value = '';
+        document.getElementById('buscador').disabled = !modulo;
+        document.getElementById('seleccionDisplay').value = '';
+        document.getElementById('fechaDesde').disabled = !modulo;
+        document.getElementById('fechaHasta').disabled = !modulo;
+        document.getElementById('todosCheck').checked = false;
+        document.getElementById('dropdown').innerHTML = '';
+        document.getElementById('btnGenerar').disabled = !modulo;
+        
+        if (modulo) {
+            cargarDatos();
+        }
+    }
+
+    async function cargarDatos() {
+        try {
+            const response = await fetch(`/reportes/buscar/?modulo=${state.modulo}&q=`);
+            const data = await response.json();
+            
+            state.items = data;
+            // NO mostrar dropdown automáticamente - el usuario debe hacer clic en el campo
+        } catch (error) {
+            console.error('Error cargando datos:', error);
+        }
+    }
+
+    function buscarEnTiempoReal() {
+        const texto = document.getElementById('buscador').value.toLowerCase().trim();
+        
+        if (!texto) {
+            renderDropdown(state.items);
+            return;
+        }
+        
+        const filtrados = state.items.filter(item => 
+            item.texto.toLowerCase().includes(texto)
+        );
+        
+        renderDropdown(filtrados);
+    }
+
+    function renderDropdown(items) {
+        const dropdown = document.getElementById('dropdown');
+        dropdown.innerHTML = '';
+        
+        if (items.length === 0) {
+            dropdown.innerHTML = '<div class="autocomplete-item" style="color: #999;">Sin resultados</div>';
+            dropdown.classList.add('show');
+            return;
+        }
+        
+        items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'autocomplete-item';
+            div.textContent = item.texto;
+            div.onclick = () => seleccionarItem(item);
+            dropdown.appendChild(div);
+        });
+        
+        dropdown.classList.add('show');
+    }
+
+    function seleccionarItem(item) {
+        state.itemSeleccionado = item;
+        state.todos = false;
+        
+        document.getElementById('buscador').value = item.texto;
+        document.getElementById('seleccionDisplay').value = item.texto + ' (ID: ' + item.id + ')';
+        document.getElementById('todosCheck').checked = false;
+        
+        document.getElementById('dropdown').classList.remove('show');
+    }
+
+    function cambiarTodos() {
+        const todosCheck = document.getElementById('todosCheck');
+        
+        if (todosCheck.checked) {
+            state.itemSeleccionado = null;
+            state.todos = true;
+            document.getElementById('buscador').value = '';
+            document.getElementById('seleccionDisplay').value = 'TODOS LOS REGISTROS';
+        } else {
+            state.todos = false;
+            document.getElementById('seleccionDisplay').value = state.itemSeleccionado 
+                ? state.itemSeleccionado.texto + ' (ID: ' + state.itemSeleccionado.id + ')'
+                : '';
+        }
+    }
+
+    function mostrarDropdown() {
+        renderDropdown(state.items);
+    }
+
+    function ocultarDropdown() {
+        setTimeout(() => {
+            document.getElementById('dropdown').classList.remove('show');
+        }, 200);
+    }
+
+    function generarReporte() {
+        const modulo = state.modulo;
+        const fechaDesde = document.getElementById('fechaDesde').value;
+        const fechaHasta = document.getElementById('fechaHasta').value;
+        
+        if (!modulo) {
+            alert('Por favor seleccione un módulo');
+            return;
+        }
+        
+        // Construir URL
+        let url = `/reportes/generar-pdf/?modulo=${modulo}`;
+        
+        // Agregar selección (ID primario)
+        if (!state.todos && state.itemSeleccionado) {
+            url += `&seleccion_id=${state.itemSeleccionado.id}`;
+        }
+        
+        if (fechaDesde) {
+            url += `&desde=${fechaDesde}`;
+        }
+        
+        if (fechaHasta) {
+            url += `&hasta=${fechaHasta}`;
+        }
+        
+        // Abrir PDF en nueva pestaña
+        window.open(url, '_blank');
+    }
+</script>
+
+{% endblock %}

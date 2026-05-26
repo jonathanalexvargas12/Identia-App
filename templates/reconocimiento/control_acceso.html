@@ -1,0 +1,1195 @@
+<!-- reconocimiento/templates/reconocimiento/control_acceso.html -->
+{% extends 'usuarios/base_menu_lateral.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Estilos generales (sin cambios) */
+    .acceso-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .acceso-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+    
+    .acceso-header h2 {
+        color: #2a5298;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .header-icon {
+        font-size: 32px;
+    }
+    
+    /* Panel de cámara y resultados */
+    .acceso-panels {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin-bottom: 25px;
+    }
+    
+    /* Panel de cámara */
+    .camera-panel {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .camera-header {
+        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+        color: white;
+        padding: 15px 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .camera-container {
+        position: relative;
+        background: #1a1a1a;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    #video {
+        width: 100%;
+        max-height: 450px;
+        object-fit: cover;
+        display: none;
+    }
+    
+    .camera-placeholder {
+        text-align: center;
+        color: #666;
+        padding: 40px;
+    }
+    
+    .camera-placeholder .icon {
+        font-size: 64px;
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+    
+    .camera-placeholder p {
+        margin: 5px 0;
+        color: #999;
+    }
+    
+    #canvas {
+        display: none;
+    }
+    
+    .camera-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        border: 3px solid rgba(255,255,255,0.3);
+        border-radius: 10px;
+        margin: 20px;
+        box-shadow: 0 0 0 9999px rgba(0,0,0,0.3);
+        display: none;
+    }
+    
+    /* Óvalo guía para posicionar el rostro */
+    .face-guide-oval {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 280px;
+        height: 350px;
+        border: 3px dashed rgba(255, 255, 255, 0.7);
+        border-radius: 50% 50% 45% 45%;
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.2),
+                    inset 0 0 20px rgba(255, 255, 255, 0.1);
+        z-index: 10;
+        display: none;
+    }
+    
+    .face-guide-oval::before {
+        content: '⬆';
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 20px;
+    }
+    
+    .face-guide-oval::after {
+        content: 'Posicione su rostro aquí';
+        position: absolute;
+        bottom: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 12px;
+        white-space: nowrap;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    }
+    
+    .camera-instructions {
+        position: absolute;
+        top: 6px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        color: white;
+        text-shadow: 1px 1px 2px black;
+        font-weight: 500;
+        background: rgba(0,0,0,0.6);
+        padding: 8px 15px;
+        margin: 0 20px;
+        border-radius: 8px;
+        display: none;
+        font-size: 13px;
+        z-index: 15;
+    }
+    
+    .camera-controls {
+        padding: 20px;
+        background: #f8f9fa;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        border-top: 1px solid #dee2e6;
+        flex-wrap: wrap;
+    }
+    
+    .btn-camera {
+        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 140px;
+        justify-content: center;
+    }
+    
+    .btn-camera:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(42, 82, 152, 0.3);
+    }
+    
+    .btn-camera:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    
+    .btn-camera.secondary {
+        background: #6c757d;
+    }
+    
+    .btn-camera.secondary:hover:not(:disabled) {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+    
+    /* Panel de resultados */
+    .result-panel {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .result-header {
+        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+        color: white;
+        padding: 15px 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .result-content {
+        padding: 25px;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Estado inicial */
+    .initial-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+    }
+    
+    .initial-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+    
+    .initial-state h3 {
+        margin-bottom: 10px;
+        color: #495057;
+    }
+    
+    /* Resultado de verificación */
+    .result-card {
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .result-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+    }
+    
+    .result-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 10px;
+    }
+    
+    .result-title.success {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .result-title.danger {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .result-title.warning {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .result-title.secondary {
+        background: #e2e3e5;
+        color: #383d41;
+    }
+    
+    .user-info-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+        text-align: left;
+    }
+    
+    .user-info-row {
+        display: flex;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .user-info-label {
+        font-weight: 600;
+        width: 120px;
+        color: #495057;
+    }
+    
+    .user-info-value {
+        flex: 1;
+        color: #212529;
+    }
+    
+    .user-info-value.badge-activo {
+        color: #27ae60;
+        font-weight: 600;
+    }
+    
+    .user-info-value.badge-inactivo {
+        color: #e67e22;
+        font-weight: 600;
+    }
+    
+    .user-info-value.badge-vacaciones {
+        color: #3498db;
+        font-weight: 600;
+    }
+    
+    .user-info-value.badge-suspendido {
+        color: #e74c3c;
+        font-weight: 600;
+    }
+    
+    .similarity-bar {
+        margin: 20px 0;
+    }
+    
+    .similarity-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        color: #6c757d;
+        font-size: 14px;
+    }
+    
+    .progress {
+        height: 20px;
+        background-color: #e9ecef;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #2a5298, #4a7ab8);
+        border-radius: 10px;
+        transition: width 0.3s ease;
+    }
+    
+    .timestamp-info {
+        text-align: center;
+        color: #6c757d;
+        font-size: 14px;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #dee2e6;
+    }
+    
+    /* Mensajes de error/sugerencia */
+    .suggestions-box {
+        background: #e2e3e5;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+    }
+    
+    .suggestions-box h4 {
+        color: #495057;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+    
+    .suggestions-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .suggestions-list li {
+        padding: 5px 0 5px 20px;
+        position: relative;
+        color: #383d41;
+    }
+    
+    .suggestions-list li:before {
+        content: "•";
+        position: absolute;
+        left: 5px;
+        color: #2a5298;
+        font-weight: bold;
+    }
+    
+    /* Mensaje de advertencia (nuevo) */
+    .warning-message {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        color: #856404;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500;
+    }
+    
+    .warning-message .icon {
+        font-size: 24px;
+    }
+    
+    /* Indicador de procesamiento */
+    .processing-indicator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+    }
+    
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #2a5298;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Historial de accesos */
+    .history-panel {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .history-header {
+        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+        color: white;
+        padding: 15px 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .history-content {
+        padding: 20px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .history-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 12px;
+        border-bottom: 1px solid #dee2e6;
+        transition: background 0.3s;
+    }
+    
+    .history-item:hover {
+        background: #f8f9fa;
+    }
+    
+    .history-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+    
+    .history-icon.permitido {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .history-icon.denegado {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .history-details {
+        flex: 1;
+    }
+    
+    .history-user {
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 3px;
+    }
+    
+    .history-time {
+        font-size: 12px;
+        color: #6c757d;
+    }
+    
+    .history-status {
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .history-status.permitido {
+        color: #27ae60;
+    }
+    
+    .history-status.denegado {
+        color: #e74c3c;
+    }
+    
+    /* Umbral info */
+    .threshold-info {
+        background: #f8f9fa;
+        padding: 10px 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-size: 13px;
+        color: #6c757d;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .threshold-value {
+        font-weight: 600;
+        color: #2a5298;
+        background: white;
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+    
+    /* Mensajes de error */
+    .error-message {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 10px;
+        padding: 10px;
+        background: #f8d7da;
+        border-radius: 5px;
+        display: none;
+    }
+    
+    /* Utilidades */
+    .hidden {
+        display: none !important;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .acceso-panels {
+            grid-template-columns: 1fr;
+        }
+    }
+
+       *{
+            font-size: large;
+        }
+</style>
+
+<div class="acceso-container">
+    <!-- Header -->
+    <div class="acceso-header">
+        <h2>
+            <span class="header-icon">📸</span>
+            Control de Acceso - Reconocimiento Facial
+        </h2>
+        <div class="threshold-info">
+            <span>⚙️ Umbral de reconocimiento:</span>
+            <span class="threshold-value" id="thresholdValue">{{ deepface_config.threshold|default:"0.40" }}</span>
+        </div>
+    </div>
+
+    <!-- Paneles principales -->
+    <div class="acceso-panels">
+        <!-- Panel izquierdo: Cámara -->
+        <div class="camera-panel">
+            <div class="camera-header">
+                <span>📷</span>
+                Cámara de Reconocimiento
+            </div>
+            <div class="camera-container">
+                <video id="video" autoplay playsinline></video>
+                <div class="camera-placeholder" id="cameraPlaceholder">
+                    <div class="icon">📷</div>
+                    <p>Cámara detenida</p>
+                    <p style="font-size: 12px;">Presione "Iniciar Cámara" para comenzar</p>
+                </div>
+                <canvas id="canvas"></canvas>
+                <div class="camera-overlay" id="cameraOverlay"></div>
+                <div class="face-guide-oval" id="faceGuide"></div>
+                <div class="camera-instructions" id="cameraInstructions">
+                    Coloque su rostro dentro del marco
+                </div>
+            </div>
+            <div class="camera-controls">
+                <button class="btn-camera" id="startCameraBtn" onclick="iniciarCamara()">
+                    <span>📷</span>
+                    Iniciar Cámara
+                </button>
+                <button class="btn-camera secondary" id="captureBtn" onclick="capturarYVerificar()" disabled>
+                    <span>🔍</span>
+                    Verificar Rostro
+                </button>
+                <button class="btn-camera secondary" id="stopCameraBtn" onclick="detenerCamara()" disabled>
+                    <span>⏹️</span>
+                    Detener
+                </button>
+                <br>
+                <p>Asegurese de: <br>
+                    🟢 Tener buena iluminación
+                    <br>
+                    🟢 Mantener el rostro dentro del marco
+                    <br>
+                    🟢 No tener objetos que cubran el rostro
+                </p>
+            </div>
+            <div id="cameraError" class="error-message"></div>
+        </div>
+
+        <!-- Panel derecho: Resultados -->
+        <div class="result-panel">
+            <div class="result-header">
+                <span>📋</span>
+                Resultado de Verificación
+            </div>
+            <div class="result-content" id="resultContent">
+                <!-- Estado inicial -->
+                <div class="initial-state" id="initialState">
+                    <div class="initial-icon">👤</div>
+                    <h3>Esperando verificación</h3>
+                    <p>Active la cámara y presione "Verificar Rostro"</p>
+                </div>
+
+                <!-- Procesando (oculto inicialmente) -->
+                <div class="processing-indicator" id="processingState" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Procesando imagen...</p>
+                    <small>Comparando con base de datos</small>
+                </div>
+
+                <!-- Mensaje de advertencia (nuevo) -->
+                <div id="warningMessage" class="warning-message hidden">
+                    <span class="icon">⚠️</span>
+                    <span id="warningText"></span>
+                </div>
+
+                <!-- Resultado (oculto inicialmente) -->
+                <div id="resultState" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel inferior: Historial de accesos -->
+    <div class="history-panel" style="margin-top: 25px;">
+        <div class="history-header">
+            <span>📜</span>
+            Últimos Accesos Registrados
+        </div>
+        <div class="history-content" id="historyContent">
+            <div class="initial-state" style="padding: 20px;">
+                <p style="color: #6c757d; margin: 0;">
+                    Los accesos verificados aparecerán aquí
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================================
+// VARIABLES GLOBALES
+// ============================================================================
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM cargado, inicializando variables...');
+    
+    // Elementos del DOM
+    window.video = document.getElementById('video');
+    window.canvas = document.getElementById('canvas');
+    window.context = canvas.getContext('2d');
+    window.stream = null;
+    window.isProcessing = false;
+    window.historialAccesos = [];
+    
+    // Elementos UI
+    window.startCameraBtn = document.getElementById('startCameraBtn');
+    window.captureBtn = document.getElementById('captureBtn');
+    window.stopCameraBtn = document.getElementById('stopCameraBtn');
+    window.cameraPlaceholder = document.getElementById('cameraPlaceholder');
+    window.cameraOverlay = document.getElementById('cameraOverlay');
+    window.cameraInstructions = document.getElementById('cameraInstructions');
+    window.cameraError = document.getElementById('cameraError');
+    window.faceGuide = document.getElementById('faceGuide');
+    window.initialState = document.getElementById('initialState');
+    window.processingState = document.getElementById('processingState');
+    window.resultState = document.getElementById('resultState');
+    window.warningMessage = document.getElementById('warningMessage');  // Nuevo
+    window.warningText = document.getElementById('warningText');        // Nuevo
+    window.historyContent = document.getElementById('historyContent');
+    window.thresholdValue = document.getElementById('thresholdValue');
+    
+    // Verificar soporte de cámara
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        mostrarErrorCamara('Tu navegador no soporta acceso a cámara. Prueba con Chrome, Firefox o Edge.');
+        startCameraBtn.disabled = true;
+    }
+    
+    console.log('Variables inicializadas correctamente');
+});
+
+// ============================================================================
+// FUNCIONES DE CÁMARA
+// ============================================================================
+
+/**
+ * Muestra error de cámara
+ */
+function mostrarErrorCamara(mensaje) {
+    cameraError.textContent = mensaje;
+    cameraError.style.display = 'block';
+    cameraPlaceholder.innerHTML = `
+        <div class="icon">❌</div>
+        <p>Error de cámara</p>
+        <p style="font-size: 12px; color: #dc3545;">${mensaje}</p>
+    `;
+}
+
+/**
+ * Inicia la cámara del dispositivo
+ */
+function iniciarCamara() {
+    console.log('Iniciando cámara...');
+    
+    // Ocultar error previo
+    cameraError.style.display = 'none';
+    
+    // Mostrar placeholder de carga
+    cameraPlaceholder.innerHTML = `
+        <div class="spinner" style="width: 40px; height: 40px; margin: 20px auto;"></div>
+        <p>Solicitando permisos de cámara...</p>
+    `;
+    
+    navigator.mediaDevices.getUserMedia({ 
+        video: { 
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+            facingMode: 'user'
+        } 
+    })
+    .then(function(mediaStream) {
+        console.log('Cámara accedida correctamente');
+        window.stream = mediaStream;
+        video.srcObject = mediaStream;
+        
+        // Esperar a que el video esté listo
+        video.onloadedmetadata = function() {
+            console.log('Video cargado, dimensiones:', video.videoWidth, 'x', video.videoHeight);
+            
+            // Configurar canvas al mismo tamaño que el video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Mostrar video y ocultar placeholder
+            video.style.display = 'block';
+            cameraPlaceholder.style.display = 'none';
+            cameraOverlay.style.display = 'block';
+            faceGuide.style.display = 'block';
+            cameraInstructions.style.display = 'block';
+            
+            // Actualizar UI
+            startCameraBtn.disabled = true;
+            captureBtn.disabled = false;
+            stopCameraBtn.disabled = false;
+            cameraInstructions.textContent = 'Rostro detectado. Presione "Verificar Rostro"';
+        };
+    })
+    .catch(function(error) {
+        console.error('Error al acceder a la cámara:', error);
+        
+        let mensajeError = 'Error al acceder a la cámara';
+        if (error.name === 'NotAllowedError') {
+            mensajeError = 'Permiso de cámara denegado. Por favor, permita el acceso en su navegador.';
+        } else if (error.name === 'NotFoundError') {
+            mensajeError = 'No se encontró ninguna cámara en su dispositivo.';
+        } else if (error.name === 'NotReadableError') {
+            mensajeError = 'La cámara está siendo usada por otra aplicación.';
+        }
+        
+        mostrarErrorCamara(mensajeError);
+        
+        // Restaurar placeholder
+        cameraPlaceholder.innerHTML = `
+            <div class="icon">📷</div>
+            <p>Cámara detenida</p>
+            <p style="font-size: 12px;">Presione "Iniciar Cámara" para comenzar</p>
+        `;
+        cameraPlaceholder.style.display = 'block';
+    });
+}
+
+/**
+ * Detiene la cámara
+ */
+function detenerCamara() {
+    console.log('Deteniendo cámara...');
+    
+    if (window.stream) {
+        window.stream.getTracks().forEach(track => {
+            track.stop();
+            console.log('Track detenido:', track.kind);
+        });
+        video.srcObject = null;
+        window.stream = null;
+    }
+    
+    // Ocultar video y mostrar placeholder
+    video.style.display = 'none';
+    cameraPlaceholder.style.display = 'block';
+    cameraOverlay.style.display = 'none';
+    faceGuide.style.display = 'none';
+    cameraInstructions.style.display = 'none';
+    
+    // Actualizar UI
+    startCameraBtn.disabled = false;
+    captureBtn.disabled = true;
+    stopCameraBtn.disabled = true;
+    
+    // Restaurar placeholder
+    cameraPlaceholder.innerHTML = `
+        <div class="icon">📷</div>
+        <p>Cámara detenida</p>
+        <p style="font-size: 12px;">Presione "Iniciar Cámara" para comenzar</p>
+    `;
+}
+
+// ============================================================================
+// FUNCIONES DE VERIFICACIÓN FACIAL
+// ============================================================================
+
+/**
+ * Captura la imagen actual y la envía al servidor para verificar
+ */
+function capturarYVerificar() {
+    console.log('Capturando y verificando...');
+    
+    if (!window.stream || window.isProcessing) {
+        console.log('No se puede procesar: stream=', !!window.stream, 'isProcessing=', window.isProcessing);
+        return;
+    }
+    
+    // Capturar frame del video
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = canvas.toDataURL('image/jpeg', 0.9);
+    console.log('Imagen capturada, tamaño:', imageData.length);
+    
+    // Mostrar estado de procesamiento
+    mostrarProcesando();
+    
+    // Enviar al servidor
+    fetch("{% url 'reconocimiento:verificar_rostro' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            image: imageData
+        })
+    })
+    .then(response => {
+        console.log('Respuesta recibida, status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Datos recibidos:', data);
+        
+        if (data.success) {
+            if (data.coincidencia) {
+                mostrarResultadoExitoso(data);
+                agregarAlHistorial(data);
+            } else {
+                mostrarSinCoincidencia(data);
+            }
+        } else {
+            mostrarError(data.error || 'Error en la verificación');
+        }
+    })
+    .catch(error => {
+        console.error('Error en fetch:', error);
+        mostrarError('Error de conexión con el servidor');
+    })
+    .finally(() => {
+        window.isProcessing = false;
+        console.log('Procesamiento completado');
+    });
+}
+
+/**
+ * Muestra el estado de procesamiento y oculta mensajes previos
+ */
+function mostrarProcesando() {
+    window.isProcessing = true;
+    initialState.style.display = 'none';
+    processingState.style.display = 'flex';
+    resultState.style.display = 'none';
+    resultState.innerHTML = '';
+    warningMessage.classList.add('hidden');  // Ocultar advertencia anterior
+}
+
+/**
+ * Muestra un resultado exitoso con información del usuario
+ */
+function mostrarResultadoExitoso(data) {
+    const usuario = data.usuario;
+    const mensaje = data.mensaje;
+    const tipoAcceso = data.tipo_acceso;
+    const color = data.color;
+    const icono = data.icono;
+    const similitud = data.similitud * 100;
+    
+    let titleClass = 'result-title';
+    if (color === 'success') titleClass += ' success';
+    else if (color === 'danger') titleClass += ' danger';
+    else if (color === 'warning') titleClass += ' warning';
+    else titleClass += ' secondary';
+    
+    let estadoClass = '';
+    if (usuario.estado === 'activo') estadoClass = 'badge-activo';
+    else if (usuario.estado === 'inactivo') estadoClass = 'badge-inactivo';
+    else if (usuario.estado === 'vacaciones') estadoClass = 'badge-vacaciones';
+    else if (usuario.estado === 'suspendido') estadoClass = 'badge-suspendido';
+    
+    const html = `
+        <div class="result-card">
+            <div class="result-icon">${icono}</div>
+            <div class="${titleClass}">${mensaje}</div>
+            
+            <div class="user-info-card">
+                <h4 style="margin-bottom: 15px; color: #2a5298;">Información del Trabajador</h4>
+                
+                <div class="user-info-row">
+                    <span class="user-info-label">ID:</span>
+                    <span class="user-info-value">${usuario.id}</span>
+                </div>
+                
+                <div class="user-info-row">
+                    <span class="user-info-label">Cédula:</span>
+                    <span class="user-info-value"><strong>${usuario.cedula}</strong></span>
+                </div>
+                
+                <div class="user-info-row">
+                    <span class="user-info-label">Nombre:</span>
+                    <span class="user-info-value">${usuario.nombre_completo}</span>
+                </div>
+                
+                <div class="user-info-row">
+                    <span class="user-info-label">Estado:</span>
+                    <span class="user-info-value ${estadoClass}">
+                        ${usuario.estado_original}
+                        ${usuario.estado !== usuario.estado_original.toLowerCase() ? 
+                          `<small style="color: #6c757d;">(normalizado: ${usuario.estado})</small>` : ''}
+                    </span>
+                </div>
+                
+                <div class="user-info-row">
+                    <span class="user-info-label">Tipo:</span>
+                    <span class="user-info-value">${usuario.tipo || 'No especificado'}</span>
+                </div>
+                
+                <div class="user-info-row">
+                    <span class="user-info-label">Área:</span>
+                    <span class="user-info-value">${usuario.area || 'No especificada'}</span>
+                </div>
+                
+                <div class="user-info-row">
+                    <span class="user-info-label">Rol:</span>
+                    <span class="user-info-value">${usuario.rol || 'No especificado'}</span>
+                </div>
+            </div>
+            
+            <div class="similarity-bar">
+                <div class="similarity-label">
+                    <span>Similitud facial</span>
+                    <span>${similitud.toFixed(1)}%</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar" style="width: ${similitud}%;"></div>
+                </div>
+            </div>
+            
+            <div class="timestamp-info">
+                <div>📅 Fecha: ${data.fecha}</div>
+                <div>⏰ Hora: ${data.hora}</div>
+                <div>⚡ Procesamiento: ${data.procesamiento} segundos</div>
+                <div>📝 Movimiento: ${data.movimiento === 'entrada' ? '✅ Entrada' : 
+                                       data.movimiento === 'salida' ? '⬆️ Salida' : 
+                                       data.movimiento === 'no_registrado_denegado' ? '⛔ No registrado' : 
+                                       '❌ Error'}</div>
+            </div>
+        </div>
+    `;
+    
+    processingState.style.display = 'none';
+    resultState.style.display = 'block';
+    resultState.innerHTML = html;
+    
+    // Mostrar advertencia si existe
+    if (data.advertencia) {
+        warningText.textContent = data.advertencia;
+        warningMessage.classList.remove('hidden');
+    } else {
+        warningMessage.classList.add('hidden');
+    }
+    
+    if (data.umbral) {
+        thresholdValue.textContent = data.umbral.toFixed(2);
+    }
+}
+
+/**
+ * Muestra mensaje de que no se encontraron coincidencias
+ */
+function mostrarSinCoincidencia(data) {
+    const similitud = data.mejor_similitud ? data.mejor_similitud * 100 : 0;
+    const umbral = data.umbral ? data.umbral * 100 : 40;
+    
+    let suggestionsHtml = '';
+    if (data.sugerencias) {
+        suggestionsHtml = `
+            <div class="suggestions-box">
+                <h4>💡 Sugerencias:</h4>
+                <ul class="suggestions-list">
+                    ${data.sugerencias.map(s => `<li>${s}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+    }
+    
+    const html = `
+        <div class="result-card">
+            <div class="result-icon">❓</div>
+            <div class="result-title secondary">${data.mensaje || 'No se han encontrado coincidencias'}</div>
+            
+            <div class="user-info-card" style="text-align: center;">
+                <p style="margin-bottom: 15px; color: #6c757d;">
+                    No se encontró ningún rostro registrado que coincida con la imagen capturada.
+                </p>
+                
+                <div class="similarity-bar">
+                    <div class="similarity-label">
+                        <span>Mejor similitud encontrada</span>
+                        <span>${similitud.toFixed(1)}%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" style="width: ${similitud}%; background: #6c757d;"></div>
+                    </div>
+                    <div style="text-align: right; font-size: 12px; color: #6c757d; margin-top: 5px;">
+                        Umbral mínimo requerido: ${umbral.toFixed(1)}%
+                    </div>
+                </div>
+                
+                ${suggestionsHtml}
+            </div>
+            
+            <div class="timestamp-info">
+                <div>⏰ Hora: ${data.hora || new Date().toLocaleTimeString()}</div>
+                <div>⚡ Procesamiento: ${data.procesamiento || 0} segundos</div>
+            </div>
+        </div>
+    `;
+    
+    processingState.style.display = 'none';
+    resultState.style.display = 'block';
+    resultState.innerHTML = html;
+    
+    // En caso de no coincidencia, también podría haber advertencia (si se desea)
+    if (data.advertencia) {
+        warningText.textContent = data.advertencia;
+        warningMessage.classList.remove('hidden');
+    } else {
+        warningMessage.classList.add('hidden');
+    }
+}
+
+/**
+ * Muestra un mensaje de error
+ */
+function mostrarError(mensaje) {
+    const html = `
+        <div class="result-card">
+            <div class="result-icon">❌</div>
+            <div class="result-title danger">Error en la verificación</div>
+            
+            <div class="user-info-card" style="text-align: center;">
+                <p style="color: #721c24;">${mensaje}</p>
+                <button class="btn-camera" onclick="capturarYVerificar()" style="margin-top: 15px;">
+                    <span>🔄</span>
+                    Reintentar
+                </button>
+            </div>
+        </div>
+    `;
+    
+    processingState.style.display = 'none';
+    resultState.style.display = 'block';
+    resultState.innerHTML = html;
+    warningMessage.classList.add('hidden'); // Ocultar advertencia en caso de error
+}
+
+// ============================================================================
+// FUNCIONES DE HISTORIAL
+// ============================================================================
+
+/**
+ * Agrega un acceso al historial
+ */
+function agregarAlHistorial(data) {
+    window.historialAccesos.unshift(data);
+    if (window.historialAccesos.length > 10) {
+        window.historialAccesos.pop();
+    }
+    
+    actualizarHistorial();
+}
+
+/**
+ * Actualiza la visualización del historial
+ */
+function actualizarHistorial() {
+    if (window.historialAccesos.length === 0) {
+        historyContent.innerHTML = `
+            <div class="initial-state" style="padding: 20px;">
+                <p style="color: #6c757d; margin: 0;">
+                    Los accesos verificados aparecerán aquí
+                </p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    window.historialAccesos.forEach(acceso => {
+        const esPermitido = acceso.tipo_acceso === 'permitido' || acceso.tipo_acceso === 'permitido_vacaciones';
+        const iconClass = esPermitido ? 'permitido' : 'denegado';
+        const statusText = esPermitido ? '✅ Permitido' : '⛔ Denegado';
+        
+        html += `
+            <div class="history-item">
+                <div class="history-icon ${iconClass}">
+                    ${acceso.icono || (esPermitido ? '✅' : '⛔')}
+                </div>
+                <div class="history-details">
+                    <div class="history-user">${acceso.usuario.nombre_completo}</div>
+                    <div class="history-time">${acceso.fecha} ${acceso.hora}</div>
+                </div>
+                <div class="history-status ${iconClass}">
+                    ${statusText}
+                </div>
+            </div>
+        `;
+    });
+    
+    historyContent.innerHTML = html;
+}
+
+// Limpiar al salir
+window.addEventListener('beforeunload', function() {
+    detenerCamara();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,721 @@
+{% extends 'usuarios/base_menu_lateral.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Estilos específicos para la bitácora */
+    .audit-header {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .stats-container {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .stat-card {
+        background: rgba(255,255,255,0.1);
+        padding: 12px 20px;
+        border-radius: 8px;
+        text-align: center;
+        min-width: 100px;
+        backdrop-filter: blur(5px);
+    }
+    
+    .stat-number {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        font-size: 11px;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    /* Panel de filtros */
+    .filters-panel {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+    
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .filter-group label {
+        font-size: 12px;
+        color: #7f8c8d;
+        margin-bottom: 5px;
+        font-weight: 600;
+    }
+    
+    .filter-input, .filter-select {
+        padding: 10px 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s;
+        width: 100%;
+    }
+    
+    .filter-input:focus, .filter-select:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52,152,219,0.1);
+    }
+    
+    .filter-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+    
+    .btn-filter {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .btn-filter:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(52,152,219,0.3);
+    }
+    
+    .btn-clear {
+        background: #95a5a6;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .btn-clear:hover {
+        background: #7f8c8d;
+        color: white;
+    }
+    
+    /* Tabla de bitácora */
+    .table-container {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+    
+    .audit-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+    
+    .audit-table thead {
+        background: #34495e;
+        color: white;
+    }
+    
+    .audit-table th {
+        padding: 15px 10px;
+        text-align: left;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    .audit-table tbody tr {
+        border-bottom: 1px solid #ecf0f1;
+        transition: all 0.3s;
+    }
+    
+    .audit-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .audit-table td {
+        padding: 15px 10px;
+        vertical-align: middle;
+    }
+    
+    /* Badges para tipos de evento */
+    .event-badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    .event-login { background: #27ae60; color: white; }
+    .event-logout { background: #e67e22; color: white; }
+    .event-agregar { background: #2ecc71; color: white; }
+    .event-editar { background: #3498db; color: white; }
+    .event-eliminar { background: #e74c3c; color: white; }
+    .event-activar { background: #27ae60; color: white; }
+    .event-desactivar { background: #f39c12; color: white; }
+    .event-duplicado { background: #9b59b6; color: white; }
+    .event-configuracion { background: #1abc9c; color: white; }
+    .event-otro { background: #95a5a6; color: white; }
+    
+    /* IP badge */
+    .ip-badge {
+        background: #ecf0f1;
+        color: #7f8c8d;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+    
+    /* Fecha y hora */
+    .datetime-cell {
+        white-space: nowrap;
+    }
+    
+    .fecha {
+        color: #2c3e50;
+        font-weight: 500;
+    }
+    
+    .hora {
+        color: #7f8c8d;
+        font-size: 11px;
+        display: block;
+    }
+    
+    /* Novedad */
+    .novedad-cell {
+        max-width: 200px;
+    }
+    
+    .novedad-titulo {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 5px;
+    }
+    
+    .detalles-preview {
+        font-size: 11px;
+        color: #7f8c8d;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 250px;
+        cursor: help;
+    }
+    
+    /* Modal para detalles completos */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+    
+    .modal-content {
+        background-color: white;
+        margin: 10% auto;
+        padding: 25px;
+        border-radius: 10px;
+        width: 60%;
+        max-width: 600px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #ecf0f1;
+    }
+    
+    .modal-title {
+        color: #2c3e50;
+        margin: 0;
+    }
+    
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #7f8c8d;
+    }
+    
+    .modal-body {
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+    
+    .modal-footer {
+        text-align: right;
+    }
+    
+    .btn-modal-close {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    
+    /* Información de paginación */
+    .pagination-info {
+        background: #f8f9fa;
+        padding: 10px 15px;
+        border-bottom: 1px solid #ecf0f1;
+        font-size: 13px;
+        color: #2c3e50;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .pagination-badge {
+        background: #3498db;
+        color: white;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    /* Paginación */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        padding: 15px 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .pagination-info-text {
+        color: #7f8c8d;
+        font-size: 14px;
+    }
+
+    .btn-pdf-bitacora {
+        background: #e74c3c;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        text-decoration: none;
+    }
+
+    .btn-pdf-bitacora:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(231,76,60,0.3);
+        color: white;
+    }
+    
+    .pagination {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+    
+    .page-link {
+        display: inline-block;
+        padding: 8px 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        color: #3498db;
+        text-decoration: none;
+        transition: all 0.3s;
+        font-size: 13px;
+    }
+    
+    .page-link:hover {
+        background: #e9ecef;
+        border-color: #c0c0c0;
+    }
+    
+    .page-current {
+        background: #3498db;
+        color: white;
+        border-color: #3498db;
+    }
+    
+    .page-current:hover {
+        background: #2980b9;
+        color: white;
+    }
+    
+    .page-disabled {
+        color: #95a5a6;
+        border-color: #dee2e6;
+        background: #f8f9fa;
+        cursor: not-allowed;
+    }
+    
+    .page-disabled:hover {
+        background: #f8f9fa;
+        border-color: #dee2e6;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .audit-table {
+            font-size: 12px;
+        }
+        
+        .filters-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .audit-table td, .audit-table th {
+            padding: 8px 5px;
+        }
+        
+        .detalles-preview {
+            max-width: 150px;
+        }
+        
+        .modal-content {
+            width: 90%;
+            margin: 20% auto;
+        }
+        
+        .pagination-container {
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        
+        .pagination {
+            justify-content: center;
+            width: 100%;
+        }
+    }
+
+       *{
+            font-size: large;
+        }
+</style>
+
+<div class="audit-header">
+    <div>
+        <h1 style="margin: 0; font-size: 24px;">📋 Auditoría</h1>
+        <p style="margin: 5px 0 0; opacity: 0.8;">Registro cronológico de eventos del sistema</p>
+    </div>
+    
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_registros }}</div>
+            <div class="stat-label">Total registros</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_paginas }}</div>
+            <div class="stat-label">Páginas</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ registros_por_pagina }}</div>
+            <div class="stat-label">Por página</div>
+        </div>
+        <a href="{% url 'notificaciones:bitacora_pdf' %}" target="_blank" class="btn-pdf-bitacora">
+            📄 PDF
+        </a>
+    </div>
+</div>
+
+<!-- Mensajes del sistema -->
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Panel de filtros -->
+<div class="filters-panel">
+    <form method="GET" action="{% url 'notificaciones:bitacora' %}">
+        <div class="filters-grid">
+            <div class="filter-group">
+                <label>Fecha desde</label>
+                <input type="date" name="fecha_desde" class="filter-input" value="{{ fecha_desde }}" max="{{ hoy|date:'Y-m-d' }}">
+            </div>
+            
+            <div class="filter-group">
+                <label>Fecha hasta</label>
+                <input type="date" name="fecha_hasta" class="filter-input" value="{{ fecha_hasta }}" max="{{ hoy|date:'Y-m-d' }}">
+            </div>
+            
+            <div class="filter-group">
+                <label>Búsqueda general</label>
+                <input type="text" name="search" class="filter-input" placeholder="Buscar en novedad, detalles o IP..." value="{{ search_query }}">
+            </div>
+        </div>
+        
+        <div class="filter-actions">
+            <a href="{% url 'notificaciones:bitacora' %}" class="btn-clear">Limpiar filtros</a>
+            <button type="submit" class="btn-filter">Aplicar filtros</button>
+        </div>
+    </form>
+</div>
+
+<!-- Tabla de registros -->
+<div class="table-container">
+    {% if incidentes %}
+    <!-- Información de paginación superior -->
+    <div class="pagination-info">
+        <span>
+            Mostrando <strong>{{ rango_mostrado }}</strong> de <strong>{{ total_registros }}</strong> registros
+        </span>
+        <span class="pagination-badge">
+            Página {{ pagina_actual }} de {{ total_paginas }}
+        </span>
+    </div>
+    
+    <table class="audit-table">
+        <thead>
+            <tr>
+                <th>Fecha y Hora</th>
+                <th>Tipo</th>
+                <th>Novedad</th>
+                <th>Detalles</th>
+                <th>IP</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in incidentes %}
+            <tr>
+                <td class="datetime-cell">
+                    <span class="fecha">{{ item.fecha }}</span>
+                    <span class="hora">{{ item.hora }}</span>
+                </td>
+                <td>
+                    {% if item.tipo == 'login' %}
+                    <span class="event-badge event-login">🔓 INICIO SESIÓN</span>
+                    {% elif item.tipo == 'logout' %}
+                    <span class="event-badge event-logout">🔒 CIERRE SESIÓN</span>
+                    {% elif item.tipo == 'agregar' %}
+                    <span class="event-badge event-agregar">➕ AGREGAR</span>
+                    {% elif item.tipo == 'editar' %}
+                    <span class="event-badge event-editar">✏️ EDITAR</span>
+                    {% elif item.tipo == 'eliminar' %}
+                    <span class="event-badge event-eliminar">🗑️ ELIMINAR</span>
+                    {% elif item.tipo == 'activar' %}
+                    <span class="event-badge event-activar">✅ ACTIVAR</span>
+                {% elif item.tipo == 'desactivar' %}
+                    <span class="event-badge event-desactivar">⚠️ DESACTIVAR</span>
+                {% elif item.tipo == 'duplicado' %}
+                    <span class="event-badge event-duplicado">👥 DUPLICADO</span>
+                    {% elif item.tipo == 'configuracion' %}
+                    <span class="event-badge event-configuracion">⚙️ CONFIGURACIÓN</span>
+                    {% else %}
+                    <span class="event-badge event-otro">📌 {{ item.tipo|upper }}</span>
+                    {% endif %}
+                </td>
+                <td class="novedad-cell">
+                    <div class="novedad-titulo">{{ item.novedad }}</div>
+                </td>
+                <td>
+                    <div class="detalles-preview" title="{{ item.detalles }}" onclick="verDetalles('{{ item.id }}')">
+                        {{ item.detalles|truncatechars:60 }}
+                    </div>
+                    <!-- Modal oculto para detalles completos -->
+                    <div id="modal-{{ item.id }}" class="modal">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3 class="modal-title">Detalles del incidente #{{ item.id }}</h3>
+                                <button class="modal-close" onclick="cerrarModal('{{ item.id }}')">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Novedad:</strong> {{ item.novedad }}</p>
+                                <p><strong>Fecha:</strong> {{ item.fecha }} - {{ item.hora }}</p>
+                                <p><strong>IP:</strong> {{ item.ip }}</p>
+                                <hr>
+                                <p><strong>Descripción completa:</strong></p>
+                                <p style="white-space: pre-wrap;">{{ item.detalles }}</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn-modal-close" onclick="cerrarModal('{{ item.id }}')">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="ip-badge">{{ item.ip }}</span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- Paginación mejorada -->
+    <div class="pagination-container">
+        <div class="pagination-info-text">
+            Mostrando página <strong>{{ pagina_actual }}</strong> de <strong>{{ total_paginas }}</strong>
+            ({{ registros_por_pagina }} registros por página)
+        </div>
+        
+        <div class="pagination">
+            <!-- Primera página -->
+            {% if incidentes.has_previous %}
+            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}" class="page-link" title="Primera página">««</a>
+            {% else %}
+            <span class="page-link page-disabled" title="Primera página">««</span>
+            {% endif %}
+            
+            <!-- Página anterior -->
+            {% if incidentes.has_previous %}
+            <a href="?page={{ incidentes.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}" class="page-link" title="Página anterior">«</a>
+            {% else %}
+            <span class="page-link page-disabled" title="Página anterior">«</span>
+            {% endif %}
+            
+            <!-- Números de página (mostrar máximo 5) -->
+            {% for num in incidentes.paginator.page_range %}
+                {% if num >= pagina_actual|add:"-2" and num <= pagina_actual|add:"2" %}
+                    {% if num == pagina_actual %}
+                    <span class="page-link page-current">{{ num }}</span>
+                    {% else %}
+                    <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}" class="page-link">{{ num }}</a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            
+            <!-- Página siguiente -->
+            {% if incidentes.has_next %}
+            <a href="?page={{ incidentes.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}" class="page-link" title="Página siguiente">»</a>
+            {% else %}
+            <span class="page-link page-disabled" title="Página siguiente">»</span>
+            {% endif %}
+            
+            <!-- Última página -->
+            {% if incidentes.has_next %}
+            <a href="?page={{ incidentes.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}" class="page-link" title="Última página">»»</a>
+            {% else %}
+            <span class="page-link page-disabled" title="Última página">»»</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% else %}
+    <div style="text-align: center; padding: 60px 20px;">
+        <img src="{% static 'images/icono_no_resultados.png' %}" alt="Sin registros" style="width: 80px; opacity: 0.3; margin-bottom: 20px;">
+        <h3 style="color: #7f8c8d; margin-bottom: 10px;">No hay registros en la bitácora</h3>
+        <p style="color: #95a5a6;">Los registros aparecerán cuando los usuarios realicen acciones en el sistema</p>
+        {% if search_query or fecha_desde or fecha_hasta %}
+        <p style="margin-top: 15px;">
+            <a href="{% url 'notificaciones:bitacora' %}" class="btn-clear">Limpiar filtros</a>
+        </p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Estadísticas rápidas (opcional) -->
+{% if tipos_conteo %}
+<div style="background: white; border-radius: 8px; padding: 20px; margin-top: 20px;">
+    <h4 style="color: #2c3e50; margin-bottom: 15px;">📊 Resumen de eventos</h4>
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        {% for tipo, count in tipos_conteo.items %}
+        <div style="flex: 1; min-width: 100px;">
+            <div style="font-size: 20px; font-weight: 700; color: #3498db;">{{ count }}</div>
+            <div style="font-size: 11px; color: #7f8c8d; text-transform: uppercase;">{{ tipo }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<script>
+    // Funciones para manejar modales
+    function verDetalles(id) {
+        document.getElementById('modal-' + id).style.display = 'block';
+    }
+    
+    function cerrarModal(id) {
+        document.getElementById('modal-' + id).style.display = 'none';
+    }
+    
+    // Cerrar modal haciendo clic fuera
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    }
+    
+    // Validación de fechas
+    document.addEventListener('DOMContentLoaded', function() {
+        const fechaDesde = document.querySelector('input[name="fecha_desde"]');
+        const fechaHasta = document.querySelector('input[name="fecha_hasta"]');
+        
+        if (fechaDesde && fechaHasta) {
+            fechaDesde.addEventListener('change', function() {
+                fechaHasta.min = this.value;
+            });
+            
+            fechaHasta.addEventListener('change', function() {
+                fechaDesde.max = this.value;
+            });
+        }
+        
+        // Mantener parámetros de filtro en la paginación
+        const paginationLinks = document.querySelectorAll('.pagination a');
+        paginationLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Los parámetros ya están en el href, no es necesario hacer nada
+            });
+        });
+    });
+</script>
+{% endblock %}

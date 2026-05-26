@@ -1,0 +1,175 @@
+{% extends 'usuarios/base_menu_lateral.html' %}
+
+{% block content %}
+<style>
+    /* Estilos para la página de Módulos de Gestión */
+    .gestion-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .gestion-title {
+        color: #2a5298;
+        font-size: 32px;
+        margin-bottom: 15px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .gestion-subtitle {
+        color: #666;
+        font-size: 18px;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+    
+    .gestion-icon {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+    }
+    
+    /* Grid de módulos de gestión */
+    .gestion-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin-top: 30px;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .gestion-card {
+        background: white;
+        border-radius: 10px;
+        padding: 25px;
+        text-align: center;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    
+    .gestion-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border-color: #2a5298;
+        color: inherit;
+    }
+    
+    .gestion-card-icon-container {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 60px;
+    }
+    
+    .gestion-card-icon {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+    }
+    
+    .gestion-card-title {
+        color: #2a5298;
+        font-size: 18px;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+    
+    .gestion-card-description {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    
+    /* Botón de regresar */
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #2a5298;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        margin-top: 30px;
+        padding: 10px 20px;
+        border: 2px solid #2a5298;
+        border-radius: 6px;
+        transition: all 0.3s;
+    }
+    
+    .back-button:hover {
+        background: #2a5298;
+        color: white;
+    }
+    
+    .back-icon {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .gestion-title {
+            font-size: 24px;
+        }
+        
+        .gestion-grid {
+            grid-template-columns: 1fr;
+            max-width: 400px;
+        }
+    }
+
+       *{
+            font-size: large;
+        }
+</style>
+
+<div class="gestion-header">
+    <h1 class="gestion-title">
+        <img src="../../static/images/icono_modulos_gestion.png" alt="Módulos de Gestión" class="gestion-icon">
+        Módulos de Gestión
+    </h1>
+    <p class="gestion-subtitle">
+        Gestión administrativa del sistema: configuración de horarios y tipos de personal
+    </p>
+</div>
+
+<!-- Grid de módulos de gestión -->
+<div class="gestion-grid">
+    <!-- Tipos de Personal -->
+    <a href="{% url 'usuarios:gestion_tipos_personal' %}" class="gestion-card">
+        <div class="gestion-card-icon-container">
+            <img src="../../static/images/icono_buscar_trabajadores.png" alt="Tipos de Personal" class="gestion-card-icon">
+        </div>
+        <h3 class="gestion-card-title">Tipos de Personal</h3>
+        <p class="gestion-card-description">
+            Administración de categorías y tipos de empleados en el sistema
+        </p>
+    </a>
+    
+    <!-- Horarios -->
+    <a href="{% url 'usuarios:gestion_horarios' %}" class="gestion-card">
+        <div class="gestion-card-icon-container">
+            <img src="../../static/images/icono_horarios.png" alt="Horarios" class="gestion-card-icon">
+        </div>
+        <h3 class="gestion-card-title">Horarios</h3>
+        <p class="gestion-card-description">
+            Configuración y gestión de horarios laborales y turnos
+        </p>
+    </a>
+</div>
+
+
+
+{% endblock %}

@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Usuario - Identia</title>
+    <link rel="icon" href="/static/images/identia_logo_no_backgound.png" type="image/png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            border-bottom: 4px solid #f0a22c;
+        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header p { font-size: 1.1em; opacity: 0.9; }
+        .header .version { font-size: 0.9em; opacity: 0.7; margin-top: 10px; }
+        .header-logo { width: 100px; height: 100px; object-fit: contain; margin-bottom: 10px; background: white; padding: 10px; border-radius: 12px; }
+        .toolbar {
+            background: white;
+            border-bottom: 2px solid #e0e0e0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .toolbar .btn-manual {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .toolbar .btn-volver {
+            background: #6c757d;
+            color: white;
+        }
+        .toolbar .btn-volver:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+        .toolbar .btn-pdf {
+            background: linear-gradient(135deg, #2a5298, #1e3c72);
+            color: white;
+        }
+        .toolbar .btn-pdf:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(42,82,152,0.3);
+        }
+        @media print {
+            .toolbar { display: none; }
+            .sidebar { display: none; }
+            .container { display: block; }
+        }
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; display: flex; gap: 30px; }
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 20px;
+            align-self: flex-start;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+        .sidebar h3 { color: #1e3c72; margin-bottom: 15px; font-size: 1.1em; }
+        .sidebar a {
+            display: block;
+            padding: 8px 12px;
+            color: #555;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.9em;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background: #e8f0fe;
+            color: #1e3c72;
+            border-left-color: #2a5298;
+        }
+        .sidebar .section-title {
+            font-weight: 700;
+            color: #1e3c72;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .content { flex: 1; min-width: 0; }
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+        .card h2 {
+            color: #1e3c72;
+            font-size: 1.6em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #f0a22c;
+        }
+        .card h3 {
+            color: #2a5298;
+            font-size: 1.2em;
+            margin: 20px 0 10px;
+        }
+        .card h4 {
+            color: #444;
+            font-size: 1em;
+            margin: 15px 0 8px;
+        }
+        .card p { margin-bottom: 12px; text-align: justify; }
+        .card ul, .card ol { margin: 10px 0 15px 25px; }
+        .card li { margin-bottom: 6px; }
+        .card strong { color: #1e3c72; }
+        .highlight {
+            background: #fff8e1;
+            border-left: 4px solid #f0a22c;
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .highlight-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2a5298;
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .highlight-success {
+            background: #e8f5e9;
+            border-left: 4px solid #43a047;
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .highlight-danger {
+            background: #ffebee;
+            border-left: 4px solid #e53935;
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .step {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: #2a5298;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content p { margin-bottom: 0; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        table th, table td {
+            padding: 10px 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+            font-size: 0.9em;
+        }
+        table th {
+            background: #2a5298;
+            color: white;
+            font-weight: 600;
+        }
+        table tr:nth-child(even) { background: #f8f9fa; }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        .badge-green { background: #e8f5e9; color: #2e7d32; }
+        .badge-blue { background: #e3f2fd; color: #1565c0; }
+        .badge-orange { background: #fff3e0; color: #e65100; }
+        .badge-red { background: #ffebee; color: #c62828; }
+        .badge-yellow { background: #fff8e1; color: #f9a825; }
+        .badge-gray { background: #f5f5f5; color: #616161; }
+        .footer-manual {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 0.85em;
+        }
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                position: static;
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <img class="header-logo" src="/static/images/identia_logo_no_backgound.png" alt="Identia">
+    <h1>Manual de Usuario</h1>
+    <p>Identia &mdash; Sistema de Gesti&oacute;n Biom&eacute;trica y Control de Acceso</p>
+    <div class="version">Versi&oacute;n 3.7.6 &bull; Django 5.1.6 &bull; MariaDB</div>
+</div>
+
+<div class="toolbar">
+    <a href="{% url 'usuarios:acerca' %}" class="btn-manual btn-volver">&#x2190; Volver</a>
+    <button class="btn-manual btn-pdf" onclick="window.print()">&#x1F5A8; Imprimir PDF</button>
+</div>
+
+<div class="container">
+
+    <nav class="sidebar">
+        <h3>&#x1F4DA; Contenido</h3>
+        <div class="section-title">Introducci&oacute;n</div>
+        <a href="#intro">1. Bienvenido a Identia</a>
+        <a href="#requisitos">2. Requisitos del Sistema</a>
+
+        <div class="section-title">Primeros Pasos</div>
+        <a href="#login">3. Inicio de Sesi&oacute;n</a>
+        <a href="#dashboard">4. Pantalla Principal</a>
+        <a href="#roles">5. Roles y Permisos</a>
+        <a href="#navegacion">6. Navegaci&oacute;n y Men&uacute;</a>
+
+        <div class="section-title">Gesti&oacute;n de Personal</div>
+        <a href="#trabajadores">7. Gesti&oacute;n de Trabajadores</a>
+        <a href="#registro-facial">8. Registro Facial</a>
+        <a href="#tipos-personal">9. Tipos de Personal</a>
+        <a href="#horarios">10. Horarios de Jornada</a>
+
+        <div class="section-title">Operaciones Diarias</div>
+        <a href="#control-acceso">11. Control de Acceso</a>
+        <a href="#asistencia">12. Bit&aacute;cora de Asistencia</a>
+
+        <div class="section-title">Herramientas</div>
+        <a href="#reportes">13. Generaci&oacute;n de Reportes</a>
+        <a href="#notificaciones">14. Centro de Notificaciones</a>
+        <a href="#seguridad">15. M&oacute;dulo de Seguridad</a>
+        <a href="#perfil">16. Perfil y Contrase&ntilde;a</a>
+
+        <div class="section-title">Soporte</div>
+        <a href="#problemas">17. Soluci&oacute;n de Problemas</a>
+    </nav>
+
+    <div class="content">
+
+        <!-- 1. INTRODUCCION -->
+        <div class="card" id="intro">
+            <h2>1. Bienvenido a Identia</h2>
+            <p><strong>Identia</strong> es un sistema de <strong>control de acceso biom&eacute;trico</strong> mediante reconocimiento facial, dise&ntilde;ado para la gesti&oacute;n de personal en terminales de transporte. El sistema permite registrar, identificar y controlar el acceso del personal de forma automatizada utilizando inteligencia artificial.</p>
+            <p>Desarrollado por estudiantes de la <strong>UNEXCA</strong> como proyecto de investigaci&oacute;n, Identia integra tecnolog&iacute;a de vanguardia en reconocimiento facial (DeepFace + FaceNet) con una interfaz web intuitiva para la administraci&oacute;n completa del personal.</p>
+
+            <h3>&#x1F4A1; Funcionalidades Principales</h3>
+            <ul>
+                <li><strong>Reconocimiento Facial:</strong> Verificaci&oacute;n de identidad en tiempo real usando c&aacute;mara web.</li>
+                <li><strong>Control de Acceso:</strong> Registro autom&aacute;tico de entrada y salida del personal.</li>
+                <li><strong>Gesti&oacute;n de Trabajadores:</strong> CRUD completo de personal con datos personales y laborales.</li>
+                <li><strong>Bit&aacute;cora de Asistencia:</strong> Historial detallado de accesos con estados y horarios.</li>
+                <li><strong>Reportes PDF:</strong> Generaci&oacute;n de reportes descargables de cada m&oacute;dulo.</li>
+                <li><strong>Notificaciones:</strong> Sistema de auditor&iacute;a con registro de eventos y novedades.</li>
+                <li><strong>Gesti&oacute;n de Horarios:</strong> Configuraci&oacute;n de jornadas laborales por tipo de personal.</li>
+            </ul>
+        </div>
+
+        <!-- 2. REQUISITOS -->
+        <div class="card" id="requisitos">
+            <h2>2. Requisitos del Sistema</h2>
+
+            <h3>&#x1F4BB; Hardware Recomendado</h3>
+            <ul>
+                <li>Computador con procesador i5 o superior.</li>
+                <li>4 GB de RAM como m&iacute;nimo (8 GB recomendados).</li>
+                <li>C&aacute;mara web integrada o externa (m&iacute;nimo 720p).</li>
+                <li>Conexi&oacute;n de red local (para acceso al servidor).</li>
+            </ul>
+
+            <h3>&#x1F310; Navegadores Soportados</h3>
+            <ul>
+                <li>Google Chrome (recomendado) &mdash; versi&oacute;n 90+</li>
+                <li>Mozilla Firefox &mdash; versi&oacute;n 88+</li>
+                <li>Microsoft Edge &mdash; versi&oacute;n 90+</li>
+            </ul>
+
+            <div class="highlight-info">
+                <strong>&#x26A0;&#xFE0F; Nota importante:</strong> El sistema requiere permisos de c&aacute;mara en el navegador. Chrome y Firefox solicitan permiso autom&aacute;ticamente al acceder a la p&aacute;gina de reconocimiento facial.
+            </div>
+
+            <h3>&#x1F5A5;&#xFE0F; Acceso al Sistema</h3>
+            <p>El sistema se accede a trav&eacute;s de un navegador web ingresando la direcci&oacute;n del servidor (ej: <code>http://localhost:8000</code> o la IP del servidor en la red local).</p>
+        </div>
+
+        <!-- 3. INICIO DE SESION -->
+        <div class="card" id="login">
+            <h2>3. Inicio de Sesi&oacute;n</h2>
+
+            <h3>&#x1F511; Acceder al Sistema</h3>
+            <ol>
+                <li>Abra su navegador web y dir&iacute;jase a la direcci&oacute;n del sistema.</li>
+                <li>En la pantalla de inicio, ver&aacute; el logo de Identia y el formulario de acceso.</li>
+                <li>Ingrese su <strong>ID &uacute;nico</strong> (n&uacute;mero de c&eacute;dula, solo d&iacute;gitos).</li>
+                <li>Ingrese su <strong>Contrase&ntilde;a</strong> asignada.</li>
+                <li>Haga clic en el bot&oacute;n <span class="badge badge-blue">Iniciar Sesi&oacute;n</span>.</li>
+            </ol>
+
+            <div class="highlight">
+                <strong>&#x1F6A7; Importante:</strong> El ID &uacute;nico debe contener solo n&uacute;meros. Si tiene problemas para acceder, contacte al administrador del sistema.
+            </div>
+
+            <h3>&#x1F510; Recuperaci&oacute;n de Acceso</h3>
+            <p>Si olvida su contrase&ntilde;a, un administrador puede restablecerla desde la gesti&oacute;n de trabajadores. Al crear un nuevo trabajador con rol administrativo, el sistema genera autom&aacute;ticamente una contrase&ntilde;a temporal que se muestra en la pantalla de registro exitoso.</p>
+
+            <h3>&#x1F6AA; Cierre de Sesi&oacute;n</h3>
+            <p>Para cerrar la sesi&oacute;n, haga clic en el bot&oacute;n <strong>Cerrar Sesi&oacute;n</strong> ubicado en el men&uacute; lateral, en la parte inferior. El sistema registrar&aacute; el evento en la bit&aacute;cora de incidentes.</p>
+        </div>
+
+        <!-- 4. PANTALLA PRINCIPAL -->
+        <div class="card" id="dashboard">
+            <h2>4. Pantalla Principal</h2>
+
+            <p>Al iniciar sesi&oacute;n, ser&aacute; redirigido al <strong>Dashboard</strong> o panel principal, que le ofrece una vista general del sistema.</p>
+
+            <h3>&#x1F4CA; Elementos del Dashboard</h3>
+            <ul>
+                <li><strong>Mensaje de bienvenida:</strong> Saludo personalizado con su nombre.</li>
+                <li><strong>Tarjetas de m&oacute;dulos:</strong> Accesos directos a las secciones principales del sistema.</li>
+                <li><strong>Estad&iacute;sticas generales:</strong> Total de empleados activos, asistencias del d&iacute;a, incidentes registrados.</li>
+                <li><strong>Reloj en vivo:</strong> Fecha y hora actual del servidor en la parte superior.</li>
+            </ul>
+
+            <p>Desde la pantalla principal puede acceder r&aacute;pidamente a los m&oacute;dulos m&aacute;s utilizados mediante las tarjetas de acceso directo.</p>
+        </div>
+
+        <!-- 5. ROLES Y PERMISOS -->
+        <div class="card" id="roles">
+            <h2>5. Roles y Permisos</h2>
+
+            <p>Identia cuenta con un sistema de <strong>roles y permisos</strong> que define el nivel de acceso de cada usuario dentro del sistema. Cada empleado registrado tiene un rol que determina qu&eacute; m&oacute;dulos y acciones puede ver o ejecutar.</p>
+
+            <h3>&#x1F468;&#x200D;&#x1F4BC; Roles Disponibles</h3>
+            <table>
+                <tr><th>Rol</th><th>Acceso al Sistema</th><th>Descripci&oacute;n</th></tr>
+                <tr>
+                    <td><span class="badge badge-blue">Administrador</span></td>
+                    <td><span class="badge badge-green">Completo</span></td>
+                    <td>Acceso total a todos los m&oacute;dulos del sistema: gesti&oacute;n de trabajadores, registro facial, control de acceso, reportes, seguridad, auditor&iacute;a, tipos de personal, horarios y configuraci&oacute;n.</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-orange">Seguridad</span></td>
+                    <td><span class="badge badge-green">Parcial</span></td>
+                    <td>Acceso a los m&oacute;dulos operativos: Inicio, Control de Acceso, lista de trabajadores (solo lectura), Centro de Notificaciones, Reportes y Perfil. No puede agregar, editar ni eliminar trabajadores.</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-gray">Trabajador</span></td>
+                    <td><span class="badge badge-red">Sin acceso</span></td>
+                    <td>No puede iniciar sesi&oacute;n en el sistema. Es solo un registro de personal para prop&oacute;sitos de control de acceso f&aacute;cil y asistencia.</td>
+                </tr>
+            </table>
+
+            <h3>&#x1F512; &iquest;Qu&eacute; puede hacer cada rol?</h3>
+            <table>
+                <tr><th>M&oacute;dulo / Acci&oacute;n</th><th>Administrador</th><th>Seguridad</th></tr>
+                <tr><td>Inicio / Dashboard</td><td>&#x2705;</td><td>&#x2705;</td></tr>
+                <tr><td>Control de Acceso (reconocimiento facial)</td><td>&#x2705;</td><td>&#x2705;</td></tr>
+                <tr><td>Buscar y ver trabajadores</td><td>&#x2705;</td><td>&#x2705; (solo lectura)</td></tr>
+                <tr><td>Agregar, editar o eliminar trabajadores</td><td>&#x2705;</td><td>&#x274C;</td></tr>
+                <tr><td>Registro facial de trabajadores</td><td>&#x2705;</td><td>&#x274C;</td></tr>
+                <tr><td>Activar / Desactivar trabajadores</td><td>&#x2705;</td><td>&#x274C;</td></tr>
+                <tr><td>Gesti&oacute;n de Tipos de Personal</td><td>&#x2705;</td><td>&#x274C;</td></tr>
+                <tr><td>Gesti&oacute;n de Horarios</td><td>&#x2705;</td><td>&#x274C;</td></tr>
+                <tr><td>Bit&aacute;cora de Asistencia</td><td>&#x2705;</td><td>&#x2705;</td></tr>
+                <tr><td>Generaci&oacute;n de Reportes</td><td>&#x2705;</td><td>&#x2705;</td></tr>
+                <tr><td>Centro de Notificaciones / Auditor&iacute;a</td><td>&#x2705;</td><td>&#x2705;</td></tr>
+                <tr><td>M&oacute;dulo de Seguridad</td><td>&#x2705;</td><td>&#x274C;</td></tr>
+                <tr><td>Ver y editar Perfil propio</td><td>&#x2705;</td><td>&#x2705;</td></tr>
+            </table>
+
+            <div class="highlight-info">
+                <strong>&#x1F4A1; Nota:</strong> El rol <strong>Trabajador</strong> est&aacute; dise&ntilde;ado &uacute;nicamente para el registro de personal y control de acceso biom&eacute;trico. Si un trabajador con este rol intenta iniciar sesi&oacute;n en el sistema, ver&aacute; el mensaje <em>"Este tipo de usuarios no tiene acceso al sistema"</em> y el acceso ser&aacute; denegado.
+            </div>
+        </div>
+
+        <!-- 6. NAVEGACION -->
+        <div class="card" id="navegacion">
+            <h2>6. Navegaci&oacute;n y Men&uacute;</h2>
+
+            <p>El sistema utiliza un <strong>men&uacute; lateral</strong> ubicado en el lado izquierdo de la pantalla para navegar entre los diferentes m&oacute;dulos.</p>
+
+            <h3>&#x1F9F0; Estructura del Men&uacute;</h3>
+            <table>
+                <tr><th>Icono</th><th>Opci&oacute;n</th><th>Descripci&oacute;n</th></tr>
+                <tr><td>&#x1F3E0;</td><td>Inicio</td><td>Pantalla principal del sistema</td></tr>
+                <tr><td>&#x1F9EA;</td><td>Control de Acceso</td><td>M&oacute;dulo de reconocimiento facial en tiempo real</td></tr>
+                <tr><td>&#x1F50D;</td><td>Buscar Trabajadores</td><td>Gesti&oacute;n completa del personal</td></tr>
+                <tr><td>&#x1F6E1;&#xFE0F;</td><td>Seguridad</td><td>Centro de seguridad y monitoreo</td></tr>
+                <tr><td>&#x1F4CA;</td><td>Reportes</td><td>Generador de reportes PDF</td></tr>
+                <tr><td>&#x1F464;</td><td>Perfil</td><td>Ver y editar informaci&oacute;n personal</td></tr>
+                <tr><td>&#x2753;</td><td>Acerca de</td><td>Informaci&oacute;n del sistema y manual de usuario</td></tr>
+                <tr><td>&#x1F6AA;</td><td>Cerrar Sesi&oacute;n</td><td>Salir del sistema</td></tr>
+            </table>
+
+            <h3>&#x1F514; Centro de Notificaciones</h3>
+            <p>En la parte superior derecha encontrar&aacute; un <strong>icono de campana</strong> con un contador de notificaciones no le&iacute;das. Al hacer clic se despliega un panel con las &uacute;ltimas novedades del sistema. Las notificaciones se actualizan autom&aacute;ticamente cada 30 segundos.</p>
+
+            <div class="highlight-info">
+                <strong>&#x1F6C8; Informaci&oacute;n del proyecto:</strong> En la pantalla de inicio de sesi&oacute;n, el logo de UNEXCA en la esquina superior derecha abre un modal con los datos de los ponentes y el tutor del proyecto.
+            </div>
+        </div>
+
+        <!-- 7. GESTION DE TRABAJADORES -->
+        <div class="card" id="trabajadores">
+            <h2>7. Gesti&oacute;n de Trabajadores</h2>
+
+            <p>El m&oacute;dulo de <strong>Gesti&oacute;n de Trabajadores</strong> le permite administrar todo el personal registrado en el sistema. Acceda desde el men&uacute; lateral &rarr; <em>Buscar Trabajadores</em> o desde la tarjeta correspondiente en el inicio.</p>
+
+            <h3>&#x1F50D; Buscar Trabajadores</h3>
+            <p>Utilice la barra de b&uacute;squeda en la parte superior para filtrar trabajadores por:</p>
+            <ul>
+                <li>C&eacute;dula de identidad</li>
+                <li>Nombres o apellidos</li>
+                <li>Correo electr&oacute;nico</li>
+                <li>&Aacute;rea de trabajo</li>
+                <li>Rol/Cargo</li>
+                <li>Tipo de personal</li>
+            </ul>
+            <p>Los resultados se muestran en una tabla paginada (10 registros por p&aacute;gina).</p>
+
+            <h3>&#x2795; Agregar Nuevo Trabajador</h3>
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content"><p>Haga clic en el bot&oacute;n <strong>Agregar Trabajador</strong>.</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content"><p>Complete los campos del formulario: <strong>C&eacute;dula</strong> (8 d&iacute;gitos), <strong>Nombres</strong>, <strong>Apellidos</strong>, <strong>Direcci&oacute;n</strong>, <strong>Correo</strong>, <strong>Tel&eacute;fono</strong>, <strong>Estado</strong>, <strong>&Aacute;rea de Trabajo</strong>, <strong>Rol/Cargo</strong> y <strong>Tipo de Personal</strong>.</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content"><p>Haga clic en <strong>Guardar</strong>. Si el tipo de personal es administrativo, el sistema crear&aacute; credenciales de acceso autom&aacute;ticamente.</p></div>
+            </div>
+
+            <div class="highlight">
+                <strong>&#x1F4CD; Roles disponibles:</strong> Administrador, Trabajador, Seguridad. Seleccione el que corresponda al cargo del empleado.
+            </div>
+
+            <h3>&#x270F;&#xFE0F; Editar Trabajador</h3>
+            <p>Haga clic en el icono de <strong>editar</strong> (l&aacute;piz) junto al trabajador que desea modificar. El formulario se cargar&aacute; con los datos actuales para que realice los cambios necesarios.</p>
+
+            <h3>&#x1F6AB; Desactivar Trabajador</h3>
+            <p>Haga clic en el icono de <strong>desactivar</strong> para cambiar el estado del trabajador a inactivo. Un trabajador inactivo no podr&aacute; acceder al sistema ni ingresar mediante reconocimiento facial.</p>
+
+            <div class="highlight-danger">
+                <strong>&#x26D4; Eliminar Trabajador:</strong> Solo disponible para superusuarios. Se recomienda desactivar en lugar de eliminar para mantener la integridad de los registros hist&oacute;ricos.
+            </div>
+
+            <h3>&#x1F4F7; Agregar Rostro</h3>
+            <p>Desde la lista de trabajadores, puede hacer clic en <strong>Agregar Rostro</strong> para registrar el rostro de un trabajador ya existente. Esto lo redirigir&aacute; a la p&aacute;gina de registro facial con los datos precargados.</p>
+
+            <h3>&#x1F4CA; Indicadores por Trabajador</h3>
+            <p>Cada fila de la tabla muestra indicadores de: cantidad de asistencias registradas, si tiene rostro registrado, y si tiene credenciales administrativas.</p>
+        </div>
+
+        <!-- 7. REGISTRO FACIAL -->
+        <div class="card" id="registro-facial">
+            <h2>8. Registro Facial</h2>
+
+            <p>El <strong>Registro Facial</strong> es el proceso de capturar y almacenar el rostro de un trabajador para su posterior identificaci&oacute;n. Se accede desde Gesti&oacute;n de Trabajadores &rarr; <em>Agregar Rostro</em>, o desde el enlace directo en el men&uacute;.</p>
+
+            <h3>&#x1F4F7; Proceso de Registro</h3>
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content"><p><strong>Complete los datos del trabajador</strong> en el formulario del lado derecho. Si accedi&oacute; desde "Agregar Rostro", los datos se cargar&aacute;n autom&aacute;ticamente.</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content"><p><strong>Inicie la c&aacute;mara</strong> haciendo clic en <em>Iniciar C&aacute;mara</em>. El navegador solicitar&aacute; permiso para usar la c&aacute;mara &mdash; debe permitirlo.</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content"><p><strong>Capture el rostro</strong> haciendo clic en <em>Capturar Rostro</em>. Aseg&uacute;rese de que el rostro est&eacute; bien iluminado y centrado en el recuadro gu&iacute;a.</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content"><p><strong>Guarde el registro</strong> haciendo clic en <em>Guardar Registro</em>. El sistema procesar&aacute; la imagen, extraer&aacute; el vector facial y lo almacenar&aacute; junto con los datos del trabajador.</p></div>
+            </div>
+
+            <div class="highlight-info">
+                <strong>&#x1F4A1; Recomendaciones:</strong>
+                <ul>
+                    <li>Aseg&uacute;rese de tener buena iluminaci&oacute;n (evite contraluces).</li>
+                    <li>Mire directamente a la c&aacute;mara, sin gestos exagerados.</li>
+                    <li>Evite accesorios que cubran el rostro (gorras, mascarillas, gafas oscuras).</li>
+                    <li>El rostro debe ocupar la mayor parte del recuadro gu&iacute;a.</li>
+                </ul>
+            </div>
+
+            <h3>&#x26A0;&#xFE0F; Detecci&oacute;n de Duplicados</h3>
+            <p>Si el rostro capturado coincide con otro trabajador ya registrado, el sistema mostrar&aacute; una advertencia y evitar&aacute; el registro duplicado. Esto previene que un mismo rostro sea registrado para m&uacute;ltiples personas.</p>
+
+            <h3>&#x1F510; Credenciales Autom&aacute;ticas</h3>
+            <p>Si el trabajador tiene un tipo de personal que contenga "Administrador", "Administrativo" o similar, el sistema generar&aacute; autom&aacute;ticamente una contrase&ntilde;a temporal que se mostrar&aacute; en la pantalla de registro exitoso. &iexcl;Entr&eacute;guela al trabajador!</p>
+        </div>
+
+        <!-- 8. TIPOS DE PERSONAL -->
+        <div class="card" id="tipos-personal">
+            <h2>9. Tipos de Personal</h2>
+
+            <p>El m&oacute;dulo de <strong>Tipos de Personal</strong> permite clasificar a los trabajadores en categor&iacute;as. Se accede desde Seguridad &rarr; M&oacute;dulos de Gesti&oacute;n &rarr; Gesti&oacute;n de Tipos de Personal.</p>
+
+            <h3>&#x1F4CB; Administrar Tipos</h3>
+            <ul>
+                <li><strong>Agregar:</strong> Escriba el nombre del nuevo tipo y haga clic en Guardar.</li>
+                <li><strong>Editar:</strong> Haga clic en el icono de editar para modificar el nombre. Al cambiar el nombre, el sistema actualiza autom&aacute;ticamente todos los trabajadores y horarios asociados a ese tipo.</li>
+                <li><strong>Eliminar:</strong> Solo posible si no hay trabajadores ni horarios asociados al tipo.</li>
+            </ul>
+
+            <div class="highlight">
+                <strong>&#x1F4CD; Ejemplos de tipos:</strong> Administrativo, Operador, Supervisor, Chofer, Mantenimiento, Seguridad.
+            </div>
+
+            <p>El campo de entrada cuenta con <strong>auto-completado</strong> que sugiere tipos existentes mientras escribe.</p>
+        </div>
+
+        <!-- 9. HORARIOS -->
+        <div class="card" id="horarios">
+            <h2>10. Horarios de Jornada</h2>
+
+            <p>El m&oacute;dulo de <strong>Horarios de Jornada</strong> permite configurar los horarios laborales para cada tipo de personal. Se accede desde Seguridad &rarr; M&oacute;dulos de Gesti&oacute;n &rarr; Gesti&oacute;n de Horarios.</p>
+
+            <h3>&#x1F4C5; Configurar un Horario</h3>
+            <ul>
+                <li><strong>Tipo de Personal:</strong> Seleccione a qu&eacute; categor&iacute;a aplica este horario.</li>
+                <li><strong>Fecha:</strong> Puede especificar una fecha concreta o dejarla vac&iacute;a para un horario gen&eacute;rico aplicable todos los d&iacute;as.</li>
+                <li><strong>Hora de Entrada:</strong> Hora de inicio de la jornada laboral.</li>
+                <li><strong>Tolerancia de Entrada:</strong> Minutos de tolerancia permitidos despu&eacute;s de la hora de entrada.</li>
+                <li><strong>Hora de Salida:</strong> Hora de finalizaci&oacute;n de la jornada laboral.</li>
+                <li><strong>Tolerancia de Salida:</strong> Minutos de tolerancia para el registro de salida.</li>
+            </ul>
+
+            <div class="highlight-info">
+                <strong>&#x1F4A1; Prioridad de horarios:</strong> Si existe un horario con fecha espec&iacute;fica para un tipo de personal, este tiene prioridad sobre el horario gen&eacute;rico (sin fecha). Esto permite configurar excepciones para d&iacute;as particulares.
+            </div>
+
+            <h3>&#x1F552; C&oacute;mo afecta a la Asistencia</h3>
+            <p>Los horarios definidos determinan los estados de asistencia:</p>
+            <ul>
+                <li><strong>Presente:</strong> Entrada registrada dentro del horario + tolerancia.</li>
+                <li><strong>Tardanza:</strong> Entrada registrada despu&eacute;s del horario + tolerancia.</li>
+                <li><strong>Salida normal:</strong> Salida registrada dentro del horario + tolerancia.</li>
+                <li><strong>Salida fuera de jornada:</strong> Salida registrada despu&eacute;s del horario + tolerancia.</li>
+            </ul>
+        </div>
+
+        <!-- 10. CONTROL DE ACCESO -->
+        <div class="card" id="control-acceso">
+            <h2>11. Control de Acceso</h2>
+
+            <p>El <strong>Control de Acceso</strong> es el m&oacute;dulo principal del sistema. Permite verificar la identidad de los trabajadores mediante reconocimiento facial en tiempo real y registrar autom&aacute;ticamente sus entradas y salidas.</p>
+
+            <h3>&#x1F9EA; C&oacute;mo Usarlo</h3>
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content"><p>Acceda desde el men&uacute; lateral &rarr; <em>Control de Acceso</em>.</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content"><p>Haga clic en <strong>Iniciar C&aacute;mara</strong> y permita el acceso a la c&aacute;mara cuando el navegador lo solicite.</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content"><p>El trabajador debe ubicarse frente a la c&aacute;mara, mirando directamente al lente, dentro del recuadro gu&iacute;a ovalado.</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content"><p>Haga clic en <strong>Verificar Rostro</strong> para capturar la imagen y procesar la identificaci&oacute;n.</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">5</div>
+                <div class="step-content"><p>El sistema mostrar&aacute; el resultado en el panel derecho: nombre del trabajador, porcentaje de similitud, estado del acceso, y el movimiento registrado (Entrada o Salida).</p></div>
+            </div>
+
+            <h3>&#x2705; Resultados Posibles</h3>
+            <table>
+                <tr><th>Resultado</th><th>Significado</th><th>Acci&oacute;n</th></tr>
+                <tr><td><span class="badge badge-green">ACCESO PERMITIDO</span></td><td>Trabajador activo identificado correctamente</td><td>Se registra entrada o salida autom&aacute;ticamente</td></tr>
+                <tr><td><span class="badge badge-green">VACACIONES</span></td><td>Trabajador de vacaciones identificado</td><td>Se registra el acceso igualmente</td></tr>
+                <tr><td><span class="badge badge-red">ACCESO DENEGADO</span></td><td>Trabajador inactivo o suspendido</td><td>No se registra acceso, se muestra advertencia</td></tr>
+                <tr><td><span class="badge badge-orange">SIN COINCIDENCIAS</span></td><td>Rostro no reconocido en la base de datos</td><td>No se registra acceso</td></tr>
+                <tr><td><span class="badge badge-red">SIN ROSTRO</span></td><td>No se detect&oacute; un rostro en la imagen</td><td>Verifique la iluminaci&oacute;n y posici&oacute;n</td></tr>
+            </table>
+
+            <h3>&#x1F4C8; Historial de Verificaciones</h3>
+            <p>En la parte inferior de la pantalla se muestra un historial con las &uacute;ltimas 10 verificaciones realizadas, incluyendo el resultado, nombre del trabajador y hora.</p>
+
+            <h3>&#x1F39B;&#xFE0F; Ajuste de Sensibilidad</h3>
+            <p>Los superusuarios pueden ajustar el umbral de similitud para el reconocimiento facial (valor entre 0.1 y 0.9). Un valor m&aacute;s bajo es m&aacute;s estricto (mayor precisi&oacute;n), un valor m&aacute;s alto es m&aacute;s permisivo. El valor recomendado es 0.4.</p>
+        </div>
+
+        <!-- 11. BITACORA DE ASISTENCIA -->
+        <div class="card" id="asistencia">
+            <h2>12. Bit&aacute;cora de Asistencia</h2>
+
+            <p>La <strong>Bit&aacute;cora de Asistencia</strong> muestra el historial completo de entradas y salidas registradas por el sistema, ya sea mediante reconocimiento facial o registro manual.</p>
+
+            <h3>&#x1F50D; Filtrar Registros</h3>
+            <ul>
+                <li><strong>Rango de fechas:</strong> Seleccione una fecha de inicio y fin para filtrar.</li>
+                <li><strong>Trabajador:</strong> Seleccione un trabajador espec&iacute;fico para ver solo sus registros.</li>
+            </ul>
+
+            <h3>&#x1F4CB; Informaci&oacute;n Mostrada</h3>
+            <table>
+                <tr><th>Columna</th><th>Descripci&oacute;n</th></tr>
+                <tr><td>Fecha</td><td>D&iacute;a del registro de asistencia</td></tr>
+                <tr><td>Hora de Entrada</td><td>Hora exacta del ingreso registrado</td></tr>
+                <tr><td>Hora de Salida</td><td>Hora exacta de la salida registrada</td></tr>
+                <tr><td>Acceso</td><td>Tipo: Entrada o Salida</td></tr>
+                <tr><td>Estado</td><td>Estado de la jornada (Presente, Tardanza, Salida, etc.)</td></tr>
+                <tr><td>Trabajador</td><td>Nombre del trabajador</td></tr>
+            </table>
+
+            <h3>&#x1F4D6; Estados de Jornada</h3>
+            <ul>
+                <li><span class="badge badge-green">Presente</span> &mdash; Entrada dentro del horario + tolerancia.</li>
+                <li><span class="badge badge-orange">Tardanza</span> &mdash; Entrada despu&eacute;s del horario + tolerancia.</li>
+                <li><span class="badge badge-blue">Regreso</span> &mdash; Reingreso despu&eacute;s de una salida parcial.</li>
+                <li><span class="badge badge-green">Salida</span> &mdash; Salida normal dentro del horario.</li>
+                <li><span class="badge badge-yellow">Salida parcial</span> &mdash; Salida temporal durante la jornada.</li>
+                <li><span class="badge badge-red">Salida fuera jornada</span> &mdash; Salida despu&eacute;s del horario establecido.</li>
+                <li><span class="badge badge-gray">Jornada incompleta</span> &mdash; D&iacute;a sin registro de salida (cerrado autom&aacute;ticamente al d&iacute;a siguiente).</li>
+            </ul>
+        </div>
+
+        <!-- 12. REPORTES -->
+        <div class="card" id="reportes">
+            <h2>13. Generaci&oacute;n de Reportes</h2>
+
+            <p>El m&oacute;dulo de <strong>Reportes</strong> permite generar documentos PDF descargables con la informaci&oacute;n de cada m&oacute;dulo del sistema.</p>
+
+            <h3>&#x1F4C4; Tipos de Reportes</h3>
+            <table>
+                <tr><th>Reporte</th><th>Contenido</th></tr>
+                <tr><td>Trabajadores</td><td>Lista completa del personal con datos: c&eacute;dula, nombres, apellidos, correo, tel&eacute;fono, estado, &aacute;rea, rol y tipo</td></tr>
+                <tr><td>Horarios</td><td>Horarios de jornada configurados por tipo de personal</td></tr>
+                <tr><td>Incidentes</td><td>Registro de eventos y novedades del sistema</td></tr>
+                <tr><td>Tipos de Personal</td><td>Lista de categor&iacute;as de personal registradas</td></tr>
+                <tr><td>Asistencias</td><td>Historial de accesos con fechas, horas y estados</td></tr>
+            </table>
+
+            <h3>&#x1F4A1; C&oacute;mo Generar un Reporte</h3>
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content"><p>Seleccione el <strong>m&oacute;dulo</strong> del cual desea generar el reporte.</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content"><p>Utilice el buscador para filtrar por un trabajador o tipo de personal espec&iacute;fico (opcional).</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content"><p>Si aplica, seleccione un <strong>rango de fechas</strong> (para incidentes y asistencias).</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content"><p>Haga clic en <strong>Generar PDF</strong>. El sistema descargar&aacute; autom&aacute;ticamente el archivo PDF.</p></div>
+            </div>
+
+            <div class="highlight-info">
+                <strong>&#x1F4E5; Formato del PDF:</strong> Los reportes se generan en orientaci&oacute;n apaisada (horizontal), con el logo de Identia, t&iacute;tulo del reporte, fecha de generaci&oacute;n, tabla de datos con encabezados en azul oscuro y filas alternadas en color, y el total de registros al final.
+            </div>
+        </div>
+
+        <!-- 13. NOTIFICACIONES -->
+        <div class="card" id="notificaciones">
+            <h2>14. Centro de Notificaciones</h2>
+
+            <p>El <strong>Centro de Notificaciones</strong> registra todos los eventos importantes que ocurren en el sistema, funcionando como una bit&aacute;cora de auditor&iacute;a.</p>
+
+            <h3>&#x1F514; Acceso</h3>
+            <ul>
+                <li><strong>Panel r&aacute;pido:</strong> Haga clic en el icono de campana en la esquina superior derecha para ver las &uacute;ltimas 5 notificaciones no le&iacute;das.</li>
+                <li><strong>Ver todas:</strong> Haga clic en "Ver todas las notificaciones" al final del panel desplegable, o acceda desde Seguridad &rarr; Auditor&iacute;a.</li>
+            </ul>
+
+            <h3>&#x1F4CB; Tipos de Eventos</h3>
+            <table>
+                <tr><th>Tipo</th><th>Color</th><th>Ejemplos</th></tr>
+                <tr><td>Inicio de sesi&oacute;n</td><td><span class="badge badge-green">Verde</span></td><td>Usuario X inici&oacute; sesi&oacute;n</td></tr>
+                <tr><td>Cierre de sesi&oacute;n</td><td><span class="badge badge-orange">Naranja</span></td><td>Usuario X cerr&oacute; sesi&oacute;n</td></tr>
+                <tr><td>Agregar</td><td><span class="badge badge-green">Verde</span></td><td>Nuevo trabajador registrado, nuevo tipo de personal creado</td></tr>
+                <tr><td>Editar</td><td><span class="badge badge-blue">Azul</span></td><td>Datos de trabajador actualizados</td></tr>
+                <tr><td>Eliminar</td><td><span class="badge badge-red">Rojo</span></td><td>Registro eliminado del sistema</td></tr>
+                <tr><td>Activar/Desactivar</td><td><span class="badge badge-yellow">Amarillo</span></td><td>Estado de trabajador cambiado</td></tr>
+            </table>
+
+            <h3>&#x1F441;&#xFE0F; Caracter&iacute;sticas</h3>
+            <ul>
+                <li><strong>Notificaciones no le&iacute;das:</strong> Se muestran en negrita hasta que haga clic en ellas.</li>
+                <li><strong>Contador:</strong> El icono de campana muestra la cantidad de notificaciones sin leer.</li>
+                <li><strong>Actualizaci&oacute;n autom&aacute;tica:</strong> El sistema consulta nuevas notificaciones cada 30 segundos.</li>
+                <li><strong>Marcar como le&iacute;das:</strong> Puede marcar individualmente o todas como le&iacute;das.</li>
+                <li><strong>Navegaci&oacute;n directa:</strong> Cada notificaci&oacute;n tiene un enlace al m&oacute;dulo correspondiente.</li>
+            </ul>
+        </div>
+
+        <!-- 14. SEGURIDAD -->
+        <div class="card" id="seguridad">
+            <h2>15. M&oacute;dulo de Seguridad</h2>
+
+            <p>El <strong>M&oacute;dulo de Seguridad</strong> agrupa todas las herramientas de monitoreo y configuraci&oacute;n del sistema.</p>
+
+            <h3>&#x1F6E1;&#xFE0F; Opciones Disponibles</h3>
+            <ul>
+                <li><strong>Auditor&iacute;a:</strong> Bit&aacute;cora completa de incidentes del sistema con filtros por fecha y b&uacute;squeda de texto.</li>
+                <li><strong>Bit&aacute;cora de Asistencias:</strong> Historial de accesos con opciones de filtrado.</li>
+                <li><strong>Control de Acceso:</strong> Acceso directo al m&oacute;dulo de reconocimiento facial.</li>
+                <li><strong>Buscar Trabajadores:</strong> Gesti&oacute;n de personal.</li>
+                <li><strong>M&oacute;dulos de Gesti&oacute;n:</strong> Administraci&oacute;n de tipos de personal y horarios.</li>
+            </ul>
+
+            <h3>&#x1F512; Restricciones de Seguridad</h3>
+            <p>El sistema cuenta con medidas de seguridad integradas:</p>
+            <ul>
+                <li>Las sesiones expiran despu&eacute;s de 1 hora de inactividad.</li>
+                <li>El men&uacute; lateral bloquea combinaciones de teclas de desarrollo (F12, Ctrl+U, etc.) para usuarios no desarrolladores.</li>
+                <li>Se bloquea el clic derecho, selecci&oacute;n de texto y arrastre de contenido.</li>
+                <li>El sistema detecta herramientas de desarrollo abiertas y muestra advertencias.</li>
+                <li>Las contrase&ntilde;as se almacenan con cifrado PBKDF2 de Django.</li>
+            </ul>
+        </div>
+
+        <!-- 15. PERFIL -->
+        <div class="card" id="perfil">
+            <h2>16. Perfil y Contrase&ntilde;a</h2>
+
+            <p>El m&oacute;dulo de <strong>Perfil</strong> le permite consultar su informaci&oacute;n personal y cambiar su contrase&ntilde;a de acceso.</p>
+
+            <h3>&#x1F464; Ver Informaci&oacute;n Personal</h3>
+            <p>En la pantalla de perfil puede consultar sus datos registrados:</p>
+            <ul>
+                <li>C&eacute;dula de identidad</li>
+                <li>Nombres y apellidos completos</li>
+                <li>Direcci&oacute;n de habitaci&oacute;n</li>
+                <li>Correo electr&oacute;nico</li>
+                <li>N&uacute;mero de tel&eacute;fono</li>
+                <li>Estado actual (Activo/Inactivo)</li>
+                <li>&Aacute;rea de trabajo</li>
+                <li>Rol/Cargo</li>
+                <li>Tipo de personal</li>
+            </ul>
+
+            <h3>&#x1F511; Cambiar Contrase&ntilde;a</h3>
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content"><p>En la pantalla de perfil, haga clic en <strong>Cambiar Contrase&ntilde;a</strong>.</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content"><p>En el modal que aparece, ingrese su <strong>contrase&ntilde;a actual</strong>.</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content"><p>Ingrese su <strong>nueva contrase&ntilde;a</strong> (m&iacute;nimo 8 caracteres).</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content"><p>Confirme la nueva contrase&ntilde;a y haga clic en <strong>Guardar</strong>.</p></div>
+            </div>
+            <div class="step">
+                <div class="step-number">5</div>
+                <div class="step-content"><p>El sistema cerrar&aacute; la sesi&oacute;n autom&aacute;ticamente. Deber&aacute; iniciar sesi&oacute;n nuevamente con la nueva contrase&ntilde;a.</p></div>
+            </div>
+
+            <div class="highlight-success">
+                <strong>&#x2705; Requisitos de contrase&ntilde;a:</strong> M&iacute;nimo 8 caracteres. No debe ser una contrase&ntilde;a com&uacute;n ni similar a sus datos personales.
+            </div>
+        </div>
+
+        <!-- 16. SOLUCION DE PROBLEMAS -->
+        <div class="card" id="problemas">
+            <h2>17. Soluci&oacute;n de Problemas</h2>
+
+            <h3>&#x1F4F7; La c&aacute;mara no funciona</h3>
+            <ul>
+                <li>Verifique que haya concedido permisos de c&aacute;mara en el navegador.</li>
+                <li>Aseg&uacute;rese de que ning&uacute;n otro programa est&eacute; usando la c&aacute;mara (Skype, Zoom, etc.).</li>
+                <li>Pruebe con otro navegador (Chrome es el recomendado).</li>
+                <li>Verifique que la c&aacute;mara est&eacute; correctamente conectada e instalada.</li>
+            </ul>
+
+            <h3>&#x26A0;&#xFE0F; Error al iniciar sesi&oacute;n</h3>
+            <ul>
+                <li>Verifique que el ID &uacute;nico sea num&eacute;rico y tenga 8 d&iacute;gitos.</li>
+                <li>Aseg&uacute;rese de que el trabajador est&eacute; en estado <strong>Activo</strong>.</li>
+                <li>Si olvid&oacute; la contrase&ntilde;a, solicite al administrador que la restablezca.</li>
+                <li>Revise que la conexi&oacute;n al servidor est&eacute; activa.</li>
+            </ul>
+
+            <h3>&#x1F9EA; El reconocimiento facial falla frecuentemente</h3>
+            <ul>
+                <li><strong>Iluminaci&oacute;n:</strong> Aseg&uacute;rese de que el &aacute;rea est&eacute; bien iluminada.</li>
+                <li><strong>Distancia:</strong> Mantenga una distancia adecuada de la c&aacute;mara (40-70 cm).</li>
+                <li><strong>&Aacute;ngulo:</strong> Mire directamente a la c&aacute;mara, sin inclinar la cabeza.</li>
+                <li><strong>Calidad de imagen:</strong> Limpie el lente de la c&aacute;mara si es necesario.</li>
+                <li><strong>Umbral de sensibilidad:</strong> Solicite al superusuario ajustar el umbral de similitud si el problema persiste.</li>
+            </ul>
+
+            <h3>&#x1F4C4; El reporte PDF no se genera</h3>
+            <ul>
+                <li>Verifique que haya seleccionado un m&oacute;dulo v&aacute;lido.</li>
+                <li>Si seleccion&oacute; un rango de fechas, aseg&uacute;rese de que la fecha de inicio sea anterior a la fecha de fin.</li>
+                <li>Compruebe que existan registros para los filtros seleccionados.</li>
+                <li>Desactive bloqueadores de ventanas emergentes si el PDF no se descarga.</li>
+            </ul>
+
+            <h3>&#x1F504; La p&aacute;gina no carga o muestra errores</h3>
+            <ul>
+                <li>Verifique la conexi&oacute;n de red y que el servidor est&eacute; ejecut&aacute;ndose.</li>
+                <li>Limpie la cach&eacute; del navegador (Ctrl+Shift+Del en Chrome).</li>
+                <li>Intente en una ventana de inc&oacute;gnito o privada.</li>
+                <li>Contacte al administrador del sistema si el problema persiste.</li>
+            </ul>
+
+            <h3>&#x1F4E7; Contacto de Soporte</h3>
+            <p>Para reportar problemas t&eacute;cnicos o solicitar asistencia, contacte al administrador del sistema o al equipo de desarrollo.</p>
+
+            <div class="highlight">
+                <strong>&#x1F4A1; Consejo &uacute;til:</strong> La mayor&iacute;a de los problemas se resuelven verificando la conexi&oacute;n de red, reiniciando la p&aacute;gina o limpiando la cach&eacute; del navegador. Si el problema persiste, revise la bit&aacute;cora de incidentes para identificar posibles errores.
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="footer-manual">
+    <p>Identia v3.7.6 &mdash; Sistema de Gesti&oacute;n Biom&eacute;trica y Control de Acceso</p>
+    <p>UNEXCA &copy; 2026 &mdash; Documentaci&oacute;n para usuarios finales</p>
+</div>
+
+</body>
+</html>

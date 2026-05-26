@@ -1,0 +1,963 @@
+<!-- reconocimiento/templates/reconocimiento/registro_facial.html -->
+{% extends 'usuarios/base_menu_lateral.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- Estilos base (siempre iguales) -->
+<style>
+    .registro-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .registro-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+    
+    .registro-header h2 {
+        color: #2a5298;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    /* Mensaje de precarga */
+    .precarga-message {
+        background: #d1ecf1;
+        color: #0c5460;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        border: 1px solid #bee5eb;
+    }
+    
+    .precarga-message .icon {
+        font-size: 24px;
+    }
+    
+    .panels {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+    }
+    
+    /* Panel de cámara */
+    .camera-panel {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .camera-header {
+        background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        color: white;
+        padding: 15px 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .camera-container {
+        position: relative;
+        background: #1a1a1a;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    #video {
+        width: 100%;
+        max-height: 450px;
+        object-fit: cover;
+        display: none;
+    }
+    
+    .camera-placeholder {
+        text-align: center;
+        color: #666;
+        padding: 40px;
+    }
+    
+    .camera-placeholder .icon {
+        font-size: 64px;
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+    
+    #canvas {
+        display: none;
+    }
+    
+    .camera-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        border: 3px solid rgba(255,255,255,0.3);
+        border-radius: 10px;
+        margin: 20px;
+        box-shadow: 0 0 0 9999px rgba(0,0,0,0.3);
+        display: none;
+    }
+    
+    /* Óvalo guía para posicionar el rostro */
+    .face-guide-oval {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 280px;
+        height: 350px;
+        border: 3px dashed rgba(255, 255, 255, 0.7);
+        border-radius: 50% 50% 45% 45%;
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.2),
+                    inset 0 0 20px rgba(255, 255, 255, 0.1);
+        z-index: 10;
+        display: none;
+    }
+    
+    .face-guide-oval::before {
+        content: '⬆';
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 20px;
+    }
+    
+    .face-guide-oval::after {
+        content: 'Posicione su rostro aquí';
+        position: absolute;
+        bottom: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 12px;
+        white-space: nowrap;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    }
+    
+    .camera-instructions {
+        position: absolute;
+        top: 6px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        color: white;
+        text-shadow: 1px 1px 2px black;
+        font-weight: 500;
+        background: rgba(0,0,0,0.6);
+        padding: 8px 15px;
+        margin: 0 20px;
+        border-radius: 8px;
+        display: none;
+        font-size: 13px;
+        z-index: 15;
+    }
+    
+    .camera-controls {
+        padding: 20px;
+        background: #f8f9fa;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        border-top: 1px solid #dee2e6;
+        flex-wrap: wrap;
+    }
+    
+    .btn-camera {
+        background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 140px;
+        justify-content: center;
+    }
+    
+    .btn-camera:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(155, 89, 182, 0.3);
+    }
+    
+    .btn-camera:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    
+    .btn-camera.secondary {
+        background: #6c757d;
+    }
+    
+    .btn-camera.secondary:hover:not(:disabled) {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+    
+    /* Panel de formulario */
+    .form-panel {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .form-header {
+        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+        color: white;
+        padding: 15px 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .form-content {
+        padding: 25px;
+        max-height: 600px;
+        overflow-y: auto;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #2a5298;
+        box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        background-color: white;
+    }
+    
+    .form-control[readonly] {
+        background-color: #e9ecef;
+        opacity: 0.8;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .required-field::after {
+        content: " *";
+        color: #e74c3c;
+    }
+    
+    .field-info {
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 4px;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+    
+    .btn-guardar {
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-guardar:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+    }
+    
+    .btn-guardar:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .btn-cancelar {
+        background: #95a5a6;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-cancelar:hover {
+        background: #7f8c8d;
+        color: white;
+    }
+    
+    /* Indicador de procesamiento */
+    .processing-indicator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+    }
+    
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #9b59b6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Estado de la cámara */
+    .camera-error {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 10px;
+        padding: 10px;
+        background: #f8d7da;
+        border-radius: 5px;
+        display: none;
+    }
+    
+    /* Badge de información */
+    .info-badge-small {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-left: 8px;
+    }
+    
+    .badge-activo {
+        background: #d5f4e6;
+        color: #27ae60;
+    }
+    
+    .badge-inactivo {
+        background: #fdebd0;
+        color: #e67e22;
+    }
+    
+    .badge-vacaciones {
+        background: #d6eaf8;
+        color: #3498db;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .panels {
+            grid-template-columns: 1fr;
+        }
+    }
+
+       *{
+            font-size: large;
+        }
+</style>
+
+<!-- Estilos condicionales (fuera del bloque style principal) -->
+{% if modo_precarga %}
+<style>
+    .form-control {
+        background-color: #f8f9fa !important;
+    }
+</style>
+{% else %}
+<style>
+    .form-control {
+        background-color: white !important;
+    }
+</style>
+{% endif %}
+
+<div class="registro-container">
+    <!-- Header -->
+    <div class="registro-header">
+        <h2>
+            <span class="header-icon">📸</span>
+            {% if modo_precarga %}
+                Agregar Reconocimiento Facial
+            {% else %}
+                Registro de Trabajador con Reconocimiento Facial
+            {% endif %}
+        </h2>
+    </div>
+
+    <!-- Mensaje de precarga (si estamos agregando rostro a un trabajador existente) -->
+    {% if modo_precarga and datos_trabajador %}
+    <div class="precarga-message">
+        <span class="icon">ℹ️</span>
+        <div>
+            <strong>Agregando reconocimiento facial para:</strong> 
+            {{ datos_trabajador.nombres }} {{ datos_trabajador.apellidos }} (Cédula: {{ datos_trabajador.cedula }})
+            {% if datos_trabajador.estado %}
+                <span class="info-badge-small 
+                    {% if datos_trabajador.estado == 'Activo' %}badge-activo
+                    {% elif datos_trabajador.estado == 'Inactivo' %}badge-inactivo
+                    {% elif datos_trabajador.estado == 'Vacaciones' %}badge-vacaciones
+                    {% endif %}">
+                    {{ datos_trabajador.estado }}
+                </span>
+            {% endif %}
+        </div>
+    </div>
+    <!-- Datos del trabajador para JavaScript -->
+    <script id="datos-trabajador-preload" type="application/json">
+        {{ datos_trabajador_json|safe }}
+    </script>
+    {% endif %}
+
+    <!-- Mensajes del sistema -->
+    {% if messages %}
+    <div class="messages" style="margin-bottom: 20px;">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            <span class="emoji-icon">
+                {% if message.tags == 'success' %}✅
+                {% elif message.tags == 'error' %}❌
+                {% elif message.tags == 'warning' %}⚠️
+                {% else %}ℹ️
+                {% endif %}
+            </span>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Paneles principales -->
+    <div class="panels">
+        <!-- Panel izquierdo: Cámara -->
+        <div class="camera-panel">
+            <div class="camera-header">
+                <span>📷</span>
+                Captura de Rostro
+            </div>
+            <div class="camera-container">
+                <video id="video" autoplay playsinline></video>
+                <div class="camera-placeholder" id="cameraPlaceholder">
+                    <div class="icon">📷</div>
+                    <p>Cámara detenida</p>
+                    <p style="font-size: 12px;">Presione "Iniciar Cámara" para comenzar</p>
+                </div>
+                <canvas id="canvas"></canvas>
+                <div class="camera-overlay" id="cameraOverlay"></div>
+                <div class="face-guide-oval" id="faceGuide"></div>
+                <div class="camera-instructions" id="cameraInstructions">
+                    Coloque su rostro dentro del marco
+                </div>
+            </div>
+            <div class="camera-controls">
+                <button class="btn-camera" id="startCameraBtn" onclick="iniciarCamara()">
+                    <span>📷</span>
+                    Iniciar Cámara
+                </button>
+                <button class="btn-camera secondary" id="captureBtn" onclick="capturarRostro()" disabled>
+                    <span>📸</span>
+                    Capturar Rostro
+                </button>
+                <button class="btn-camera secondary" id="stopCameraBtn" onclick="detenerCamara()" disabled>
+                    <span>⏹️</span>
+                    Detener
+                </button>
+                  <br>
+                <p>Asegurese de: <br>
+                    🟢 Tener buena iluminación
+                    <br>
+                    🟢 Mantener el rostro dentro del marco
+                    <br>
+                    🟢 No tener objetos que cubran el rostro
+                </p>
+            </div>
+            <div id="cameraError" class="camera-error"></div>
+        </div>
+
+        <!-- Panel derecho: Formulario -->
+        <div class="form-panel">
+            <div class="form-header">
+                <span>📋</span>
+                Datos del Trabajador
+            </div>
+            <div class="form-content">
+                <form id="registroForm" method="POST" action="{% url 'reconocimiento:guardar_registro_completo' %}">
+                    {% csrf_token %}
+                    
+                    <!-- Campo oculto para el embedding facial -->
+                    <input type="hidden" name="facial_embedding" id="facialEmbedding" value="">
+                    
+                    <!-- Campo oculto para ID de trabajador existente (modo precarga) -->
+                    {% if datos_trabajador %}
+                    <input type="hidden" name="id_trabajador_existente" value="{{ datos_trabajador.id_pk }}">
+                    {% endif %}
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cedula" class="required-field">🆔 Cédula</label>
+                            <input type="text" id="cedula" name="cedula" class="form-control" required 
+                                   placeholder="Ej: 12345678" maxlength="8"
+                                   value="{{ datos_trabajador.cedula|default:'' }}"
+                                   {% if modo_precarga %}readonly{% endif %}>
+                            <div class="field-info">8 dígitos numéricos</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="nombres" class="required-field">👤 Nombres</label>
+                            <input type="text" id="nombres" name="nombres" class="form-control" required 
+                                   placeholder="Ej: Juan Carlos"
+                                   value="{{ datos_trabajador.nombres|default:'' }}"
+                                   {% if modo_precarga %}readonly{% endif %}>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="apellidos" class="required-field">👤 Apellidos</label>
+                            <input type="text" id="apellidos" name="apellidos" class="form-control" required 
+                                   placeholder="Ej: Pérez González"
+                                   value="{{ datos_trabajador.apellidos|default:'' }}"
+                                   {% if modo_precarga %}readonly{% endif %}>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="direccion">📍 Dirección</label>
+                            <textarea id="direccion" name="direccion" class="form-control" rows="2" 
+                                      placeholder="Dirección de habitación"
+                                      {% if modo_precarga %}readonly{% endif %}>{{ datos_trabajador.direccion|default:'' }}</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="correo">📧 Correo Electrónico</label>
+                            <input type="email" id="correo" name="correo" class="form-control" 
+                                   placeholder="ejemplo@correo.com"
+                                   value="{{ datos_trabajador.correo|default:'' }}"
+                                   {% if modo_precarga %}readonly{% endif %}>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="telefono">📞 Teléfono</label>
+                            <input type="text" id="telefono" name="telefono" class="form-control" 
+                                   placeholder="Ej: 0412-1234567"
+                                   value="{{ datos_trabajador.telefono|default:'' }}"
+                                   {% if modo_precarga %}readonly{% endif %}>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="estado">⚡ Estado</label>
+                            <select id="estado" name="estado" class="form-control" {% if modo_precarga %}disabled{% endif %}>
+                                {% for estado in estados %}
+                                <option value="{{ estado }}"
+                                        {% if datos_trabajador and datos_trabajador.estado == estado %}selected{% endif %}
+                                        {% if not datos_trabajador and estado == 'Activo' %}selected{% endif %}>
+                                    {{ estado }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if modo_precarga %}
+                            <input type="hidden" name="estado" value="{{ datos_trabajador.estado|default:'Activo' }}">
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="area_trabajo">🏢 Área de Trabajo</label>
+                            <input type="text" id="area_trabajo" name="area_trabajo" class="form-control" 
+                                   placeholder="Ej: Administración, Operaciones, Seguridad"
+                                   value="{{ datos_trabajador.area_trabajo|default:'' }}"
+                                   {% if modo_precarga %}readonly{% endif %}>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="rol">💼 Rol/Cargo</label>
+                            <select id="rol" name="rol" class="form-control" {% if modo_precarga %}disabled{% endif %}>
+                                <option value="">Seleccione un rol</option>
+                                <option value="Administrador" {% if datos_trabajador.rol == 'Administrador' %}selected{% endif %}>Administrador</option>
+                                <option value="Trabajador" {% if datos_trabajador.rol == 'Trabajador' %}selected{% endif %}>Trabajador</option>
+                                <option value="Seguridad" {% if datos_trabajador.rol == 'Seguridad' %}selected{% endif %}>Seguridad</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tipo_personal" class="required-field">🏷️ Tipo de Personal</label>
+                            <select id="tipo_personal" name="tipo_personal" class="form-control" required {% if modo_precarga %}disabled{% endif %}>
+                                <option value="">Seleccione un tipo</option>
+                                {% for tipo in tipos_personal %}
+                                <option value="{{ tipo }}"
+                                        {% if datos_trabajador and datos_trabajador.tipo_fk == tipo %}selected{% endif %}>
+                                    {{ tipo }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if modo_precarga %}
+                            <input type="hidden" name="tipo_personal" value="{{ datos_trabajador.tipo_fk }}">
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <a href="{% url 'reconocimiento:gestion_trabajadores' %}" class="btn-cancelar">
+                            <span>❌</span>
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn-guardar" id="guardarBtn" disabled>
+                            <span>💾</span>
+                            {% if modo_precarga %}
+                                Guardar Rostro
+                            {% else %}
+                                Guardar Trabajador
+                            {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicador de procesamiento (oculto inicialmente) -->
+    <div id="processingModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 30px; border-radius: 15px; text-align: center;">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px; font-weight: 600;">Procesando imagen...</p>
+            <small style="color: #6c757d;">Extrayendo características faciales</small>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================================
+// VARIABLES GLOBALES
+// ============================================================================
+let video = document.getElementById('video');
+let canvas = document.getElementById('canvas');
+let context = canvas.getContext('2d');
+let stream = null;
+let isProcessing = false;
+let embeddingCapturado = null;
+
+// Elementos UI
+const startCameraBtn = document.getElementById('startCameraBtn');
+const captureBtn = document.getElementById('captureBtn');
+const stopCameraBtn = document.getElementById('stopCameraBtn');
+const cameraPlaceholder = document.getElementById('cameraPlaceholder');
+const cameraOverlay = document.getElementById('cameraOverlay');
+const cameraInstructions = document.getElementById('cameraInstructions');
+const cameraError = document.getElementById('cameraError');
+const facialEmbedding = document.getElementById('facialEmbedding');
+const guardarBtn = document.getElementById('guardarBtn');
+const processingModal = document.getElementById('processingModal');
+const faceGuide = document.getElementById('faceGuide');
+
+// ============================================================================
+// FUNCIONES DE CÁMARA
+// ============================================================================
+
+function mostrarErrorCamara(mensaje) {
+    cameraError.textContent = mensaje;
+    cameraError.style.display = 'block';
+    cameraPlaceholder.innerHTML = `
+        <div class="icon">❌</div>
+        <p>Error de cámara</p>
+        <p style="font-size: 12px; color: #dc3545;">${mensaje}</p>
+    `;
+}
+
+function iniciarCamara() {
+    console.log('Iniciando cámara...');
+    cameraError.style.display = 'none';
+    
+    cameraPlaceholder.innerHTML = `
+        <div class="spinner" style="width: 40px; height: 40px; margin: 20px auto;"></div>
+        <p>Solicitando permisos de cámara...</p>
+    `;
+    
+    navigator.mediaDevices.getUserMedia({ 
+        video: { 
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+            facingMode: 'user'
+        } 
+    })
+    .then(function(mediaStream) {
+        console.log('Cámara accedida correctamente');
+        stream = mediaStream;
+        video.srcObject = mediaStream;
+        
+        video.onloadedmetadata = function() {
+            console.log('Video cargado, dimensiones:', video.videoWidth, 'x', video.videoHeight);
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            video.style.display = 'block';
+            cameraPlaceholder.style.display = 'none';
+            cameraOverlay.style.display = 'block';
+            faceGuide.style.display = 'block';
+            cameraInstructions.style.display = 'block';
+            
+            startCameraBtn.disabled = true;
+            captureBtn.disabled = false;
+            stopCameraBtn.disabled = false;
+            cameraInstructions.textContent = 'Rostro detectado. Presione "Capturar Rostro"';
+        };
+    })
+    .catch(function(error) {
+        console.error('Error al acceder a la cámara:', error);
+        
+        let mensajeError = 'Error al acceder a la cámara';
+        if (error.name === 'NotAllowedError') {
+            mensajeError = 'Permiso de cámara denegado. Por favor, permita el acceso.';
+        } else if (error.name === 'NotFoundError') {
+            mensajeError = 'No se encontró ninguna cámara en su dispositivo.';
+        } else if (error.name === 'NotReadableError') {
+            mensajeError = 'La cámara está siendo usada por otra aplicación.';
+        }
+        
+        mostrarErrorCamara(mensajeError);
+        
+        cameraPlaceholder.innerHTML = `
+            <div class="icon">📷</div>
+            <p>Cámara detenida</p>
+            <p style="font-size: 12px;">Presione "Iniciar Cámara" para comenzar</p>
+        `;
+        cameraPlaceholder.style.display = 'block';
+    });
+}
+
+function detenerCamara() {
+    console.log('Deteniendo cámara...');
+    
+    if (stream) {
+        stream.getTracks().forEach(track => {
+            track.stop();
+            console.log('Track detenido:', track.kind);
+        });
+        video.srcObject = null;
+        stream = null;
+    }
+    
+    video.style.display = 'none';
+    cameraPlaceholder.style.display = 'block';
+    cameraOverlay.style.display = 'none';
+    faceGuide.style.display = 'none';
+    cameraInstructions.style.display = 'none';
+    
+    startCameraBtn.disabled = false;
+    captureBtn.disabled = true;
+    stopCameraBtn.disabled = true;
+    
+    cameraPlaceholder.innerHTML = `
+        <div class="icon">📷</div>
+        <p>Cámara detenida</p>
+        <p style="font-size: 12px;">Presione "Iniciar Cámara" para comenzar</p>
+    `;
+}
+
+// ============================================================================
+// FUNCIÓN DE CAPTURA DE ROSTRO
+// ============================================================================
+
+function capturarRostro() {
+    if (!stream || isProcessing) {
+        console.log('No se puede procesar: stream=', !!stream, 'isProcessing=', isProcessing);
+        return;
+    }
+    
+    // Validar que los campos requeridos estén llenos
+    const cedula = document.getElementById('cedula').value.trim();
+    const nombres = document.getElementById('nombres').value.trim();
+    const apellidos = document.getElementById('apellidos').value.trim();
+    const tipoPersonal = document.getElementById('tipo_personal').value;
+    
+    if (!cedula || !nombres || !apellidos || !tipoPersonal) {
+        alert('Por favor complete todos los campos requeridos (*) antes de capturar el rostro.');
+        return;
+    }
+    
+    // Capturar frame del video
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = canvas.toDataURL('image/jpeg', 0.9);
+    console.log('Imagen capturada, tamaño:', imageData.length);
+    
+    // Mostrar modal de procesamiento
+    processingModal.style.display = 'flex';
+    isProcessing = true;
+    captureBtn.disabled = true;
+    
+    // Obtener datos del formulario para enviar
+    const userData = {
+        cedula: cedula,
+        nombres: nombres,
+        apellidos: apellidos,
+        id_trabajador: document.querySelector('input[name="id_trabajador_existente"]')?.value || ''
+    };
+    
+    // Enviar al servidor
+    fetch("{% url 'reconocimiento:capturar_rostro' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            image: imageData,
+            user_data: userData
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        processingModal.style.display = 'none';
+        
+        if (data.success) {
+            console.log('Rostro capturado exitosamente');
+            
+            // Guardar embedding en campo oculto
+            facialEmbedding.value = JSON.stringify(data.embedding);
+            
+            // Habilitar botón de guardar
+            guardarBtn.disabled = false;
+            
+            // Mostrar mensaje de éxito
+            alert('✅ Rostro capturado exitosamente. Ya puede guardar el registro.');
+            
+            // Opcional: detener cámara
+            detenerCamara();
+            
+        } else {
+            console.error('Error en captura:', data.error);
+            
+            let mensajeError = data.error || 'Error al capturar rostro';
+            if (data.suggestions) {
+                mensajeError += '\n\nSugerencias:\n' + data.suggestions.join('\n');
+            }
+            if (data.existing_user) {
+                mensajeError = `⚠️ Este rostro ya está registrado para:\n${data.existing_user.nombres} ${data.existing_user.apellidos} (Cédula: ${data.existing_user.cedula})\n\nSimilitud: ${(data.similarity * 100).toFixed(1)}%`;
+            }
+            
+            alert('❌ ' + mensajeError);
+            isProcessing = false;
+            captureBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error en fetch:', error);
+        processingModal.style.display = 'none';
+        alert('❌ Error de conexión con el servidor');
+        isProcessing = false;
+        captureBtn.disabled = false;
+    });
+}
+
+// ============================================================================
+// VALIDACIÓN DE FORMULARIO
+// ============================================================================
+
+document.getElementById('registroForm').addEventListener('submit', function(e) {
+    // Validar que se haya capturado el rostro
+    if (!facialEmbedding.value) {
+        e.preventDefault();
+        alert('❌ Debe capturar el rostro antes de guardar el registro.');
+        return;
+    }
+    
+    // Validar cédula (8 dígitos)
+    const cedula = document.getElementById('cedula').value.trim();
+    if (!/^\d{8}$/.test(cedula)) {
+        e.preventDefault();
+        alert('❌ La cédula debe tener exactamente 8 dígitos numéricos.');
+        return;
+    }
+});
+
+// ============================================================================
+// INICIALIZACIÓN
+// ============================================================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM cargado, inicializando...');
+    
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        mostrarErrorCamara('Tu navegador no soporta acceso a cámara.');
+        startCameraBtn.disabled = true;
+    }
+    
+    // Verificar si hay datos precargados desde el script
+    var datosPreloadElem = document.getElementById('datos-trabajador-preload');
+    if (datosPreloadElem) {
+        try {
+            var datos = JSON.parse(datosPreloadElem.textContent);
+            if (datos && datos.id_pk) {
+                console.log('Modo precarga activado para trabajador ID: ' + datos.id_pk);
+            }
+        } catch(e) {
+            console.log('Error parseando datos precargados');
+        }
+    }
+});
+
+window.addEventListener('beforeunload', function() {
+    detenerCamara();
+});
+</script>
+{% endblock %}

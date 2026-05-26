@@ -1,0 +1,147 @@
+<!-- templates/usuarios/acerca.html -->
+{% extends 'usuarios/base_menu_lateral.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .about-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .about-header {
+        margin-bottom: 30px;
+    }
+
+    .about-header h2 {
+        color: #2a5298;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 25px;
+        margin: 0;
+    }
+
+    .about-card {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .about-logo {
+        margin-bottom: 20px;
+    }
+
+    .about-logo img {
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+        border-radius: 50%;
+        border: 3px solid #2a5298;
+        padding: 10px;
+        background: white;
+        box-shadow: 0 5px 15px rgba(42,82,152,0.2);
+    }
+
+    .about-title {
+        font-size: 37px;
+        font-weight: 700;
+        color: #2a5298;
+        margin-bottom: 20px;
+        letter-spacing: 1px;
+    }
+
+    .about-description {
+        font-size: 20px;
+        line-height: 1.8;
+        color: #495057;
+        margin-bottom: 30px;
+        text-align: justify;
+    }
+
+    .about-mission {
+        background: #f8f9fa;
+        border-left: 5px solid #2a5298;
+        padding: 25px;
+        border-radius: 10px;
+        margin-top: 30px;
+        text-align: left;
+    }
+
+    .about-mission h3 {
+        color: #2a5298;
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 27px;
+    }
+
+    .about-mission p {
+        font-size: 18px;
+        line-height: 1.6;
+        color: #6c757d;
+        margin: 0;
+    }
+
+    .footer-note {
+        margin-top: 30px;
+        color: #6c757d;
+        font-size: 17px;
+        text-align: center;
+    }
+
+       *{
+            font-size: large;
+        }
+</style>
+
+<div class="about-container">
+    <div class="about-header">
+        <h2>
+            <span>📘</span> Acerca del Sistema
+        </h2>
+    </div>
+
+    <div class="about-card">
+        <div class="about-logo">
+            <img src="{% static 'images/identia_logo_no_backgound.png' %}" alt="Logo de Identia">
+        </div>
+        <h1 class="about-title">Identia</h1>
+        <div class="about-description">
+            <p>
+                Identia es una solución avanzada de reconocimiento facial diseñada exclusivamente para optimizar el control de acceso en las instalaciones de <strong>Intravialca</strong>. El sistema automatiza la verificación de identidad en tiempo real, determinando de forma precisa el ingreso permitido o denegado del personal.
+            </p>
+        </div>
+
+        <div class="about-mission">
+            <h3>🎯 Nuestro objetivo</h3>
+            <p>
+                Proporcionar al equipo de seguridad una herramienta tecnológica de alta fidelidad que simplifique sus tareas operativas, fortalezca los protocolos de protección interna y garantice un entorno más seguro para todos.
+            </p>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <a href="{% url 'usuarios:manual_usuario' %}" style="
+                display: inline-block;
+                padding: 12px 30px;
+                background: linear-gradient(135deg, #2a5298, #1e3c72);
+                color: white;
+                text-decoration: none;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: 600;
+                transition: all 0.3s;
+            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 20px rgba(42,82,152,0.3)'"
+               onmouseout="this.style.transform=''; this.style.boxShadow=''">
+                📖 Manual de Usuario
+            </a>
+        </div>
+
+        <div class="footer-note">
+            <span>⚙️ Versión 3.7.6 | Desarrollado para Intravialca</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

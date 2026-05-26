@@ -1,0 +1,59 @@
+<!-- templates/asistencia/detalle_asistencia_modal.html -->
+<div class="detalle-asistencia-card">
+    <div class="card-header">
+        <h3>Detalle del Registro de Asistencia</h3>
+        <span class="close-modal" onclick="cerrarModal()">&times;</span>
+    </div>
+    <div class="card-body">
+        <div class="info-row">
+            <span class="label">ID de Bitacora:</span>
+            <span class="value">{{ registro.id }}</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Trabajador:</span>
+            <span class="value">{{ registro.nombres }} {{ registro.apellidos }}</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Cédula:</span>
+            <span class="value">{{ registro.cedula }}</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Tipo:</span>
+            <span class="value">{{ registro.tipo }}</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Fecha:</span>
+            <span class="value">{{ registro.fecha|date:"d/m/Y" }}</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Hora de Entrada:</span>
+            <span class="value">{{ registro.hora_acceso|time:"H:i" }}</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Hora de Salida:</span>
+            <span class="value">{{ registro.hora_salida|time:"H:i"|default:"-" }}</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Estado de Jornada:</span>
+            <span class="value">
+                <span class="estado-badge 
+                    {% if registro.estado == 'Presente' %}estado-presente
+                    {% elif registro.estado == 'Tardanza' %}estado-tardanza
+                    {% else %}estado-ausente{% endif %}">
+                    {{ registro.estado }}
+                </span>
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="label">Acceso:</span>
+            <span class="value">{{ registro.acceso|default:"-" }}</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Salida:</span>
+            <span class="value">{{ registro.salida|default:"-" }}</span>
+        </div>
+    </div>
+    <div class="card-footer">
+        <button class="btn btn-secondary" onclick="cerrarModal()">Cerrar</button>
+    </div>
+</div>

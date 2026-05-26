@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{{ page_title|default:"Identia - Sistema de Gestión" }}</title>
+    <link rel="icon" href="../../static/images/identia_logo_no_backgound.png" type="image/x-icon">
+     {% load static %}
+    <script src="{% static 'js/update-time.js' %}" defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #f5f7fa;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Menú lateral */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(200deg, #2a5298 0%, #c2c2c2 110%);
+            color: rgb(255, 255, 255);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+            opacity: 0.95;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        
+        /* Estado del sidebar para móvil */
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+        
+        /* Botón hamburguesa para móvil */
+        .menu-toggle {
+            display: none;
+            background: white;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            margin-right: 15px;
+            z-index: 1001;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        /* Posicionar botón hamburguesa */
+        .menu-toggle {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+        }
+        
+        .menu-toggle-bar {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: #2a5298;
+            margin: 5px 0;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        
+        /* Animación del botón hamburguesa cuando está abierto */
+        .menu-toggle.active .menu-toggle-bar:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 6px);
+        }
+        
+        .menu-toggle.active .menu-toggle-bar:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .menu-toggle.active .menu-toggle-bar:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -6px);
+        }
+        
+        /* Overlay para móvil */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        
+        .sidebar-overlay.show {
+            display: block;
+        }
+        
+        .sidebar-header {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .identia_logo_menu {
+            width: 120px;
+            margin-bottom: 10px;
+        }
+        
+        .sidebar-title {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        /* Navegación */
+        .nav-menu {
+            padding: 20px 0;
+        }
+        
+        .nav-item {
+            margin: 5px 15px;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: #f0a22c;
+            text-decoration: none;
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            font-weight: bold;
+
+        }
+        
+        .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left: 3px solid #f0a22c;
+        }
+        
+        .nav-link.active {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border-left: 3px solid #f0a22c;
+        }
+        
+        /* Estilos para imágenes de iconos */
+        .menu-icon {
+            width: 25px;
+            height: 25px;
+            margin-right: 10px;
+            object-fit: contain;
+            filter: brightness(0.8);
+            transition: filter 0.3s;
+        }
+        
+        .nav-link:hover .menu-icon {
+            filter: brightness(1);
+        }
+        
+        .nav-link.active .menu-icon {
+            filter: brightness(1);
+        }
+        
+        /* Contenido principal */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .content-header {
+            background: white;
+            border-radius: 10px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title {
+            color: #2a5298;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        /* ============================================== */
+        /* ESTILOS PARA EL CENTRO DE NOTIFICACIONES      */
+        /* ============================================== */
+        .notifications-container {
+            position: relative;
+            margin-right: 15px;
+        }
+        
+        .notifications-icon {
+            position: relative;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+        
+        .notifications-icon:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .notifications-bell {
+            width: 22px;
+            height: 22px;
+            filter: brightness(0.6);
+            transition: filter 0.3s;
+        }
+        
+        .notifications-icon:hover .notifications-bell {
+            filter: brightness(0.3);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #e74c3c;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            border: 2px solid white;
+        }
+        
+        /* Panel de notificaciones */
+        .notifications-panel {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 350px;
+            max-width: 90vw;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            z-index: 1001;
+            display: none;
+            overflow: hidden;
+        }
+        
+        /* En móviles, el panel de notificaciones se vuelve modal */
+        @media (max-width: 768px) {
+            .notifications-panel {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                width: 100% !important;
+                max-width: 100% !important;
+                border-radius: 0;
+                z-index: 2000;
+            }
+            
+            .notifications-header {
+                padding-left: 62px !important;
+            }
+            
+            .notifications-close-btn {
+                display: block;
+                background: #f0f0f0;
+                border: none;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 18px;
+                color: #666;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .notifications-close-btn {
+                display: none;
+            }
+        }
+        
+        .notifications-panel.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .notifications-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+        }
+        
+        .notifications-header h3 {
+            color: #2c3e50;
+            font-size: 16px;
+            margin: 0;
+        }
+        
+        .notifications-header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .notifications-header-actions button {
+            background: none;
+            border: none;
+            color: #3498db;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 5px 8px;
+            border-radius: 4px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .notifications-header-actions button:hover {
+            background: #e8f4fd;
+        }
+        
+        .notifications-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .notification-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #ecf0f1;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .notification-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .notification-item.unread {
+            background: #f0f7ff;
+            border-left: 3px solid #3498db;
+        }
+        
+        .notification-item.unread:hover {
+            background: #e8f4fd;
+        }
+        
+        .notification-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            float: left;
+            margin-right: 12px;
+        }
+        
+        .notification-content {
+            overflow: hidden;
+        }
+        
+        .notification-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 3px;
+        }
+        
+        .notification-message {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .notification-time {
+            font-size: 10px;
+            color: #95a5a6;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .notification-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .notification-item:hover .notification-actions {
+            opacity: 1;
+        }
+        
+        .notification-action-btn {
+            background: none;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+        
+        .notification-action-btn.mark-read {
+            color: #27ae60;
+        }
+        
+        .notification-action-btn.mark-read:hover {
+            background: #e8f8f0;
+        }
+        
+        .notifications-footer {
+            padding: 12px 20px;
+            border-top: 1px solid #ecf0f1;
+            background: #f8f9fa;
+            text-align: center;
+        }
+        
+        .notifications-footer a {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .notifications-footer a:hover {
+            background: #e8f4fd;
+        }
+        
+        .no-notifications {
+            padding: 30px 20px;
+            text-align: center;
+            color: #95a5a6;
+        }
+        
+        .no-notifications img {
+            width: 50px;
+            opacity: 0.3;
+            margin-bottom: 10px;
+        }
+        
+        .no-notifications p {
+            font-size: 13px;
+        }
+        
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        .user-details h4 {
+            color: #333;
+            margin: 0;
+            font-size: 16px;
+        }
+        
+        .user-details p {
+            color: #666;
+            margin: 2px 0 0;
+            font-size: 13px;
+        }
+        
+        /* Logout */
+        .logout-section {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            padding: 0 20px;
+        }
+        
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 12px;
+            background: rgba(32, 31, 31, 0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.2);
+            color: #f0a22c;
+        }
+        
+        .btn-logout-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            filter: brightness(0.8);
+            transition: filter 0.3s;
+        }
+        
+        .btn-logout:hover .btn-logout-icon {
+            filter: brightness(1);
+        }
+        
+        /* Icono de calendario en header */
+        .calendar-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
+            vertical-align: middle;
+            filter: brightness(0.6);
+        }
+        
+        /* Icono de reloj en header */
+        .clock-icon {
+            width: 14px;
+            height: 14px;
+            margin-left: 15px;
+            margin-right: 5px;
+            vertical-align: middle;
+            filter: brightness(0.6);
+        }
+        
+        /* Contenedor de fecha y hora */
+        .datetime-container {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 5px;
+        }
+        
+        .date-time-item {
+            display: flex;
+            align-items: center;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .date-time-separator {
+            color: #ddd;
+            font-size: 12px;
+        }
+        
+        /* ============================================== */
+        /* MEDIA QUERIES - DISEÑO RESPONSIVO             */
+        /* ============================================== */
+        
+        /* Tablets grandes (landscape) */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 220px;
+            }
+            
+            .main-content {
+                margin-left: 220px;
+                padding: 15px;
+            }
+            
+            .identia_logo_menu {
+                width: 100px;
+            }
+        }
+        
+        /* Tablets (portrait) y móviles grandes */
+        @media (max-width: 768px) {
+            /* Mostrar botón hamburguesa */
+            .menu-toggle {
+                display: block;
+            }
+            
+            /* Ocultar sidebar por defecto en móvil */
+            .sidebar {
+                width: 280px;
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .sidebar.collapsed {
+                transform: translateX(-100%);
+            }
+            
+            /* Main content ocupa todo el ancho */
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+                padding-top: 120px;
+            }
+            
+            /* Header adaptativo */
+            .content-header {
+                padding: 12px 15px;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 100;
+                border-radius: 0;
+                margin-bottom: 0;
+                min-height: 70px;
+                max-height: none;
+                flex-wrap: wrap;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            
+            .page-title {
+                font-size: 18px;
+                margin-left: 50px;
+            }
+            
+            .datetime-container {
+                flex-direction: row;
+                gap: 10px;
+                margin-left: 50px;
+            }
+            
+            .date-time-separator {
+                display: none;
+            }
+            
+            /* El panel de notificaciones ahora es modal (definido arriba) */
+            
+            /* Ajustar header del usuario */
+            .user-info {
+                gap: 10px;
+            }
+            
+            .user-details h4 {
+                font-size: 14px;
+            }
+            
+            .user-details p {
+                font-size: 12px;
+            }
+            
+            .user-avatar {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+            
+            /* Tablas responsivas */
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            .audit-table {
+                min-width: 600px;
+            }
+            
+            /* Formularios */
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-actions {
+                flex-direction: column;
+            }
+            
+            /* Stat cards */
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            /* Perfil */
+            .perfil-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .perfil-container {
+                padding: 10px;
+            }
+            
+            /* Pagination */
+            .pagination-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .pagination {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+        
+        /* Móviles pequeños */
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 10px;
+                padding-top: 120px;
+            }
+            
+            .content-header {
+                padding: 10px 12px;
+                min-height: 65px;
+            }
+            
+            .page-title {
+                font-size: 16px;
+                margin-left: 45px;
+            }
+            
+            .datetime-container {
+                margin-left: 45px;
+            }
+            
+            .stat-card {
+                padding: 15px 10px;
+            }
+            
+            .stat-value {
+                font-size: 28px;
+            }
+            
+            .stat-label {
+                font-size: 11px;
+            }
+            
+            .notifications-panel {
+                width: 95%;
+                right: 2.5%;
+            }
+            
+            /* stat cards en grid de 2 columnas */
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            /* Botones */
+            .btn, .btn-filter, .btn-clear {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Overlay para móvil -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    
+    <!-- Botón hamburguesa para móvil -->
+    <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()" aria-label="Abrir menú">
+        <span class="menu-toggle-bar"></span>
+        <span class="menu-toggle-bar"></span>
+        <span class="menu-toggle-bar"></span>
+    </button>
+    
+    <!-- Menú lateral -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img class="identia_logo_menu" src="{% static 'images/identia_logo_no_backgound.png' %}" alt="Identia">
+            <p class="sidebar-title">Innovación en<br>Seguridad Biométrica</p>
+        </div>
+        
+        <div class="nav-menu">
+            <div class="nav-item">
+                <a href="{% url 'usuarios:home_principal' %}" 
+                   class="nav-link {% if menu_activo == 'inicio' %}active{% endif %}">
+                    <!-- Icono Inicio -->
+                    <img src="{% static 'images/icono_inicio.png' %}" alt="Inicio" class="menu-icon">
+                    <span>Inicio</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{% url 'reconocimiento:control_acceso' %}" 
+                   class="nav-link {% if menu_activo == 'control_acceso' %}active{% endif %}">
+                    <!-- Icono Control de Acceso -->
+                    <img src="{% static 'images/icono_control_acceso.png' %}" alt="Control de Acceso" class="menu-icon">
+                    <span>Control de acceso</span>
+                </a>
+            </div>
+            
+            {% if request.session.empleado_rol == 'Administrador' or user.is_superuser %}
+            <div class="nav-item">
+                <a href="{% url 'reconocimiento:gestion_trabajadores' %}" 
+                    class="nav-link {% if menu_activo == 'gestion_trabajadores' %}active{% endif %}">
+                    <!-- Icono Buscar Trabajadores -->
+                    <img src="{% static 'images/icono_buscar_trabajadores.png' %}" alt="Buscar Trabajadores" class="menu-icon">
+                    <span>Buscar trabajadores</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{% url 'usuarios:seguridad' %}" 
+                   class="nav-link {% if menu_activo == 'seguridad' %}active{% endif %}">
+                    <!-- Icono Seguridad -->
+                    <img src="{% static 'images/icono_seguridad.png' %}" alt="Seguridad" class="menu-icon">
+                    <span>Seguridad</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{% url 'reportes:index' %}" 
+                   class="nav-link {% if menu_activo == 'reportes' %}active{% endif %}">
+                    <img src="{% static 'images/icono_reportes.png' %}" alt="Reportes" class="menu-icon">
+                    <span>Reportes</span>
+                </a>
+            </div>
+            {% endif %}
+            
+            <div class="nav-item">
+                <a href="{% url 'usuarios:perfil' %}" 
+                   class="nav-link {% if menu_activo == 'perfil' %}active{% endif %}">
+                    <!-- Icono Perfil -->
+                    <img src="{% static 'images/icono_perfil.png' %}" alt="Perfil" class="menu-icon">
+                    <span>Perfil</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{% url 'usuarios:acerca' %}" 
+                   class="nav-link {% if menu_activo == 'acerca' %}active{% endif %}">
+                    <!-- Icono Acerca de -->
+                    <img src="{% static 'images/icono_pregunta.png' %}" alt="Acerca de" class="menu-icon">
+                    <span>Acerca de</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Logout -->
+        <div class="logout-section">
+            <a href="{% url 'usuarios:logout' %}" class="btn-logout">
+                <img src="{% static 'images/icono_logout.png' %}" alt="Cerrar sesión" class="btn-logout-icon">
+                <span>Cerrar sesión</span>
+            </a>
+        </div>
+    </nav>
+    
+    <!-- Contenido principal -->
+    <main class="main-content">
+        <!-- Header -->
+        <div class="content-header">
+            <div>
+                <h1 class="page-title">{{ page_title|default:"Bienvenido" }}</h1>
+                <div class="datetime-container">
+                    <div class="date-time-item">
+                        <img src="{% static 'images/icono_calendario.png' %}" alt="Calendario" class="calendar-icon">
+                        <span id="current-date">{{ hoy|date:"d/m/Y" }}</span>
+                    </div>
+                    <span class="date-time-separator">|</span>
+                    <div class="date-time-item">
+                        <img src="{% static 'images/icono_reloj.png' %}" alt="Reloj" class="clock-icon">
+                        <span id="current-time">{{ ahora|date:"H:i" }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="user-info">
+                <!-- ============================================== -->
+                <!-- CENTRO DE NOTIFICACIONES                        -->
+                <!-- ============================================== -->
+                <div class="notifications-container" id="notificationsContainer">
+                    <div class="notifications-icon" id="notificationsIcon">
+                        <img src="{% static 'images/icono_campana.png' %}" alt="Notificaciones" class="notifications-bell">
+                        <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                    </div>
+                    
+                    <!-- Panel de notificaciones -->
+                    <div class="notifications-panel" id="notificationsPanel">
+                        <div class="notifications-header">
+                            <h3>Notificaciones</h3>
+                            <div class="notifications-header-actions">
+                                <button id="markAllRead" title="Marcar todas como leídas">
+                                    ✓ Leer todo
+                                </button>
+                                <button class="notifications-close-btn" id="notificationsCloseBtn" onclick="toggleNotifications()" title="Cerrar">✕</button>
+                            </div>
+                        </div>
+                        
+                        <div class="notifications-list" id="notificationsList">
+                            <!-- Las notificaciones se cargarán vía AJAX -->
+                            <div class="no-notifications">
+                                <img src="{% static 'images/icono_campana.png' %}" alt="Sin notificaciones">
+                                <p>Cargando notificaciones...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="notifications-footer">
+                            <a href="{% url 'notificaciones:bitacora' %}?no_leidas=1">Ver todas las notificaciones</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="user-avatar" id="userAvatar">
+                    {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                </div>
+                <div class="user-details">
+                    <h4>{{ user.first_name }} {{ user.last_name }}</h4>
+                    <p>{{ request.session.empleado_rol|default:"Usuario" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mensajes -->
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Contenido específico -->
+        <div class="content-body">
+            {% block content %}
+            <!-- El contenido irá aquí -->
+            {% endblock %}
+        </div>
+    </main>
+
+    <script>
+        // ==============================================
+        // FUNCIÓN PARA OBTENER CSRF TOKEN
+        // ==============================================
+        function getCSRFToken() {
+            const metaTag = document.querySelector('meta[name="csrf-token"]');
+            if (metaTag) {
+                return metaTag.getAttribute('content');
+            }
+            
+            const inputTag = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (inputTag) {
+                return inputTag.value;
+            }
+            
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, 10) === 'csrftoken=') {
+                        cookieValue = decodeURIComponent(cookie.substring(10));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // ==============================================
+        // VARIABLES GLOBALES
+        // ==============================================
+        const csrftoken = getCSRFToken();
+        
+        if (!csrftoken) {
+            console.error('❌ No se pudo obtener el token CSRF');
+        }
+        
+        // ==============================================
+        // SISTEMA DE NOTIFICACIONES - SOLO LEÍDAS
+        // ==============================================
+        window.cargarNotificaciones = function() {
+            fetch('/notificaciones/api/notificaciones/')
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        actualizarListaNotificaciones(data.notificaciones);
+                        actualizarContador(data.no_leidas);
+                    } else {
+                        mostrarErrorNotificaciones();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error cargando notificaciones:', error);
+                    mostrarErrorNotificaciones();
+                });
+        };
+        
+        window.actualizarListaNotificaciones = function(notificaciones) {
+            const notificationsList = document.getElementById('notificationsList');
+            if (!notificationsList) return;
+            
+            if (!notificaciones || notificaciones.length === 0) {
+                notificationsList.innerHTML = `
+                    <div class="no-notifications">
+                        <img src="{% static 'images/icono_campana.png' %}" alt="Sin notificaciones">
+                        <p>No hay notificaciones nuevas</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            notificaciones.forEach(notif => {
+                html += `
+                    <div class="notification-item ${notif.leida ? '' : 'unread'}" data-id="${notif.id}" data-url="${notif.url}">
+                        <div class="notification-icon" style="background: ${notif.color || '#3498db'}20; color: ${notif.color || '#3498db'};">
+                            ${notif.icono || '📋'}
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">${notif.novedad}</div>
+                            <div class="notification-message">${notif.detalles_resumido}</div>
+                            <div class="notification-time">
+                                <span>🕒</span> ${notif.hora} • ${notif.fecha_formateada}
+                            </div>
+                        </div>
+                        ${!notif.leida ? `
+                            <div class="notification-actions">
+                                <button class="notification-action-btn mark-read" onclick="event.stopPropagation(); window.marcarComoLeida(${notif.id})" title="Marcar como leída">
+                                    ✅
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            notificationsList.innerHTML = html;
+            
+            document.querySelectorAll('.notification-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const url = this.dataset.url;
+                    const id = this.dataset.id;
+                    if (url && url !== '#') {
+                        window.marcarComoLeida(id, true);
+                        window.location.href = url;
+                    }
+                });
+            });
+        };
+        
+        window.actualizarContador = function(noLeidas) {
+            const badge = document.getElementById('notificationBadge');
+            if (!badge) return;
+            
+            if (noLeidas > 0) {
+                badge.textContent = noLeidas > 99 ? '99+' : noLeidas;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        };
+        
+        window.mostrarErrorNotificaciones = function() {
+            const list = document.getElementById('notificationsList');
+            if (!list) return;
+            
+            list.innerHTML = `
+                <div class="no-notifications">
+                    <p style="color: #e74c3c;">Error al cargar</p>
+                    <button onclick="window.cargarNotificaciones()" style="background: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                        Reintentar
+                    </button>
+                </div>
+            `;
+        };
+        
+        window.marcarComoLeida = function(id, silencioso = false) {
+            if (!csrftoken) {
+                alert('Error de seguridad');
+                return;
+            }
+            
+            fetch('/notificaciones/api/marcar-leida/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({ id: id })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    if (!silencioso) {
+                        window.cargarNotificaciones();
+                    } else {
+                        window.actualizarContador(data.no_leidas);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                if (!silencioso) alert('Error al marcar como leída');
+            });
+        };
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const icon = document.getElementById('notificationsIcon');
+            const panel = document.getElementById('notificationsPanel');
+            const container = document.getElementById('notificationsContainer');
+            const markAllBtn = document.getElementById('markAllRead');
+            
+            // Función global para toggle de notificaciones
+            window.toggleNotifications = function() {
+                if (panel) {
+                    panel.classList.toggle('show');
+                    if (panel.classList.contains('show')) {
+                        window.cargarNotificaciones();
+                    }
+                }
+            };
+            
+            if (icon) {
+                icon.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    window.toggleNotifications();
+                });
+            }
+            
+            document.addEventListener('click', function(e) {
+                if (container && !container.contains(e.target) && panel) {
+                    panel.classList.remove('show');
+                }
+            });
+            
+            if (panel) {
+                panel.addEventListener('click', e => e.stopPropagation());
+            }
+            
+            if (markAllBtn) {
+                markAllBtn.addEventListener('click', function() {
+                    if (!csrftoken) {
+                        alert('Error de seguridad');
+                        return;
+                    }
+                    
+                    fetch('/notificaciones/api/marcar-todas-leidas/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) window.cargarNotificaciones();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al marcar todas');
+                    });
+                });
+            }
+            
+            // Polling cada 30 segundos
+            setInterval(() => {
+                fetch('/notificaciones/api/contador-no-leidas/')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) window.actualizarContador(data.no_leidas);
+                    })
+                    .catch(err => console.error('Error en polling:', err));
+            }, 30000);
+            
+            // Cargar contador inicial
+            fetch('/notificaciones/api/contador-no-leidas/')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) window.actualizarContador(data.no_leidas);
+                })
+                .catch(err => console.error('Error inicial:', err));
+            
+            // ==============================================
+            // MENÚ LATERAL RESPONSIVO
+            // ==============================================
+            window.toggleSidebar = function() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                const menuToggle = document.getElementById('menuToggle');
+                
+                if (sidebar.classList.contains('show')) {
+                    sidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                    if (menuToggle) menuToggle.classList.remove('active');
+                } else {
+                    sidebar.classList.add('show');
+                    overlay.classList.add('show');
+                    if (menuToggle) menuToggle.classList.add('active');
+                }
+            };
+            
+            // Cerrar sidebar al hacer click en enlace (móvil)
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        const sidebar = document.getElementById('sidebar');
+                        const overlay = document.getElementById('sidebarOverlay');
+                        const menuToggle = document.getElementById('menuToggle');
+                        sidebar.classList.remove('show');
+                        overlay.classList.remove('show');
+                        if (menuToggle) menuToggle.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Cerrar sidebar al redimensionar ventana a desktop
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    const sidebar = document.getElementById('sidebar');
+                    const overlay = document.getElementById('sidebarOverlay');
+                    sidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                }
+            });
+
+            // ==============================================
+            // MEDIDAS DE SEGURIDAD - BLOQUEO DE HERRAMIENTAS
+            // ==============================================
+            const rolUsuario = "{{ request.session.empleado_rol|default:'' }}";
+            const esDesarrollador = rolUsuario.toLowerCase().includes('desarrollador') || 
+                                   rolUsuario.toLowerCase().includes('developer') ||
+                                   "{{ user.is_superuser|lower }}" === "true" ||
+                                   "{{ user.is_staff|lower }}" === "true";
+            
+            if (!esDesarrollador) {
+                // Bloquear teclado (Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+U, Ctrl+S, Ctrl+A, F12, etc.)
+                document.addEventListener('keydown', function(e) {
+                    // Verificar si es tecla especial o combinación
+                    if (
+                        e.key === 'F12' ||
+                        (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'x' || e.key === 'u' || e.key === 's' || e.key === 'a' || e.key === 'i' || e.key === 'j')) ||
+                        (e.metaKey && (e.key === 'c' || e.key === 'v' || e.key === 'x' || e.key === 'u' || e.key === 's' || e.key === 'i'))
+                    ) {
+                        e.preventDefault();
+                        alert('Solo los Usuarios Desarrolladores pueden ejecutar esta acción');
+                        return false;
+                    }
+                });
+
+                // Bloquear menú contextual (clic derecho)
+                document.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    alert('Solo los Usuarios Desarrolladores pueden ejecutar esta acción');
+                    return false;
+                });
+
+                // Bloquear selección de texto (opcional, puede ser molesto)
+                document.addEventListener('selectstart', function(e) {
+                    // Solo bloquear si no es un input o textarea
+                    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+
+                // Bloquear arrastrar y soltar
+                document.addEventListener('dragstart', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+
+                // Deshabilitar arrastrar elementos
+                document.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+
+                // Detectar y bloquear herramientas de desarrollo
+                (function() {
+                    const threshold = 160;
+                    const devtools = {
+                        isOpen: false,
+                        orientation: undefined
+                    };
+                    
+                    function check() {
+                        const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+                        const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+                        
+                        if (widthThreshold || heightThreshold) {
+                            if (!devtools.isOpen) {
+                                devtools.isOpen = true;
+                                alert('Solo los Usuarios Desarrolladores pueden ejecutar esta acción');
+                                // Redireccionar o cerrar
+                            }
+                        } else {
+                            devtools.isOpen = false;
+                        }
+                    }
+                    
+                    setInterval(check, 500);
+                    
+                    // Detectar cambios de orientación de devtools
+                    window.addEventListener('resize', check);
+                })();
+
+                // Prevenir que se copie contenido
+                document.addEventListener('copy', function(e) {
+                    // Permitir copiar en inputs
+                    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                        e.preventDefault();
+                        alert('Solo los Usuarios Desarrolladores pueden copiar contenido');
+                    }
+                });
+
+                // Prevenir que se pegue contenido
+                document.addEventListener('paste', function(e) {
+                    // Permitir pegar en inputs
+                    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                        e.preventDefault();
+                        alert('Solo los Usuarios Desarrolladores pueden pegar contenido');
+                    }
+                });
+
+                // Prevenir que se corte contenido
+                document.addEventListener('cut', function(e) {
+                    // Permitir cortar en inputs
+                    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                        e.preventDefault();
+                        alert('Solo los Usuarios Desarrolladores pueden cortar contenido');
+                    }
+                });
+
+                // Deshabilitar botones de navegación del navegador
+                window.addEventListener('beforeunload', function(e) {
+                    // Comment: Esta línea causaría que setiap kali refresh/close弹出对话框
+                    // Descomenta solo si deseas bloquear la navegación
+                    // e.preventDefault();
+                    // e.returnValue = '';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

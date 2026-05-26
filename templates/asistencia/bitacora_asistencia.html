@@ -1,0 +1,660 @@
+<!-- templates/asistencia/bitacora_asistencia.html -->
+{% extends 'usuarios/base_menu_lateral.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Estilos específicos para la bitácora */
+    .filtros-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .filtros-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        align-items: end;
+    }
+    
+    .filtro-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .filtro-group label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 5px;
+    }
+    
+    .filtro-group input, .filtro-group select {
+        padding: 8px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+    
+    .filtro-group input:focus, .filtro-group select:focus {
+        border-color: #2a5298;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(42,82,152,0.1);
+    }
+    
+    .filtros-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: flex-end;
+    }
+    
+    .btn-filtrar {
+        background: #2a5298;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .btn-filtrar:hover {
+        background: #1e3c72;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(42,82,152,0.3);
+    }
+    
+    .btn-limpiar {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        text-decoration: none;
+    }
+    
+    .btn-limpiar:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+    
+    .btn-accion {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+    }
+    
+    .btn-ver {
+        background: #e7f0ff;
+        color: #2a5298;
+    }
+    
+    .btn-ver:hover {
+        background: #d0e2ff;
+    }
+    
+    .btn-editar {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .btn-editar:hover {
+        background: #ffe8a1;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+        margin-top: 20px;
+    }
+    
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .table thead {
+        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+        color: white;
+    }
+    
+    .table th {
+        padding: 15px;
+        font-weight: 600;
+        font-size: 14px;
+        text-align: left;
+    }
+    
+    .table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #dee2e6;
+        font-size: 14px;
+        color: #495057;
+    }
+    
+    .table tbody tr:hover {
+        background: #f8f9fa;
+    }
+    
+    .estado-badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    .estado-presente {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .estado-tardanza {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .estado-ausente {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .acciones-cell {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+    
+    .pagination {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+    }
+    
+    .pagination .step-links a {
+        display: inline-block;
+        padding: 8px 12px;
+        background: white;
+        border: 1px solid #dee2e6;
+        color: #2a5298;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: all 0.2s;
+    }
+    
+    .pagination .step-links a:hover {
+        background: #2a5298;
+        color: white;
+        border-color: #2a5298;
+    }
+    
+    .pagination .current {
+        display: inline-block;
+        padding: 8px 12px;
+        background: #2a5298;
+        color: white;
+        border: 1px solid #2a5298;
+        border-radius: 5px;
+    }
+    
+    .btn-manual {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-right: 10px;
+    }
+    
+    .btn-manual:hover {
+        background: #218838;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(40,167,69,0.3);
+    }
+    
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    /* Estilos para el modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        overflow: auto;
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 0;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 600px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        animation: modalopen 0.3s;
+    }
+
+    @keyframes modalopen {
+        from {opacity: 0; transform: translateY(-20px);}
+        to {opacity: 1; transform: translateY(0);}
+    }
+
+    /* Estilos para la tarjeta de detalle dentro del modal */
+    .detalle-asistencia-card {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-header h3 {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    .close-modal {
+        color: white;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        line-height: 20px;
+    }
+
+    .close-modal:hover {
+        color: #ccc;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .info-row {
+        display: flex;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .label {
+        font-weight: 600;
+        width: 140px;
+        color: #495057;
+    }
+
+    .value {
+        flex: 1;
+        color: #212529;
+    }
+
+    .card-footer {
+        padding: 15px 20px;
+        background: #f8f9fa;
+        text-align: right;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+
+    .loading-spinner {
+        text-align: center;
+        padding: 40px;
+        color: #6c757d;
+    }
+
+    .error-message {
+        color: #dc3545;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    /* Estilos de paginación */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .pagination-info {
+        color: #6c757d;
+        font-size: 14px;
+    }
+    
+    .pagination {
+        display: flex;
+        gap: 5px;
+    }
+    
+    .page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        color: #2a5298;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.2s;
+    }
+    
+    .page-link:hover {
+        background: #2a5298;
+        color: white;
+        border-color: #2a5298;
+    }
+    
+    .page-current {
+        background: #2a5298;
+        color: white;
+        border-color: #2a5298;
+        font-weight: 600;
+    }
+    
+    .page-disabled {
+        color: #adb5bd;
+        border-color: #dee2e6;
+        cursor: not-allowed;
+    }
+    
+    @media (max-width: 768px) {
+        .pagination-container {
+            flex-direction: column;
+        }
+    }
+       *{
+            font-size: large;
+        }
+</style>
+
+<div class="content-header">
+    <h2 class="page-title">Bitácora de Asistencia</h2>
+</div>
+
+<!-- Filtros -->
+<div class="filtros-card">
+    <form method="get" class="filtros-form">
+        <div class="filtro-group">
+            <label for="desde">Fecha desde</label>
+            <input type="date" id="desde" name="desde" value="{{ filtro_desde }}">
+        </div>
+        <div class="filtro-group">
+            <label for="hasta">Fecha hasta</label>
+            <input type="date" id="hasta" name="hasta" value="{{ filtro_hasta }}">
+        </div>
+        
+        <!-- Filtro de trabajador mejorado: input con datalist -->
+        <div class="filtro-group">
+            <label for="usuario_input">Trabajador</label>
+            <input type="text" id="usuario_input" list="trabajadores_list" placeholder="Escriba o seleccione un trabajador" autocomplete="off">
+            <datalist id="trabajadores_list">
+                <option value="">Todos</option>
+                {% for usuario in usuarios %}
+                <option value="{{ usuario.cedula }} - {{ usuario.nombre }}" data-id="{{ usuario.id }}"></option>
+                {% endfor %}
+            </datalist>
+            <input type="hidden" id="usuario" name="usuario" value="{{ filtro_usuario }}">
+        </div>
+
+        <div class="filtros-actions">
+            <button type="submit" class="btn-filtrar">
+                <span>🔍</span> Filtrar
+            </button>
+            <a href="{% url 'asistencia:lista' %}" class="btn-limpiar">
+                <span>🗑️</span> Limpiar
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Tabla de registros -->
+<div class="table-container">
+    {% if registros %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Trabajador</th>
+                <th>Cédula</th>
+                <th>Tipo</th>
+                <th>Hora Entrada</th>
+                <th>Hora Salida</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reg in registros %}
+            <tr>
+                <td>{{ reg.fecha|date:"d/m/Y" }}</td>
+                <td>{{ reg.nombres }} {{ reg.apellidos }}</td>
+                <td>{{ reg.cedula }}</td>
+                <td>{{ reg.tipo_fk|default:"-" }}</td>
+                <td>{{ reg.hora_acceso|time:"H:i" }}</td>
+                <td>{{ reg.hora_salida|time:"H:i"|default:"-" }}</td>
+                <td>
+                    <span class="estado-badge 
+                        {% if reg.estado_jornada == 'Presente' %}estado-presente
+                        {% elif reg.estado_jornada == 'Tardanza' %}estado-tardanza
+                        {% else %}estado-ausente{% endif %}">
+                        {{ reg.estado_jornada }}
+                    </span>
+                </td>
+                <td class="acciones-cell">
+                    <a href="javascript:void(0);" onclick="abrirDetalle('{{ reg.id_pk }}')" class="btn-accion btn-ver" title="Ver detalle">
+                        <span>👁️</span> Ver
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- Paginación -->
+    {% if total_registros > 0 %}
+    <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+        <div class="pagination-info">
+            Mostrando página <strong>{{ pagina_actual }}</strong> de <strong>{{ total_paginas }}</strong>
+            ({{ registros_por_pagina }} registros por página)
+        </div>
+        
+        <div class="pagination" style="display: flex; gap: 5px;">
+            {% if registros.has_previous %}
+            <a href="?{% if filtro_desde %}desde={{ filtro_desde }}&{% endif %}{% if filtro_hasta %}hasta={{ filtro_hasta }}&{% endif %}{% if filtro_usuario %}usuario={{ filtro_usuario }}&{% endif %}page=1" class="page-link" title="Primera página">««</a>
+            <a href="?{% if filtro_desde %}desde={{ filtro_desde }}&{% endif %}{% if filtro_hasta %}hasta={{ filtro_hasta }}&{% endif %}{% if filtro_usuario %}usuario={{ filtro_usuario }}&{% endif %}page={{ registros.previous_page_number }}" class="page-link" title="Página anterior">«</a>
+            {% else %}
+            <span class="page-link page-disabled" title="Primera página">««</span>
+            <span class="page-link page-disabled" title="Página anterior">«</span>
+            {% endif %}
+            
+            {% for num in registros.paginator.page_range %}
+                {% if num >= pagina_actual|add:"-2" and num <= pagina_actual|add:"2" %}
+                    {% if num == pagina_actual %}
+                    <span class="page-link page-current">{{ num }}</span>
+                    {% else %}
+                    <a href="?{% if filtro_desde %}desde={{ filtro_desde }}&{% endif %}{% if filtro_hasta %}hasta={{ filtro_hasta }}&{% endif %}{% if filtro_usuario %}usuario={{ filtro_usuario }}&{% endif %}page={{ num }}" class="page-link">{{ num }}</a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            
+            {% if registros.has_next %}
+            <a href="?{% if filtro_desde %}desde={{ filtro_desde }}&{% endif %}{% if filtro_hasta %}hasta={{ filtro_hasta }}&{% endif %}{% if filtro_usuario %}usuario={{ filtro_usuario }}&{% endif %}page={{ registros.next_page_number }}" class="page-link" title="Página siguiente">»</a>
+            <a href="?{% if filtro_desde %}desde={{ filtro_desde }}&{% endif %}{% if filtro_hasta %}hasta={{ filtro_hasta }}&{% endif %}{% if filtro_usuario %}usuario={{ filtro_usuario }}&{% endif %}page={{ registros.paginator.num_pages }}" class="page-link" title="Última página">»»</a>
+            {% else %}
+            <span class="page-link page-disabled" title="Página siguiente">»</span>
+            <span class="page-link page-disabled" title="Última página">»»</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="alert alert-info" style="margin-top: 20px;">
+        No hay registros de asistencia para los filtros seleccionados.
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal para detalles -->
+<div id="detalleModal" class="modal">
+    <div class="modal-content" id="modalContent">
+        <div class="loading-spinner">Cargando detalles...</div>
+    </div>
+</div>
+
+<script>
+// Variables globales para el modal
+const modal = document.getElementById('detalleModal');
+const modalContent = document.getElementById('modalContent');
+
+// Función para abrir el modal y cargar el detalle
+function abrirDetalle(registroId) {
+    modal.style.display = 'block';
+    modalContent.innerHTML = '<div class="loading-spinner">Cargando detalles...</div>';
+    
+    fetch(`/asistencia/${registroId}/`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error al cargar los detalles');
+        }
+        return response.text();
+    })
+    .then(html => {
+        modalContent.innerHTML = html;
+    })
+    .catch(error => {
+        modalContent.innerHTML = `<div class="error-message">${error.message}</div>`;
+    });
+}
+
+// Función para cerrar el modal
+function cerrarModal() {
+    modal.style.display = 'none';
+}
+
+// Cerrar modal al hacer clic fuera del contenido
+window.onclick = function(event) {
+    if (event.target == modal) {
+        cerrarModal();
+    }
+}
+
+// Sincronización del filtro de trabajador (input con datalist)
+document.addEventListener('DOMContentLoaded', function() {
+    const usuarioInput = document.getElementById('usuario_input');
+    const usuarioHidden = document.getElementById('usuario');
+    const datalist = document.getElementById('trabajadores_list');
+    
+    // Crear un mapa de textos a IDs
+    const optionMap = new Map();
+    const options = datalist.querySelectorAll('option');
+    options.forEach(opt => {
+        const id = opt.getAttribute('data-id');
+        const text = opt.value;
+        if (id) {
+            optionMap.set(text, id);
+        }
+    });
+    
+    // Si hay un valor inicial en el hidden, mostrar el texto correspondiente
+    const initialId = usuarioHidden.value;
+    if (initialId) {
+        options.forEach(opt => {
+            if (opt.getAttribute('data-id') === initialId) {
+                usuarioInput.value = opt.value;
+            }
+        });
+    }
+    
+    // Cuando el usuario selecciona una opción del datalist
+    usuarioInput.addEventListener('input', function() {
+        const selectedText = this.value;
+        const id = optionMap.get(selectedText);
+        if (id) {
+            usuarioHidden.value = id;
+        } else {
+            // Si no coincide con ninguna opción, limpiar el hidden
+            usuarioHidden.value = '';
+        }
+    });
+    
+    // También permitir que si el usuario borra, se limpie el filtro
+    usuarioInput.addEventListener('change', function() {
+        if (!optionMap.has(this.value)) {
+            usuarioHidden.value = '';
+        }
+    });
+});
+</script>
+
+{% endblock %}
