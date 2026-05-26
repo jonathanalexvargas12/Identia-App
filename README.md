@@ -1,13 +1,13 @@
-# [ESCRIBE AQUÍ EL TÍTULO DEL PROYECTO]
+# IDENTIA APP
 
-> [ESCRIBE AQUÍ UNA BREVE DESCRIPCIÓN DEL PROYECTO: Ej. Sistema integral de gestión de asistencia y reconocimiento facial para entornos corporativos.]
+>Sistema integral de gestión de asistencia y reconocimiento facial para entornos corporativos.
 
 ---
 
 ## ✍️ Información del Autor
-* **Nombre:** [ESCRIBE TU NOMBRE AQUÍ]
-* **Institución:** [NOMBRE DE TU UNIVERSIDAD / POSGRADO]
-* **Contacto:** [TU CORREO O ENLACE A LINKEDIN]
+* **Nombre:** José Daniel Betancourt Garcia | Jonathan Alexander Vargas
+* **Institución:** Independiente
+* **Contacto:**  josedanielbetancourt65@gmail.com | jonathanalexvargas@gmail.com
 
 ---
 
@@ -39,102 +39,10 @@ Basado en la arquitectura Django del sistema:
 
 ---
 
-## 🔒 Medidas de Seguridad
+## 🔒 Seguridad y Reportes
 
-### Seguridad del Lado del Servidor (Backend)
-
-#### Middlewares de Seguridad
-El sistema implementa varios middlewares personalizados para proteger la aplicación:
-
-1. **SecurityHeadersMiddleware**
-   - Añade cabeceras HTTP de seguridad
-   - X-Content-Type-Options: nosniff
-   - X-Frame-Options: DENY
-   - X-XSS-Protection: 1; mode=block
-   - Referrer-Policy: strict-origin-when-cross-origin
-   - Cache-Control: no-store, no-cache
-
-2. **DeveloperOnlyAccessMiddleware**
-   - Restringe acceso a rutas de desarrollo (/admin/, /api/debug/, /dev/)
-   - Solo permite acceso a usuarios con rol de desarrollador, superusers o staff
-
-3. **RequestValidationMiddleware**
-   - Valida headers de requests
-   - Bloquea headers sospechosos de herramientas de desarrollo
-   - Verifica User-Agent y bloquea agentes no autorizados
-
-4. **DisableSessionCookiesMiddleware**
-   - Protege cookies con HttpOnly, Secure y SameSite=Strict
-   - Previene robo de cookies por XSS
-
-#### Decoradores de Seguridad
-- `@developer_required`: Decorador para vistas que solo desarrolladores pueden acceder
-- `@api_developer_required`: Decorador específico para APIs
-- Función `is_developer()`: Verifica rol, superuser, staff o grupo
-
-#### Configuración de Cookies
-- SESSION_COOKIE_SECURE: True (solo HTTPS)
-- SESSION_COOKIE_HTTPONLY: True (no accesible por JS)
-- SESSION_COOKIE_SAMESITE: 'Strict'
-- AUTH_COOKIE_SECURE: True
-
----
-
-### Seguridad del Lado del Cliente (Frontend)
-
-Para usuarios que **NO** tienen rol de desarrollador, el sistema bloquea:
-
-1. **Teclas y Combinaciones**
-   - F12 (Herramientas de desarrollo)
-   - Ctrl+C/V/X (Copiar/Pegar/Cortar)
-   - Ctrl+U (Ver código fuente)
-   - Ctrl+S (Guardar página)
-   - Ctrl+A (Seleccionar todo)
-   - Ctrl+I/J (Herramientas de desarrollo)
-
-2. **Menú Contextual**
-   - Clic derecho deshabilitado
-
-3. **Selección y Arrastre**
-   - Selección de texto deshabilitada
-   - Arrastrar y soltar deshabilitado
-   - Copy/Paste/Cut fuera de inputs
-
-4. **Detección de DevTools**
-   - Detecta apertura de herramientas de desarrollo por tamaño de ventana
-
-### Roles de Usuario
-
-El sistema identifica desarrolladores mediante:
-- `request.session.empleado_rol` conteniendo "desarrollador", "developer" o "desarrollo"
-- Usuario Django con `is_superuser = True`
-- Usuario Django con `is_staff = True`
-- Usuario pertenenciente a grupo con "desarrollador" en el nombre
-
-### Limitaciones
-
-> [!IMPORTANT]
-> Las medidas de seguridad del lado del cliente (JavaScript) son principalmente **disuasorias** y pueden ser evitadas por usuarios con conocimientos técnicos avanzados.
-> 
-> La seguridad real está implementada en el backend mediante:
-> - Middlewares de protección
-> - Decoradores de acceso
-> - Cabeceras de seguridad HTTP
-> - Cookies seguras
-
----
-
-## 📊 Reportes
-
-* **Módulo de Reportes:** Generación de informes detallados para auditoría y toma de decisiones.
-* **Formatos:** PDF generado con ReportLab.
-* **Módulos reportables:**
-  - Gestión de Trabajadores
-  - Horarios
-  - Bitácora de Incidentes
-  - Tipos de Personal
-  - Bitácora de Asistencias
-* **Filtros:** Por trabajador/tipo y rango de fechas.
+* **Seguridad:** Configuración avanzada de permisos por roles de usuario y sistema de alertas de seguridad.
+* **Reportes:** Generación de informes detallados para auditoría y toma de decisiones.
 
 ---
 
@@ -148,24 +56,20 @@ Los módulos del sistema se encuentran actualmente en desarrollo activo.
 * **Bitácora de Asistencias:** Visualización y reporte detallado de entradas y salidas.
 
 > [!NOTE]
-> El módulo de **Bitácora de Incidentes** estará disponible próximamente como parte de la fase final de implementación.
+> Los módulos de **Bitácora de Incidentes** y **Bitácora de Asistencias** estarán disponibles próximamente como parte de la fase final de implementación.
 
 ---
 
 ## 🛠️ Instalación y Uso
 
 ### Opción A: Ejecución Local
-1. Crear Entorno Virtual:
-   python3.11 -m venv identia_venv 
-   ALTERNATIVA: py -3.11 -m venv identia_venv
-    
-2. Activa el entorno virtual:
+1. Activa el entorno virtual:
    `.\identia_venv\Scripts\activate` (Windows) o `source identia_venv/bin/activate` (Linux/Mac)
-3. Instala las dependencias:
+2. Instala las dependencias:
    `pip install -r requirements.txt`
-4. Ejecuta las migraciones:
+3. Ejecuta las migraciones:
    `python manage.py migrate`
-5. Inicia el servidor:
+4. Inicia el servidor:
    `python manage.py runserver`
 
 ### Opción B: Ejecución con Docker (Recomendado)
