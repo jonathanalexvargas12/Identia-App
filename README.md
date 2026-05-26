@@ -46,20 +46,6 @@ Basado en la arquitectura Django del sistema:
 
 ---
 
-## 🚧 Estado del Desarrollo (Roadmap)
-
-Los módulos del sistema se encuentran actualmente en desarrollo activo. 
-
-### 📢 Próximamente:
-* **Control de acceso:** Registro biométrico en tiempo real integrado.
-* **Bitácora de Incidentes:** Registro histórico de eventos críticos y seguridad.
-* **Bitácora de Asistencias:** Visualización y reporte detallado de entradas y salidas.
-
-> [!NOTE]
-> Los módulos de **Bitácora de Incidentes** y **Bitácora de Asistencias** estarán disponibles próximamente como parte de la fase final de implementación.
-
----
-
 ## 🛠️ Instalación y Uso
 
 ### Opción A: Ejecución Local
