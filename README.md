@@ -49,13 +49,17 @@ Basado en la arquitectura Django del sistema:
 ## 🛠️ Instalación y Uso
 
 ### Opción A: Ejecución Local
-1. Activa el entorno virtual:
+1. Crear Entorno Virtual:
+   python3.11 -m venv identia_venv 
+   ALTERNATIVA: py -3.11 -m venv identia_venv
+    
+2. Activa el entorno virtual:
    `.\identia_venv\Scripts\activate` (Windows) o `source identia_venv/bin/activate` (Linux/Mac)
-2. Instala las dependencias:
+3. Instala las dependencias:
    `pip install -r requirements.txt`
-3. Ejecuta las migraciones:
+4. Ejecuta las migraciones:
    `python manage.py migrate`
-4. Inicia el servidor:
+5. Inicia el servidor:
    `python manage.py runserver`
 
 ### Opción B: Ejecución con Docker (Recomendado)
