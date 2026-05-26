@@ -1,4 +1,4 @@
-# [ESCRIBE AQUÍ EL TÍTULO DEL PROYECTO]
+# IDENTIA APP
 
 >Sistema integral de gestión de asistencia y reconocimiento facial para entornos corporativos.
 
